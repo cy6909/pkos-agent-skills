@@ -1,0 +1,20 @@
+{
+  "name": "pkos-agent-skills",
+  "interface": {
+    "displayName": "PKOS Agent Skills"
+  },
+  "plugins": [
+    {
+      "name": "pkos",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pkos"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
