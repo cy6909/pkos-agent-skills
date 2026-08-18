@@ -1,0 +1,44 @@
+{
+  "version": "codex-sol-luna-result-v1",
+  "run_id": "run-parallel-example",
+  "generation": 1,
+  "lane_id": "implement-provider-a",
+  "status": "complete",
+  "base_revision": "abc1234",
+  "requested_model": "gpt-5.6-luna",
+  "requested_effort": "high",
+  "observed_model": "gpt-5.6-luna",
+  "observed_effort": "high",
+  "identity_confidence": "observed",
+  "started_at": "2026-08-18T16:00:00Z",
+  "completed_at": "2026-08-18T16:08:00Z",
+  "changed_paths": [
+    "src/providers/a/client.rs",
+    "tests/provider_a/adapter_test.rs"
+  ],
+  "acceptance": [
+    {
+      "criterion": "Provider A implements the frozen trait without public-contract changes.",
+      "result": "pass",
+      "evidence_ref": ".codex/sol-luna/run-parallel-example/provider-a-diff.patch"
+    },
+    {
+      "criterion": "Provider A focused tests pass.",
+      "result": "pass",
+      "evidence_ref": ".codex/sol-luna/run-parallel-example/provider-a-test.txt"
+    }
+  ],
+  "verification": [
+    {
+      "command": "cargo test provider_a",
+      "exit_code": 0,
+      "evidence_ref": ".codex/sol-luna/run-parallel-example/provider-a-test.txt"
+    }
+  ],
+  "decisions": [],
+  "gaps": [],
+  "evidence_refs": [
+    ".codex/sol-luna/run-parallel-example/provider-a-diff.patch",
+    ".codex/sol-luna/run-parallel-example/provider-a-test.txt"
+  ]
+}

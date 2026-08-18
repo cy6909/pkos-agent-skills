@@ -1,0 +1,65 @@
+{
+  "version": "codex-sol-luna-route-v2",
+  "run_id": "run-adaptive-example",
+  "generation": 1,
+  "profile": "adaptive",
+  "assurance": "standard",
+  "base_revision": "abc1234",
+  "sol_boundary_mode": "practical",
+  "max_parallel_writers": 1,
+  "worktree_mode": "sequential",
+  "repair_budget": 1,
+  "review_budget": 0,
+  "external_actions": [],
+  "planner": {
+    "model": "gpt-5.6-sol",
+    "effort": "medium",
+    "non_writer": true
+  },
+  "lanes": [
+    {
+      "id": "implement-parser-timeout",
+      "role": "implementation",
+      "model": "gpt-5.6-luna",
+      "effort": "high",
+      "fresh_session": true,
+      "read_only": false,
+      "bounded": true,
+      "judgment_open": false,
+      "interface_frozen": true,
+      "may_delegate": false,
+      "objective": "Implement the settled timeout classification behavior.",
+      "worktree": ".worktrees/run-adaptive-example-implementation",
+      "write_paths": [
+        "src/parser/timeout.rs",
+        "tests/parser_timeout_test.rs"
+      ],
+      "excluded_paths": [
+        "src/parser/mod.rs",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "context_refs": [
+        "AGENTS.md",
+        "src/parser/timeout.rs",
+        "tests/parser_timeout_test.rs"
+      ],
+      "acceptance": [
+        "Timeout errors retain the existing public API and receive the settled typed classification.",
+        "The focused regression fails before the fix and passes after it."
+      ],
+      "verification": [
+        {
+          "command": "cargo test parser_timeout",
+          "expected": "exit 0"
+        },
+        {
+          "command": "cargo fmt --check",
+          "expected": "exit 0"
+        }
+      ],
+      "depends_on": [],
+      "completion_artifact": ".codex/sol-luna/run-adaptive-example/result-implement-parser-timeout.json"
+    }
+  ]
+}

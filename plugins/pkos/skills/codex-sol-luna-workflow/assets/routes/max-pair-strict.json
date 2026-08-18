@@ -1,0 +1,109 @@
+{
+  "version": "codex-sol-luna-route-v2",
+  "run_id": "run-max-pair-example",
+  "generation": 1,
+  "profile": "max-pair",
+  "assurance": "strict",
+  "base_revision": "abc1234",
+  "sol_boundary_mode": "supervision-only",
+  "max_parallel_writers": 1,
+  "worktree_mode": "sequential",
+  "repair_budget": 1,
+  "review_budget": 2,
+  "external_actions": [],
+  "planner": {
+    "model": "gpt-5.6-sol",
+    "effort": "max",
+    "non_writer": true,
+    "max_reason": "The recovery invariant is difficult and expensive to get wrong."
+  },
+  "lanes": [
+    {
+      "id": "implement-idempotency-fix",
+      "role": "implementation",
+      "model": "gpt-5.6-luna",
+      "effort": "max",
+      "max_reason": "The implementation is subtle but its invariants, interfaces, ownership, and regression oracle are fully settled.",
+      "fresh_session": true,
+      "read_only": false,
+      "bounded": true,
+      "judgment_open": false,
+      "interface_frozen": true,
+      "may_delegate": false,
+      "objective": "Implement the settled recovery idempotency correction.",
+      "worktree": ".worktrees/run-max-pair-example-implementation",
+      "write_paths": [
+        "src/recovery/idempotency.rs",
+        "tests/recovery_idempotency_test.rs"
+      ],
+      "excluded_paths": [
+        "src/recovery/mod.rs",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "context_refs": [
+        "AGENTS.md",
+        "src/recovery/idempotency.rs",
+        "tests/recovery_idempotency_test.rs"
+      ],
+      "acceptance": [
+        "Replaying an already settled operation does not duplicate the side effect.",
+        "Interrupted recovery preserves the existing terminal classification.",
+        "The known regression fails before the fix and passes after it."
+      ],
+      "verification": [
+        {
+          "command": "cargo test recovery_idempotency",
+          "expected": "exit 0"
+        },
+        {
+          "command": "cargo test",
+          "expected": "exit 0"
+        },
+        {
+          "command": "cargo fmt --check",
+          "expected": "exit 0"
+        }
+      ],
+      "depends_on": [],
+      "completion_artifact": ".codex/sol-luna/run-max-pair-example/result-implement-idempotency-fix.json"
+    },
+    {
+      "id": "review-idempotency-fix",
+      "role": "reviewer",
+      "model": "gpt-5.6-sol",
+      "effort": "max",
+      "max_reason": "Strict max-pair assurance requires a fresh high-depth review of the frozen recovery candidate.",
+      "fresh_session": true,
+      "read_only": true,
+      "independent": true,
+      "bounded": true,
+      "judgment_open": false,
+      "interface_frozen": true,
+      "may_delegate": false,
+      "objective": "Review the complete frozen candidate and evidence against the recovery invariants.",
+      "worktree": ".worktrees/run-max-pair-example-review",
+      "write_paths": [],
+      "excluded_paths": [],
+      "context_refs": [
+        ".codex/sol-luna/run-max-pair-example/goal-contract.md",
+        ".codex/sol-luna/run-max-pair-example/frozen-diff.patch",
+        ".codex/sol-luna/run-max-pair-example/verification-summary.md"
+      ],
+      "acceptance": [
+        "The reviewer inspects the whole frozen candidate in one pass.",
+        "Every blocker is evidence-backed and maps to a violated invariant."
+      ],
+      "verification": [
+        {
+          "command": "read-only review packet validation",
+          "expected": "SHIP, FIX_FIRST, RETHINK, or UNUSABLE_RUNTIME"
+        }
+      ],
+      "depends_on": [
+        "implement-idempotency-fix"
+      ],
+      "completion_artifact": ".codex/sol-luna/run-max-pair-example/result-review-idempotency-fix.json"
+    }
+  ]
+}

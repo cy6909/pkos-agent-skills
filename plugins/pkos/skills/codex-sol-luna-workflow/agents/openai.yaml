@@ -1,0 +1,6 @@
+interface:
+  display_name: "Codex Sol–Luna Workflow"
+  short_description: "Sol decides, Luna implements, evidence decides"
+  default_prompt: "Use $codex-sol-luna-workflow to route this coding task with bounded Luna ownership, Sol integration, evidence gates, and measured token/parallel efficiency."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,37 @@
+{
+  "version": "codex-sol-luna-metrics-v1",
+  "serial_baseline": {
+    "wall_seconds": 850,
+    "total_tokens": 100000,
+    "quality": {
+      "acceptance_pass_rate": 1.0,
+      "hidden_test_pass_rate": 1.0,
+      "p0_p1_findings": 0,
+      "ownership_violations": 0,
+      "unresolved_blockers": 0,
+      "human_interventions": 0
+    }
+  },
+  "parallel_run": {
+    "wall_seconds": 550,
+    "writer_count": 2,
+    "coordination_seconds": 45,
+    "integration_seconds": 80,
+    "repair_seconds": 0,
+    "total_tokens": 115000,
+    "quality": {
+      "acceptance_pass_rate": 1.0,
+      "hidden_test_pass_rate": 1.0,
+      "p0_p1_findings": 0,
+      "ownership_violations": 0,
+      "unresolved_blockers": 0,
+      "human_interventions": 0
+    }
+  },
+  "thresholds": {
+    "min_speedup": 1.2,
+    "max_token_ratio": 1.3,
+    "quality_margin": 0.0,
+    "max_extra_human_interventions": 0
+  }
+}

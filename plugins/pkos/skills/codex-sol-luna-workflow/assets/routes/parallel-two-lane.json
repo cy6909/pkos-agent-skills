@@ -1,0 +1,163 @@
+{
+  "version": "codex-sol-luna-route-v2",
+  "run_id": "run-parallel-example",
+  "generation": 1,
+  "profile": "adaptive",
+  "assurance": "standard",
+  "base_revision": "abc1234",
+  "sol_boundary_mode": "practical",
+  "max_parallel_writers": 2,
+  "worktree_mode": "isolated",
+  "repair_budget": 1,
+  "review_budget": 0,
+  "external_actions": [],
+  "planner": {
+    "model": "gpt-5.6-sol",
+    "effort": "high",
+    "non_writer": true
+  },
+  "integration_barrier": {
+    "id": "barrier-provider-adapters",
+    "depends_on": [
+      "implement-provider-a",
+      "implement-provider-b"
+    ],
+    "integration_lane": "integrate-provider-adapters"
+  },
+  "lanes": [
+    {
+      "id": "implement-provider-a",
+      "role": "implementation",
+      "model": "gpt-5.6-luna",
+      "effort": "high",
+      "fresh_session": true,
+      "read_only": false,
+      "bounded": true,
+      "judgment_open": false,
+      "interface_frozen": true,
+      "may_delegate": false,
+      "objective": "Implement Provider A against the frozen adapter trait.",
+      "worktree": ".worktrees/run-parallel-example-provider-a",
+      "write_paths": [
+        "src/providers/a",
+        "tests/provider_a"
+      ],
+      "excluded_paths": [
+        "src/providers/mod.rs",
+        "src/provider_trait.rs",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "context_refs": [
+        "AGENTS.md",
+        "src/provider_trait.rs",
+        "src/providers/existing.rs",
+        "tests/provider_a"
+      ],
+      "acceptance": [
+        "Provider A implements the frozen trait without public-contract changes.",
+        "Provider A focused tests pass."
+      ],
+      "verification": [
+        {
+          "command": "cargo test provider_a",
+          "expected": "exit 0"
+        }
+      ],
+      "depends_on": [],
+      "completion_artifact": ".codex/sol-luna/run-parallel-example/result-provider-a.json"
+    },
+    {
+      "id": "implement-provider-b",
+      "role": "implementation",
+      "model": "gpt-5.6-luna",
+      "effort": "high",
+      "fresh_session": true,
+      "read_only": false,
+      "bounded": true,
+      "judgment_open": false,
+      "interface_frozen": true,
+      "may_delegate": false,
+      "objective": "Implement Provider B against the frozen adapter trait.",
+      "worktree": ".worktrees/run-parallel-example-provider-b",
+      "write_paths": [
+        "src/providers/b",
+        "tests/provider_b"
+      ],
+      "excluded_paths": [
+        "src/providers/mod.rs",
+        "src/provider_trait.rs",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "context_refs": [
+        "AGENTS.md",
+        "src/provider_trait.rs",
+        "src/providers/existing.rs",
+        "tests/provider_b"
+      ],
+      "acceptance": [
+        "Provider B implements the frozen trait without public-contract changes.",
+        "Provider B focused tests pass."
+      ],
+      "verification": [
+        {
+          "command": "cargo test provider_b",
+          "expected": "exit 0"
+        }
+      ],
+      "depends_on": [],
+      "completion_artifact": ".codex/sol-luna/run-parallel-example/result-provider-b.json"
+    },
+    {
+      "id": "integrate-provider-adapters",
+      "role": "integration",
+      "model": "gpt-5.6-luna",
+      "effort": "high",
+      "fresh_session": true,
+      "read_only": false,
+      "bounded": true,
+      "judgment_open": false,
+      "interface_frozen": true,
+      "may_delegate": false,
+      "objective": "Integrate the two settled provider lanes and update the shared registry exactly once.",
+      "worktree": ".worktrees/run-parallel-example-integration",
+      "write_paths": [
+        "src/providers/mod.rs"
+      ],
+      "excluded_paths": [
+        "src/provider_trait.rs",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "context_refs": [
+        ".codex/sol-luna/run-parallel-example/settlement.json",
+        "src/providers/mod.rs",
+        "src/provider_trait.rs"
+      ],
+      "acceptance": [
+        "Both settled adapters are registered once without changing the frozen trait.",
+        "The cumulative provider and full test suites pass."
+      ],
+      "verification": [
+        {
+          "command": "cargo test providers",
+          "expected": "exit 0"
+        },
+        {
+          "command": "cargo test",
+          "expected": "exit 0"
+        },
+        {
+          "command": "cargo fmt --check",
+          "expected": "exit 0"
+        }
+      ],
+      "depends_on": [
+        "implement-provider-a",
+        "implement-provider-b"
+      ],
+      "completion_artifact": ".codex/sol-luna/run-parallel-example/result-integration.json"
+    }
+  ]
+}
