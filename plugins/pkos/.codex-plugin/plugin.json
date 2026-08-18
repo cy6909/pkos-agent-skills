@@ -28,7 +28,7 @@
     "defaultPrompt": [
       "Initialize this software project using PKOS and use my connected Notion tools when available.",
       "Understand this project with the smallest PKOS context working set, then implement the requested change.",
-      "Audit this project's PKOS knowledge structure for duplicate owners, stale pointers, missing audit records, and oversized context.",
+      "Audit this project's PKOS knowledge structure for duplicate owners, stale pointers, and missing audit records.",
       "Use PKOS Memory to retrieve only the long-term context needed for this task."
     ]
   }
