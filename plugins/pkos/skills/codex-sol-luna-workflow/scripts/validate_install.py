@@ -10,8 +10,12 @@ import re
 import subprocess
 import sys
 import tempfile
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 on the canonical remote-12 environment.
+    tomllib = None
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_NAME = "codex-sol-luna-workflow"
@@ -56,6 +60,62 @@ def load_module(name: str, path: Path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def load_agent_toml(text: str) -> dict[str, object]:
+    """Load top-level agent TOML without adding a Python 3.10 dependency.
+
+    Python 3.11+ uses the complete standard-library parser. The fallback is
+    deliberately strict and supports only this package's flat strings,
+    string arrays, and multiline basic strings; unsupported TOML fails closed.
+    """
+    if tomllib is not None:
+        return tomllib.loads(text)
+
+    data: dict[str, object] = {}
+    lines = text.splitlines()
+    index = 0
+    while index < len(lines):
+        line_number = index + 1
+        stripped = lines[index].strip()
+        index += 1
+        if not stripped or stripped.startswith("#"):
+            continue
+        match = re.fullmatch(r"([A-Za-z0-9_-]+)\s*=\s*(.*)", stripped)
+        if not match:
+            raise ValueError(f"line {line_number}: unsupported TOML syntax")
+        key, raw = match.groups()
+        if key in data:
+            raise ValueError(f"line {line_number}: duplicate key {key!r}")
+        if raw.startswith('"""'):
+            remainder = raw[3:]
+            chunks: list[str] = []
+            if remainder.endswith('"""'):
+                data[key] = remainder[:-3]
+                continue
+            if remainder:
+                chunks.append(remainder)
+            while index < len(lines):
+                current = lines[index]
+                index += 1
+                if current.endswith('"""'):
+                    chunks.append(current[:-3])
+                    data[key] = "\n".join(chunks)
+                    break
+                chunks.append(current)
+            else:
+                raise ValueError(f"line {line_number}: unterminated multiline string")
+            continue
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"line {line_number}: unsupported TOML value: {exc}") from exc
+        if not isinstance(value, (str, list, bool, int, float)):
+            raise ValueError(f"line {line_number}: unsupported TOML value type")
+        if isinstance(value, list) and not all(isinstance(item, str) for item in value):
+            raise ValueError(f"line {line_number}: only string arrays are supported")
+        data[key] = value
+    return data
 
 
 def validate_frontmatter(errors: list[str]) -> None:
@@ -109,8 +169,8 @@ def validate_links(errors: list[str]) -> None:
 def validate_toml(errors: list[str]) -> None:
     for path in (ROOT / "assets" / "agent-configs").glob("*.toml"):
         try:
-            data = tomllib.loads(path.read_text(encoding="utf-8"))
-        except tomllib.TOMLDecodeError as exc:
+            data = load_agent_toml(path.read_text(encoding="utf-8"))
+        except ValueError as exc:
             errors.append(f"{path.relative_to(ROOT)} invalid TOML: {exc}")
             continue
         for field in (
