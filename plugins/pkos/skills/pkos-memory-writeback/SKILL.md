@@ -16,7 +16,8 @@ Use `../../references/pkos-memory-spec.md`.
 7. Maintain `Valid From/Until`, confidence, provenance/source episode, and Decay Policy.
 8. Inference may be stored only as `hypothesis`; never compile it into Core Profile until confirmed.
 9. Refresh Core/Memory Root only for broadly useful high-salience current memory.
-10. Record the minimal memory audit event.
-11. Verify every Notion write actually succeeded.
+10. For stable multi-session collaboration rules, prefer one canonical `procedural` memory with the narrowest correct scope. Update/supersede conflicting environment, session-cap, design-gate, or worker-dispatch rules and refresh the Shared Collaboration Pack pointer.
+11. Record the minimal memory audit event.
+12. Verify every Notion write actually succeeded.
 
 For a forget/delete request, remove the fact from active current memory and compiled pointers/views; audit must not preserve the sensitive fact body.

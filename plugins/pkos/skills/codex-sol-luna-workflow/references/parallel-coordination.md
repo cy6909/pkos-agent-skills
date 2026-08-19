@@ -24,6 +24,8 @@ Each lane has:
 - result artifact path;
 - dependency list;
 - focused acceptance and checks.
+- shared Memory Pack revision, required skills, standards, and environment policy;
+- session affinity and assigned/reused session ID.
 
 The integration owner has the only write authority over the integration checkout.
 
@@ -34,6 +36,12 @@ The integration owner has the only write authority over the integration checkout
 - Do not allocate a shared registry, lockfile, manifest, migration sequence, generated file, or public interface to multiple lanes.
 - Read-only investigation lanes may run concurrently without worktrees when they cannot mutate the repository.
 - Record start time only after the child actually materializes and begins work.
+- Confirm total and per-role session limits before the first dispatch.
+- Reuse an idle compatible session with the strongest lane affinity before spawning.
+- At capacity, queue ready work. Do not create extra Luna Max sessions to reduce waiting time.
+- Send the full new Task Packet when reusing a session; old lane assumptions never override the active generation.
+
+Use `scripts/schedule_sessions.py route.json session-pool.json` to obtain deterministic recommendations. A `reuse` recommendation is applied by messaging/resuming that exact session; `spawn` is permitted only within the confirmed caps; `queue` remains pending until capacity changes.
 
 ## Result arrival
 
@@ -58,6 +66,10 @@ A result is `settled` only when:
 - every required acceptance result is `pass`;
 - every required verification command has a successful exit state;
 - no blocking gap remains.
+- the exact shared Memory Pack and canonical Notion sources were loaded;
+- required skills were loaded and the actual session ID/reuse state were recorded;
+- remote-required checks report the canonical environment, pulled revision, and evidence;
+- UI lanes include the frozen Figma evidence.
 
 A result can be:
 
@@ -119,6 +131,7 @@ A child lane saying “tests pass” cannot prove that the combined candidate pa
 - While Sol has useful inspection, task-packet, or integration work, do not wait.
 - When idle, use one long/event-driven wait supported by the host rather than repeated short polls.
 - After wake, reconcile actual children and result artifacts; a completion message without an artifact remains incomplete.
+- Mark a settled child idle in the session-pool ledger, then assign the nearest ready affinity-matched lane before considering a spawn.
 
 ## Compact controller view
 

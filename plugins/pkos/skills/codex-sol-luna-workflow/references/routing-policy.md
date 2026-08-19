@@ -21,6 +21,12 @@ Do not delegate merely because:
 
 Localized, low-risk, strongly sequential changes may be faster outside this workflow.
 
+## Planner and session-budget gate
+
+The current session that loaded the Skill is the planner. Do not route planning to a new Sol session. Before any child dispatch, obtain one user-confirmed budget for total non-planner sessions and worker/tester/reviewer role limits. If the user has not confirmed a number, propose a small bounded default and wait; omission never means unlimited.
+
+When a lane becomes ready, prefer a compatible idle session using role, model, worktree safety, Memory Pack revision, and component/domain affinity. Spawn only if no compatible idle session exists and confirmed capacity remains. At capacity, queue the lane. Reuse is forbidden for ambiguous, stale, unresolved-write, permission-incompatible, or independence-sensitive sessions.
+
 ## Profile selection
 
 | Profile | Sol | Luna | Use when |
@@ -75,7 +81,14 @@ All must be true:
 - serial baseline or an estimated serial equivalent can be measured;
 - the expected time saved exceeds setup/integration cost.
 
-Ordinary limit: two concurrent writers. More requires an explicit benchmark reason and a wider integration plan.
+Ordinary limit: two concurrent writers and never more than the user-confirmed worker limit. More requires a new explicit user-confirmed cap, a benchmark reason, and a wider integration plan.
+
+## Memory, environment, and design gates
+
+- Every lane loads the same versioned PKOS shared Memory Pack and its relevant canonical Notion sources before task-specific context.
+- Every packet names the required skills and governing standards; the planner does not assume workers inherited its context.
+- Resource-consuming verification follows the current shared environment policy. Under the active policy, local is development-only and tests/builds/containers/migrations/deployment/runtime checks run on `remote-12` after pulling the intended revision.
+- A user-visible UI lane is ineligible until the connected Figma plugin and prerequisite skills are loaded, the canonical design is updated/approved, and a Figma evidence ref is frozen in the route.
 
 ## Assurance selection
 

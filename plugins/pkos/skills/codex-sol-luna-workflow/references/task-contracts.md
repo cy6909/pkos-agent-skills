@@ -20,13 +20,18 @@ EXTERNAL ACTION AUTHORITY:
 PROFILE / ASSURANCE:
 SOL BOUNDARY MODE:
 MAX PARALLEL WRITERS:
+CURRENT PLANNER SESSION / SPAWN PLANNER: current / false
+CONFIRMED SESSION LIMITS: total / worker / tester / reviewer
+SHARED MEMORY PACK / NOTION SOURCES:
+EXECUTION POLICY / REMOTE ENVIRONMENT:
+UI CHANGE / FIGMA EVIDENCE:
 ```
 
 ## Route ledger
 
 ```text
-| Lane | Generation | Role | Model/Effort | Worktree | Write scope | Depends on | Result artifact | Status |
-| --- | ---: | --- | --- | --- | --- | --- | --- | --- |
+| Lane | Generation | Role | Session/Reuse | Affinity | Model/Effort | Worktree | Write scope | Depends on | Result artifact | Status |
+| --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ```
 
 Statuses:
@@ -52,6 +57,22 @@ RUN ID / GENERATION / LANE
 PROFILE / ASSURANCE
 <adaptive|max-pair> / <standard|strict>
 
+SESSION
+- Confirmed limits: <total/worker/tester/reviewer>
+- Session ID: <existing or assigned after spawn>
+- Reused: <true|false>
+- Affinity: <component/domain/verification tags>
+
+SHARED MEMORY
+- Load PKOS skill: pkos:pkos-memory-context-router
+- Memory Pack: <versioned run artifact>
+- Canonical Notion refs: <Memory IDs/page refs>
+- Acknowledge the exact pack revision in the result. Return blocked if direct Notion access required by the route is unavailable.
+
+REQUIRED SKILLS AND STANDARDS
+- Skills: <exact skill names the worker must load>
+- Standards: <AGENTS/repository/design/security/runbook refs>
+
 OBJECTIVE
 <one observable result>
 
@@ -71,7 +92,18 @@ CONTEXT REFS
 CONSTRAINTS
 - <repository rules, dependencies, safety, limits>
 - Return blocked before changing a frozen decision or leaving ownership.
-- Do not push, merge, deploy, publish, or mutate production.
+- Push only the declared branch/revision when the packet separately authorizes it for remote verification. Do not merge, deploy, publish, or mutate production unless explicitly assigned and authorized.
+
+EXECUTION ENVIRONMENT
+- Local mode: development-only
+- Resource environment: <canonical alias, currently remote-12>
+- Tests/builds/containers/migrations/deployment/runtime verification run remotely after the intended pushed revision is pulled.
+- Record remote revision and evidence; do not fall back to local resource work.
+
+FIGMA GATE
+- UI change: <true|false>
+- Required Figma skills/plugin: <refs>
+- Frozen Figma evidence: <file/node/version or not-applicable>
 
 ACCEPTANCE
 - <criterion with observable result>
@@ -96,7 +128,7 @@ EVIDENCE_REFS: artifact paths
 
 ```json
 {
-  "version": "codex-sol-luna-result-v1",
+  "version": "codex-sol-luna-result-v2",
   "run_id": "run-2026-08-18-example",
   "generation": 1,
   "lane_id": "lane-a",
@@ -107,6 +139,16 @@ EVIDENCE_REFS: artifact paths
   "observed_model": "gpt-5.6-luna",
   "observed_effort": "high",
   "identity_confidence": "observed",
+  "session_id": "worker-parser-existing",
+  "session_reused": true,
+  "role_class": "worker",
+  "memory_loaded": true,
+  "memory_access": "direct-notion",
+  "memory_pack_ref": ".codex/sol-luna/run-2026-08-18-example/shared-memory-pack.md",
+  "memory_source_refs": ["notion:MEM-PROCEDURAL-COLLABORATION"],
+  "skills_loaded": ["pkos:pkos-memory-context-router"],
+  "remote_pull_confirmed": true,
+  "remote_revision": "<candidate-sha>",
   "started_at": "2026-08-18T16:00:00Z",
   "completed_at": "2026-08-18T16:10:00Z",
   "changed_paths": ["src/a.rs", "tests/a_test.rs"],
@@ -114,7 +156,7 @@ EVIDENCE_REFS: artifact paths
     {"criterion": "A works", "result": "pass", "evidence_ref": "artifacts/a-test.txt"}
   ],
   "verification": [
-    {"command": "cargo test a", "exit_code": 0, "evidence_ref": "artifacts/a-test.txt"}
+    {"command": "cargo test a", "kind": "test", "environment": "remote-12", "exit_code": 0, "evidence_ref": "artifacts/a-test.txt"}
   ],
   "decisions": [],
   "gaps": [],

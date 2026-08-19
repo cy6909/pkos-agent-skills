@@ -13,13 +13,15 @@ Do not pretend a route ran when the host cannot create or inspect the required c
 
 ## Parent session
 
-Select `gpt-5.6-sol` for the root task when using this workflow. The Skill cannot switch or prove the parent model through prose.
+Prefer `gpt-5.6-sol` for the root task before invoking this workflow when planning risk warrants it. Regardless of the supported current model, the session that loads the Skill remains the planner/controller and its observed identity is recorded honestly. Do not spawn `codex_sol_planner` or `codex_sol_max_planner` after invocation; those profiles are only useful when selecting the root session before the Skill loads. If the current session cannot safely resolve the planning judgment, return `NEEDS_STRONGER_EXECUTOR` rather than secretly creating another planner.
 
 Record:
 
 - observed parent model/effort when the host exposes it;
 - otherwise configured or unverified identity;
 - Sol boundary mode: Practical or Supervision-only.
+- `planner.session=current` and `planner.spawn_planner=false`.
+- the user-confirmed total and per-role session limits.
 
 ## Named-agent setup
 
@@ -48,7 +50,7 @@ Example named role invocation:
 agents.spawn_agent(
   agent_type="codex_luna_worker",
   fork_turns="none",
-  message="Read the task packet at <path>, execute only that lane, and write the result JSON to <path>."
+  message="Load the required skills and PKOS shared memory named in <packet>, execute only that lane in its declared environment, and write the result JSON to <path>."
 )
 ```
 
@@ -59,12 +61,14 @@ If direct `model="gpt-5.6-luna"` overrides are rejected in your environment, pre
 When the App accepts explicit model and thinking:
 
 1. locate the exact project/repository;
-2. create one health-probe child first;
-3. immediately read it back and verify task ID, cwd/worktree, state, requested model, and effort;
-4. stop the batch if the child did not materialize;
-5. create only bounded project-local tasks;
-6. read terminal results and inspect actual files/artifacts;
-7. do not archive unresolved or unaccepted children.
+2. inspect the durable session-pool ledger and reuse a compatible idle task/thread when possible;
+3. create one health-probe child only when no reusable compatible session exists and confirmed capacity remains;
+4. immediately read it back and verify task ID, cwd/worktree, state, requested model, and effort;
+5. stop the batch if the child did not materialize;
+6. create only bounded project-local tasks and never exceed user-confirmed role/total limits;
+7. message an idle compatible task with the next affinity-matched packet instead of creating a replacement;
+8. read terminal results and inspect actual files/artifacts;
+9. do not archive unresolved or unaccepted children.
 
 ## Isolated process fallback
 
@@ -156,11 +160,14 @@ After any install or role change:
 1. restart Codex or start a fresh process;
 2. select a Sol parent;
 3. invoke the Skill explicitly;
-4. dispatch `codex_luna_worker` with `fork_turns="none"` on a read-only sentinel;
+4. confirm a small session budget, then dispatch `codex_luna_worker` with `fork_turns="none"` on a read-only sentinel;
 5. inspect child runtime identity and result schema;
 6. run a temporary isolated write task with a deterministic check;
 7. verify no out-of-scope paths changed and no child was spawned;
 8. run a fresh read-only Sol reviewer;
 9. test two isolated worktrees and `settle_results.py` before relying on parallel mode.
+10. mark the sentinel worker idle, run `schedule_sessions.py`, and verify a related second packet is routed back to that worker while an over-cap lane queues.
+11. verify each child directly loads the shared Notion memory sources and acknowledges the Memory Pack revision.
+12. verify test/build/container/deploy commands cannot settle when reported as local, and a UI route cannot validate without Figma evidence.
 
 Classify the route as observed/configured/unverified. Do not call an unverified route certified.

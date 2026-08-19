@@ -1,5 +1,5 @@
 {
-  "version": "codex-sol-luna-result-v1",
+  "version": "codex-sol-luna-result-v2",
   "run_id": "run-parallel-example",
   "generation": 1,
   "lane_id": "implement-provider-b",
@@ -10,6 +10,20 @@
   "observed_model": "gpt-5.6-luna",
   "observed_effort": "high",
   "identity_confidence": "observed",
+  "session_id": "worker-provider-b-new",
+  "session_reused": false,
+  "role_class": "worker",
+  "memory_loaded": true,
+  "memory_access": "direct-notion",
+  "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+  "memory_source_refs": [
+    "notion:MEM-PROCEDURAL-COLLABORATION"
+  ],
+  "skills_loaded": [
+    "pkos:pkos-memory-context-router"
+  ],
+  "remote_pull_confirmed": true,
+  "remote_revision": "provider-b-candidate-sha",
   "started_at": "2026-08-18T16:00:05Z",
   "completed_at": "2026-08-18T16:09:00Z",
   "changed_paths": [
@@ -32,6 +46,8 @@
     {
       "command": "cargo test provider_b",
       "exit_code": 0,
+      "kind": "test",
+      "environment": "remote-12",
       "evidence_ref": ".codex/sol-luna/run-parallel-example/provider-b-test.txt"
     }
   ],

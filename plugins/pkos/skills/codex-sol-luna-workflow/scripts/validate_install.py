@@ -25,11 +25,13 @@ REQUIRED = [
     "references/assurance-gates.md",
     "references/efficiency-evaluation.md",
     "references/runtime-setup.md",
+    "references/shared-memory-environment-and-session-pool.md",
     "references/research-sources.md",
     "scripts/validate_route.py",
     "scripts/settle_results.py",
     "scripts/score_efficiency.py",
     "scripts/install.py",
+    "scripts/schedule_sessions.py",
     "assets/agent-configs/codex_luna_worker.toml",
     "assets/agent-configs/codex_luna_max_worker.toml",
     "assets/agent-configs/codex_sol_planner.toml",
@@ -43,6 +45,7 @@ REQUIRED = [
     "assets/results/example-provider-a.json",
     "assets/results/example-provider-b.json",
     "assets/metrics/example-run.json",
+    "assets/session-pools/example-pool.json",
 ]
 
 
@@ -149,6 +152,53 @@ def validate_routes(errors: list[str]) -> None:
     if not any("parallel ownership overlap" in message for message in bad_errors):
         errors.append("negative overlap test did not fail as expected")
 
+    negative_cases = [
+        (
+            "spawned planner",
+            lambda route: route["planner"].update({"spawn_planner": True}),
+            "planner.spawn_planner must be false",
+        ),
+        (
+            "unconfirmed session cap",
+            lambda route: route["session_policy"].update({"confirmed_by_user": False}),
+            "session_policy must be confirmed by the user",
+        ),
+        (
+            "missing shared memory",
+            lambda route: route["lanes"][0].update({"memory_pack_ref": "wrong-pack.md"}),
+            "memory_pack_ref must match",
+        ),
+        (
+            "local test",
+            lambda route: route["lanes"][0]["verification"][0].update({"environment": "local-development"}),
+            "must run in remote-12",
+        ),
+        (
+            "UI without Figma gate",
+            lambda route: route["lanes"][0].update({"ui_change": True}),
+            "UI routes require design_policy",
+        ),
+    ]
+    source = json.loads((ROOT / "assets" / "routes" / "adaptive-standard.json").read_text(encoding="utf-8"))
+    for label, mutate, expected in negative_cases:
+        bad_route = json.loads(json.dumps(source))
+        mutate(bad_route)
+        bad_errors, _ = validator.validate_route(bad_route)
+        if not any(expected in message for message in bad_errors):
+            errors.append(f"negative route test {label!r} did not fail with {expected!r}")
+
+
+def validate_scheduler(errors: list[str]) -> None:
+    scheduler = load_module("schedule_sessions", ROOT / "scripts" / "schedule_sessions.py")
+    route = json.loads((ROOT / "assets" / "routes" / "parallel-two-lane.json").read_text(encoding="utf-8"))
+    pool = json.loads((ROOT / "assets" / "session-pools" / "example-pool.json").read_text(encoding="utf-8"))
+    result = scheduler.recommend(route, pool)
+    actions = {item.get("lane_id"): item.get("action") for item in result.get("recommendations", [])}
+    if actions.get("implement-provider-a") != "reuse":
+        errors.append("scheduler did not reuse the affinity-matched idle worker")
+    if actions.get("implement-provider-b") != "queue":
+        errors.append("scheduler exceeded the confirmed worker cap instead of queuing")
+
 
 def validate_settlement(errors: list[str]) -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -225,6 +275,7 @@ def main() -> int:
         validate_toml(errors)
         validate_scripts(errors)
         validate_routes(errors)
+        validate_scheduler(errors)
         validate_settlement(errors)
         validate_efficiency(errors)
         validate_installer(errors)

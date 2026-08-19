@@ -6,12 +6,17 @@ Use this reference when the user asks why Sol will not take over implementation,
 
 ### Sol planner/controller
 
+The current session that loaded the Skill is the only Sol planner/controller for the root task. A separately spawned planner is a route violation.
+
 Allowed:
 
 - inspect repository guidance, code, tests, diffs, and evidence;
 - resolve product, architecture, compatibility, safety, and interface decisions;
 - create the Goal Contract, route, ownership map, dependencies, and barriers;
 - dispatch bounded workers;
+- ask the user to confirm total and per-role session limits before dispatch;
+- compile the shared PKOS Memory Pack and attach required skills/standards to every packet;
+- reuse compatible idle sessions by affinity and queue work at capacity;
 - monitor state, settle results, and decide repair versus replan;
 - inspect the cumulative candidate and accept/reject it;
 - perform separately authorized merge/release decisions after gates pass.
@@ -24,6 +29,8 @@ Not allowed under this workflow:
 - claim verification from a worker's prose without checking artifacts;
 - act as the fresh independent reviewer for its own final judgment;
 - cross external boundaries without separate authorization.
+- spawn or hand off to another planner after this Skill is loaded;
+- exceed a confirmed session cap or treat a missing cap as unlimited;
 
 Deterministic commands are a configurable boundary:
 
@@ -40,6 +47,8 @@ Allowed:
 - run exact focused commands and risk-proportionate broader commands named in the packet;
 - make local implementation choices that do not alter frozen contracts;
 - return a blocker before leaving ownership or changing a settled decision.
+- load the exact shared Memory Pack, canonical Notion sources, required skills, and standards named by the packet;
+- perform resource work only in the declared remote environment after the intended revision is pulled;
 
 Not allowed:
 
@@ -48,6 +57,8 @@ Not allowed:
 - delegate to another agent;
 - deploy, publish, merge, push, or perform production mutations unless separately assigned and authorized;
 - claim success without concrete command output and changed-file evidence.
+- run tests, builds, containers, migrations, deployment, or resource-intensive verification locally when the shared environment policy marks local as development-only;
+- implement a UI change before the Figma gate and evidence are complete.
 
 ### Fresh Sol reviewer
 
@@ -87,6 +98,11 @@ PARENT_REPAIR_EVENTS:
 PARENT_TEST_EXECUTION_EVENTS:
 REVIEWER_WRITE_EVENTS:
 WORKER_CHILD_SPAWN_EVENTS:
+SPAWNED_PLANNER_EVENTS:
+SESSION_CAP_VIOLATIONS:
+MEMORY_PACK_MISMATCHES:
+LOCAL_RESOURCE_EXECUTION_EVENTS:
+UI_WITHOUT_FIGMA_EVENTS:
 OUT_OF_SCOPE_WRITE_EVENTS:
 UNATTRIBUTED_CHANGED_PATHS:
 ```
@@ -98,6 +114,11 @@ PARENT_PRODUCT_WRITE_EVENTS = 0
 PARENT_REPAIR_EVENTS = 0
 REVIEWER_WRITE_EVENTS = 0
 WORKER_CHILD_SPAWN_EVENTS = 0
+SPAWNED_PLANNER_EVENTS = 0
+SESSION_CAP_VIOLATIONS = 0
+MEMORY_PACK_MISMATCHES = 0
+LOCAL_RESOURCE_EXECUTION_EVENTS = 0
+UI_WITHOUT_FIGMA_EVENTS = 0
 OUT_OF_SCOPE_WRITE_EVENTS = 0
 UNATTRIBUTED_CHANGED_PATHS = 0
 ```

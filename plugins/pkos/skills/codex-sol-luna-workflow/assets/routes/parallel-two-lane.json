@@ -1,5 +1,5 @@
 {
-  "version": "codex-sol-luna-route-v2",
+  "version": "codex-sol-luna-route-v3",
   "run_id": "run-parallel-example",
   "generation": 1,
   "profile": "adaptive",
@@ -11,10 +11,33 @@
   "repair_budget": 1,
   "review_budget": 0,
   "external_actions": [],
+  "session_policy": {
+    "confirmed_by_user": true,
+    "max_total_sessions": 3,
+    "role_limits": {"worker": 2, "tester": 1, "reviewer": 0},
+    "reuse_idle_sessions": true,
+    "prefer_affinity_reuse": true
+  },
+  "shared_memory": {
+    "required": true,
+    "planner_loaded": true,
+    "worker_ack_required": true,
+    "worker_direct_notion_required": true,
+    "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+    "notion_source_refs": ["notion:MEM-PROCEDURAL-COLLABORATION"]
+  },
+  "execution_policy": {
+    "local_mode": "development-only",
+    "resource_environment": "remote-12",
+    "remote_pull_required": true,
+    "local_forbidden": ["test", "build", "benchmark", "container", "migration", "deploy", "runtime"]
+  },
   "planner": {
     "model": "gpt-5.6-sol",
     "effort": "high",
-    "non_writer": true
+    "non_writer": true,
+    "session": "current",
+    "spawn_planner": false
   },
   "integration_barrier": {
     "id": "barrier-provider-adapters",
@@ -28,6 +51,7 @@
     {
       "id": "implement-provider-a",
       "role": "implementation",
+      "role_class": "worker",
       "model": "gpt-5.6-luna",
       "effort": "high",
       "fresh_session": true,
@@ -54,6 +78,11 @@
         "src/providers/existing.rs",
         "tests/provider_a"
       ],
+      "required_skills": ["pkos:pkos-memory-context-router"],
+      "standards_refs": ["AGENTS.md", "notion:MEM-PROCEDURAL-COLLABORATION"],
+      "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+      "session_affinity": ["rust/providers", "provider-a"],
+      "ui_change": false,
       "acceptance": [
         "Provider A implements the frozen trait without public-contract changes.",
         "Provider A focused tests pass."
@@ -61,7 +90,9 @@
       "verification": [
         {
           "command": "cargo test provider_a",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         }
       ],
       "depends_on": [],
@@ -70,6 +101,7 @@
     {
       "id": "implement-provider-b",
       "role": "implementation",
+      "role_class": "worker",
       "model": "gpt-5.6-luna",
       "effort": "high",
       "fresh_session": true,
@@ -96,6 +128,11 @@
         "src/providers/existing.rs",
         "tests/provider_b"
       ],
+      "required_skills": ["pkos:pkos-memory-context-router"],
+      "standards_refs": ["AGENTS.md", "notion:MEM-PROCEDURAL-COLLABORATION"],
+      "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+      "session_affinity": ["rust/providers", "provider-b"],
+      "ui_change": false,
       "acceptance": [
         "Provider B implements the frozen trait without public-contract changes.",
         "Provider B focused tests pass."
@@ -103,7 +140,9 @@
       "verification": [
         {
           "command": "cargo test provider_b",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         }
       ],
       "depends_on": [],
@@ -112,6 +151,7 @@
     {
       "id": "integrate-provider-adapters",
       "role": "integration",
+      "role_class": "worker",
       "model": "gpt-5.6-luna",
       "effort": "high",
       "fresh_session": true,
@@ -135,6 +175,11 @@
         "src/providers/mod.rs",
         "src/provider_trait.rs"
       ],
+      "required_skills": ["pkos:pkos-memory-context-router"],
+      "standards_refs": [".codex/sol-luna/run-parallel-example/settlement.json", "notion:MEM-PROCEDURAL-COLLABORATION"],
+      "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+      "session_affinity": ["rust/providers", "integration"],
+      "ui_change": false,
       "acceptance": [
         "Both settled adapters are registered once without changing the frozen trait.",
         "The cumulative provider and full test suites pass."
@@ -142,15 +187,21 @@
       "verification": [
         {
           "command": "cargo test providers",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         },
         {
           "command": "cargo test",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         },
         {
           "command": "cargo fmt --check",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "format",
+          "environment": "local-development"
         }
       ],
       "depends_on": [

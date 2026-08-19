@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULT_VERSION = "codex-sol-luna-result-v1"
+RESULT_VERSION = "codex-sol-luna-result-v2"
 ALLOWED_STATUSES = {"complete", "partial", "blocked", "failed"}
 ALLOWED_IDENTITY = {"observed", "configured", "unverified"}
 
@@ -87,6 +87,30 @@ def settle_one(
         errors.append("base_revision mismatch")
     if result.get("status") not in ALLOWED_STATUSES:
         errors.append(f"unsupported status {result.get('status')!r}")
+
+    if not isinstance(result.get("session_id"), str) or not result.get("session_id", "").strip():
+        errors.append("session_id is required")
+    if not isinstance(result.get("session_reused"), bool):
+        errors.append("session_reused must be boolean")
+    if result.get("role_class") != lane.get("role_class"):
+        errors.append("role_class contradicts route")
+    if result.get("memory_loaded") is not True:
+        errors.append("shared Memory Pack was not loaded")
+    if result.get("memory_access") != "direct-notion":
+        errors.append("worker must load shared memory through direct Notion access")
+    if result.get("memory_pack_ref") != lane.get("memory_pack_ref"):
+        errors.append("memory_pack_ref contradicts route")
+    expected_skills = {str(item) for item in as_list(lane.get("required_skills"))}
+    loaded_skills = {str(item) for item in as_list(result.get("skills_loaded"))}
+    if not expected_skills.issubset(loaded_skills):
+        errors.append("required skills were not all loaded")
+    expected_memory_sources = {
+        str(item)
+        for item in as_list(route.get("shared_memory", {}).get("notion_source_refs"))
+    }
+    actual_memory_sources = {str(item) for item in as_list(result.get("memory_source_refs"))}
+    if not expected_memory_sources.issubset(actual_memory_sources):
+        errors.append("required Notion memory sources were not acknowledged")
 
     expected_model = lane.get("model")
     expected_effort = lane.get("effort")
@@ -177,8 +201,28 @@ def settle_one(
                 errors.append("review verification requires a valid verdict")
         elif item.get("exit_code") != 0:
             errors.append(f"verification failed: {command} exit={item.get('exit_code')}")
+        expected_item = next(
+            (
+                entry
+                for entry in as_list(lane.get("verification"))
+                if isinstance(entry, dict) and entry.get("command") == command
+            ),
+            {},
+        )
+        if item.get("environment") != expected_item.get("environment"):
+            errors.append(f"verification environment mismatch: {command}")
+        if item.get("kind") != expected_item.get("kind"):
+            errors.append(f"verification kind mismatch: {command}")
+        if expected_item.get("kind") in VALIDATOR.REMOTE_REQUIRED_KINDS:
+            if result.get("remote_pull_confirmed") is not True:
+                errors.append("remote-required verification lacks pull confirmation")
+            if not result.get("remote_revision"):
+                errors.append("remote-required verification lacks remote_revision")
         if not item.get("evidence_ref"):
             errors.append(f"verification lacks evidence_ref: {command}")
+
+    if lane.get("ui_change") is True and not result.get("figma_evidence_ref"):
+        errors.append("UI lane lacks Figma evidence")
 
     gaps = result.get("gaps", [])
     if not isinstance(gaps, list):
@@ -201,6 +245,11 @@ def settle_one(
         "classification": classification,
         "status": result.get("status"),
         "identity_confidence": identity,
+        "session_id": result.get("session_id"),
+        "session_reused": result.get("session_reused"),
+        "memory_pack_ref": result.get("memory_pack_ref"),
+        "memory_access": result.get("memory_access"),
+        "remote_revision": result.get("remote_revision"),
         "changed_paths": changed_paths,
         "errors": errors,
         "warnings": warnings,

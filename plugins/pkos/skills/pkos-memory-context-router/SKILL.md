@@ -15,8 +15,10 @@ Read `../../references/pkos-memory-spec.md` when detailed memory rules are neede
 6. Rank by relevance, scope match, temporal validity, confidence, salience, and utility. Access frequency is only a secondary signal.
 7. Deduplicate and resolve contradictions before packing.
 8. Compile a bounded Memory Pack. Ordinary total memory context should usually remain about 1500-2500 tokens.
-9. Use episodes/evidence only for deep verification or historical reconstruction.
-10. Stop when the current working set is sufficient.
+9. For multi-session work, compile one versioned Shared Collaboration Pack from active procedural memory before dispatch. Include canonical Notion refs, session caps/reuse policy, environment boundaries, Figma/design gates, and required collaboration rules; do not include broad history or secrets.
+10. Require every worker/tester/reviewer session to load and acknowledge the same pack revision. Under a direct-Notion collaboration policy, each session must verify the canonical sources itself; if it cannot, block the lane instead of treating the planner snapshot as sufficient.
+11. Use episodes/evidence only for deep verification or historical reconstruction.
+12. Stop when the current working set is sufficient.
 
 Never load memory proportional to total Memory Registry size.
 Never treat `hypothesis`, `superseded`, or `deleted` as current user facts.

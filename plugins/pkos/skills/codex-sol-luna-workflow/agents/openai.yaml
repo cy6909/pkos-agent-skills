@@ -1,6 +1,6 @@
 interface:
   display_name: "Codex Sol–Luna Workflow"
-  short_description: "Sol decides, Luna implements, evidence decides"
-  default_prompt: "Use $codex-sol-luna-workflow to route this coding task with bounded Luna ownership, Sol integration, evidence gates, and measured token/parallel efficiency."
+  short_description: "Current session plans; bounded reusable workers execute"
+  default_prompt: "Use $codex-sol-luna-workflow with this session as the sole planner. Confirm worker/tester/reviewer caps, load shared PKOS memory in every session, reuse idle affinity-matched workers, keep resource work on the canonical remote environment, require Figma before UI implementation, and accept only from evidence."
 policy:
   allow_implicit_invocation: true

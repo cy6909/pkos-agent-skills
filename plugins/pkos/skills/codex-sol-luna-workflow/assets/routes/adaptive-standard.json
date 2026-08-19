@@ -1,5 +1,5 @@
 {
-  "version": "codex-sol-luna-route-v2",
+  "version": "codex-sol-luna-route-v3",
   "run_id": "run-adaptive-example",
   "generation": 1,
   "profile": "adaptive",
@@ -11,15 +11,39 @@
   "repair_budget": 1,
   "review_budget": 0,
   "external_actions": [],
+  "session_policy": {
+    "confirmed_by_user": true,
+    "max_total_sessions": 2,
+    "role_limits": {"worker": 1, "tester": 1, "reviewer": 0},
+    "reuse_idle_sessions": true,
+    "prefer_affinity_reuse": true
+  },
+  "shared_memory": {
+    "required": true,
+    "planner_loaded": true,
+    "worker_ack_required": true,
+    "worker_direct_notion_required": true,
+    "memory_pack_ref": ".codex/sol-luna/run-adaptive-example/shared-memory-pack.md",
+    "notion_source_refs": ["notion:MEM-PROCEDURAL-COLLABORATION"]
+  },
+  "execution_policy": {
+    "local_mode": "development-only",
+    "resource_environment": "remote-12",
+    "remote_pull_required": true,
+    "local_forbidden": ["test", "build", "benchmark", "container", "migration", "deploy", "runtime"]
+  },
   "planner": {
     "model": "gpt-5.6-sol",
     "effort": "medium",
-    "non_writer": true
+    "non_writer": true,
+    "session": "current",
+    "spawn_planner": false
   },
   "lanes": [
     {
       "id": "implement-parser-timeout",
       "role": "implementation",
+      "role_class": "worker",
       "model": "gpt-5.6-luna",
       "effort": "high",
       "fresh_session": true,
@@ -44,6 +68,11 @@
         "src/parser/timeout.rs",
         "tests/parser_timeout_test.rs"
       ],
+      "required_skills": ["pkos:pkos-memory-context-router"],
+      "standards_refs": ["AGENTS.md", "notion:MEM-PROCEDURAL-COLLABORATION"],
+      "memory_pack_ref": ".codex/sol-luna/run-adaptive-example/shared-memory-pack.md",
+      "session_affinity": ["rust/parser", "timeout-classification"],
+      "ui_change": false,
       "acceptance": [
         "Timeout errors retain the existing public API and receive the settled typed classification.",
         "The focused regression fails before the fix and passes after it."
@@ -51,11 +80,15 @@
       "verification": [
         {
           "command": "cargo test parser_timeout",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         },
         {
           "command": "cargo fmt --check",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "format",
+          "environment": "local-development"
         }
       ],
       "depends_on": [],

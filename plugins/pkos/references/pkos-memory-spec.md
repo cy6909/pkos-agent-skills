@@ -18,6 +18,7 @@ Memory Root Map
   ├── Work & Projects
   ├── Learning
   ├── Procedural Collaboration
+  │    └── Shared Collaboration Pack pointers
   ├── Relationships / People
   └── Episodic / Evidence
        ↓
@@ -77,6 +78,23 @@ Default budget guidance:
 
 Budget is task-dependent but never storage-size-dependent.
 
+## Multi-session Shared Collaboration Pack
+
+For a root task that uses planners, workers, testers, reviewers, or persistent child sessions, compile one versioned Shared Collaboration Pack before dispatch. It is a bounded view over active procedural memory, not a second source of truth.
+
+The pack should contain only constraints that every participating session must share:
+
+- canonical Memory IDs/page refs and pack revision;
+- user-confirmed session caps and idle-session reuse policy;
+- local/remote execution boundaries and stable environment aliases;
+- design-system/Figma prerequisites;
+- required collaboration, security, deployment, and evidence rules;
+- validity timestamp, conflicts, and unresolved items.
+
+Every work session loads the same pack plus its task-scoped memory. When Notion is available, each session verifies the canonical source refs directly and acknowledges the pack revision in its result. If direct access is required but unavailable, the session blocks instead of silently using stale conversation context.
+
+The planner passes required skills and standards alongside the pack. Shared memory does not imply shared transcripts, broad history, credentials, private host details, or volatile runtime state.
+
 ## Write gate
 
 Persist only when at least one applies:
@@ -91,6 +109,8 @@ Do not persist casual chat, one-off details, low-value logs, or unverified infer
 ## Write pipeline
 
 `candidate -> salience -> sensitivity -> search/dedupe -> contradiction -> ADD/UPDATE/SUPERSEDE/DELETE/IGNORE -> temporal validity -> provenance -> Core refresh if warranted -> audit`
+
+Stable multi-session collaboration constraints normally use `Type=procedural` and `Scope=global|work|project|tooling`. Keep one active canonical rule per meaning. Project-specific rules may narrow a global rule but must not silently contradict it; update or supersede stale active entries and refresh the Shared Collaboration Pack pointer.
 
 ## Compaction
 

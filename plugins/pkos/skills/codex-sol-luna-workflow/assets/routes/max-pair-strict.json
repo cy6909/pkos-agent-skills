@@ -1,5 +1,5 @@
 {
-  "version": "codex-sol-luna-route-v2",
+  "version": "codex-sol-luna-route-v3",
   "run_id": "run-max-pair-example",
   "generation": 1,
   "profile": "max-pair",
@@ -11,16 +11,40 @@
   "repair_budget": 1,
   "review_budget": 2,
   "external_actions": [],
+  "session_policy": {
+    "confirmed_by_user": true,
+    "max_total_sessions": 2,
+    "role_limits": {"worker": 1, "tester": 0, "reviewer": 1},
+    "reuse_idle_sessions": true,
+    "prefer_affinity_reuse": true
+  },
+  "shared_memory": {
+    "required": true,
+    "planner_loaded": true,
+    "worker_ack_required": true,
+    "worker_direct_notion_required": true,
+    "memory_pack_ref": ".codex/sol-luna/run-max-pair-example/shared-memory-pack.md",
+    "notion_source_refs": ["notion:MEM-PROCEDURAL-COLLABORATION"]
+  },
+  "execution_policy": {
+    "local_mode": "development-only",
+    "resource_environment": "remote-12",
+    "remote_pull_required": true,
+    "local_forbidden": ["test", "build", "benchmark", "container", "migration", "deploy", "runtime"]
+  },
   "planner": {
     "model": "gpt-5.6-sol",
     "effort": "max",
     "non_writer": true,
+    "session": "current",
+    "spawn_planner": false,
     "max_reason": "The recovery invariant is difficult and expensive to get wrong."
   },
   "lanes": [
     {
       "id": "implement-idempotency-fix",
       "role": "implementation",
+      "role_class": "worker",
       "model": "gpt-5.6-luna",
       "effort": "max",
       "max_reason": "The implementation is subtle but its invariants, interfaces, ownership, and regression oracle are fully settled.",
@@ -46,6 +70,11 @@
         "src/recovery/idempotency.rs",
         "tests/recovery_idempotency_test.rs"
       ],
+      "required_skills": ["pkos:pkos-memory-context-router"],
+      "standards_refs": ["AGENTS.md", "notion:MEM-PROCEDURAL-COLLABORATION"],
+      "memory_pack_ref": ".codex/sol-luna/run-max-pair-example/shared-memory-pack.md",
+      "session_affinity": ["rust/recovery", "idempotency"],
+      "ui_change": false,
       "acceptance": [
         "Replaying an already settled operation does not duplicate the side effect.",
         "Interrupted recovery preserves the existing terminal classification.",
@@ -54,15 +83,21 @@
       "verification": [
         {
           "command": "cargo test recovery_idempotency",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         },
         {
           "command": "cargo test",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "test",
+          "environment": "remote-12"
         },
         {
           "command": "cargo fmt --check",
-          "expected": "exit 0"
+          "expected": "exit 0",
+          "kind": "format",
+          "environment": "local-development"
         }
       ],
       "depends_on": [],
@@ -71,6 +106,7 @@
     {
       "id": "review-idempotency-fix",
       "role": "reviewer",
+      "role_class": "reviewer",
       "model": "gpt-5.6-sol",
       "effort": "max",
       "max_reason": "Strict max-pair assurance requires a fresh high-depth review of the frozen recovery candidate.",
@@ -90,6 +126,11 @@
         ".codex/sol-luna/run-max-pair-example/frozen-diff.patch",
         ".codex/sol-luna/run-max-pair-example/verification-summary.md"
       ],
+      "required_skills": ["pkos:pkos-memory-context-router"],
+      "standards_refs": [".codex/sol-luna/run-max-pair-example/goal-contract.md", "notion:MEM-PROCEDURAL-COLLABORATION"],
+      "memory_pack_ref": ".codex/sol-luna/run-max-pair-example/shared-memory-pack.md",
+      "session_affinity": ["rust/recovery", "independent-review"],
+      "ui_change": false,
       "acceptance": [
         "The reviewer inspects the whole frozen candidate in one pass.",
         "Every blocker is evidence-backed and maps to a violated invariant."
@@ -97,7 +138,9 @@
       "verification": [
         {
           "command": "read-only review packet validation",
-          "expected": "SHIP, FIX_FIRST, RETHINK, or UNUSABLE_RUNTIME"
+          "expected": "SHIP, FIX_FIRST, RETHINK, or UNUSABLE_RUNTIME",
+          "kind": "review",
+          "environment": "local-development"
         }
       ],
       "depends_on": [

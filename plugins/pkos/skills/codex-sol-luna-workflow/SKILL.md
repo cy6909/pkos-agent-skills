@@ -1,6 +1,6 @@
 ---
 name: codex-sol-luna-workflow
-description: Orchestrate Codex software-development work with GPT-5.6 Sol as a non-writing planner, coordinator, integrator, and evidence judge, and GPT-5.6 Luna as a bounded implementation worker. Use when the user wants better coding quality, parallel speed, or token efficiency through explicit Sol/Luna routing, isolated ownership, deterministic verification, optional fresh review, and measurable completion gates. This skill is CodeHive-inspired but does not require CodeHive.
+description: Orchestrate Codex software-development work with the current Skill-loading session as the non-writing Sol planner/controller and bounded, reusable GPT-5.6 Luna work sessions. Use for explicit Sol/Luna routing, user-confirmed session caps, affinity-based worker reuse, PKOS shared-memory loading, remote-only resource work, Figma-first UI changes, isolated ownership, deterministic verification, optional fresh review, and measurable completion gates. This skill is CodeHive-inspired but does not require CodeHive.
 metadata:
   short-description: Sol decides, Luna implements, evidence decides
 ---
@@ -12,6 +12,7 @@ Coordinate one software outcome through Codex without requiring CodeHive. Borrow
 ## Core contract
 
 - **Sol decides:** inspect the minimum authoritative context, resolve ambiguity, freeze interfaces, decompose bounded slices, coordinate dependencies, inspect cumulative diffs, adjudicate evidence, and accept or replan.
+- **The current session is Sol:** the session that loaded this Skill remains the single planner/controller for the root task. Never spawn a second planner session.
 - **Luna implements:** edit only its assigned scope, run the requested focused checks, report concrete artifacts, and stop before crossing a boundary or making a new design decision.
 - **Evidence decides:** a child saying “done” is never acceptance. Diff, changed paths, commands, exit states, acceptance mapping, review findings, and integration results are the authority.
 - **The runtime enforces what it can:** worktrees, sandbox/tool restrictions, named roles, file ownership, route validation, and result settlement. Prompt-only constraints must be reported as declarative, not proven isolation.
@@ -23,9 +24,14 @@ This skill must not pretend CodeHive is available, must not call CodeHive tools,
 1. Read applicable `AGENTS.md`, repository guidance, the requested specification or issue, the relevant source/tests, and the current Git state. Do not recursively ingest the repository.
 2. Record repository, branch/worktree, exact base revision, staged/unstaged/untracked paths, and unrelated user changes.
 3. State the observable outcome, invariants, excluded scope, acceptance criteria, rollback boundary, and external-action authority.
-4. Confirm the current parent is Sol when the requested route requires it. Classify model identity as `observed`, `configured`, or `unverified`; do not infer it from a role name.
-5. Choose a routing profile and assurance mode. Read [routing policy](references/routing-policy.md) only when the route is not obvious.
-6. Create a durable run directory such as `.codex/sol-luna/<run-id>/` for route, task packets, child results, settlement, metrics, and review artifacts. Do not rely on conversation memory.
+4. Treat this current Skill-loading session as Sol. Record `planner.session=current` and `planner.spawn_planner=false`; classify model identity as `observed`, `configured`, or `unverified` without inferring it from a role name.
+5. Load the smallest relevant PKOS procedural memory from Notion and compile one versioned shared Memory Pack for all lanes. Every child must load and acknowledge the same current pack.
+6. Before creating any child, ask the user to confirm total, worker, tester, and reviewer session limits unless current active memory already contains an explicit valid budget. Never use an unlimited default.
+7. Resolve the local/remote execution boundary and the Figma gate. Under the current shared rule, local is development-only; tests, builds, containers, deployment, and other resource work run on `remote-12` after pull. UI implementation waits for canonical Figma evidence.
+8. Choose a routing profile and assurance mode. Read [routing policy](references/routing-policy.md) only when the route is not obvious.
+9. Create a durable run directory such as `.codex/sol-luna/<run-id>/` for route, session pool, shared Memory Pack, task packets, child results, settlement, metrics, and review artifacts. Do not rely on conversation memory.
+
+Read [shared memory, environments, and session reuse](references/shared-memory-environment-and-session-pool.md) before dispatch.
 
 For a localized change where delegation adds no real benefit, Sol may recommend direct execution outside this skill. Invoking the skill is not a reason to create children.
 
@@ -84,7 +90,7 @@ When the gate fails, Sol must resolve the decision, split the slice, or return `
 
 ## Build the route
 
-Create a compact Goal Contract and one or more Task Packets using [task contracts](references/task-contracts.md). Validate the route before dispatch:
+Create a compact Goal Contract and one or more Task Packets using [task contracts](references/task-contracts.md). Each packet carries the Memory Pack, required skills, governing standards, execution environment, and session affinity. Validate the route before dispatch:
 
 ```bash
 python scripts/validate_route.py path/to/route.json
@@ -93,7 +99,7 @@ python scripts/validate_route.py path/to/route.json
 Standard graph:
 
 ```text
-Sol plan/freeze
+Current session plans/freezes
   -> Luna bounded implementation
   -> deterministic focused verification
   -> broader checks proportional to risk
@@ -115,7 +121,7 @@ Sol plan/freeze
 Parallel graph:
 
 ```text
-Sol freezes interfaces and ownership
+Current session freezes interfaces and ownership
   -> Luna lane A in isolated worktree
   -> Luna lane B in isolated worktree
   -> deterministic result settlement by run/generation/lane
@@ -124,7 +130,9 @@ Sol freezes interfaces and ownership
   -> cumulative verification and Sol acceptance
 ```
 
-Parallelize only when write scopes are disjoint, dependencies are absent, interfaces are frozen, each lane has its own worktree, and the integration barrier is explicit. Default to one writer and cap ordinary routes at two concurrent writers.
+Parallelize only when write scopes are disjoint, dependencies are absent, interfaces are frozen, each lane has its own worktree, and the integration barrier is explicit. Default to one writer, never exceed the user-confirmed worker cap, and cap ordinary routes at two concurrent writers.
+
+Before spawning, run `scripts/schedule_sessions.py` against the current session-pool ledger. Reuse a compatible idle worker with exact/near task affinity; spawn only when no compatible idle session exists and confirmed capacity remains; otherwise queue the lane. Apply `reuse` by sending the new packet to the existing session through the host adapter.
 
 ## Handle concurrent completions
 
@@ -142,6 +150,7 @@ python scripts/settle_results.py route.json result-a.json result-b.json \
 4. Ignore stale-generation results for the active candidate while preserving them as history.
 5. Preserve successful lanes when another lane fails; keep the barrier blocked and repair or replan only the failed lane.
 6. Release integration only when all required dependencies are settled. One integration owner produces the cumulative candidate.
+7. When a session becomes idle, prefer a ready related lane for that same session. Do not create a replacement merely to get a fresh chat when the existing session is settled, compatible, and within the active generation.
 
 Read [parallel coordination](references/parallel-coordination.md) for recovery, duplicate, late, and partial-result rules.
 
@@ -181,12 +190,14 @@ Quality must be non-inferior before time or token savings count. Read [efficienc
 
 - Load this entrypoint once per root task and only the references needed for the chosen mode.
 - Use `fork_turns="none"` and self-contained packets; never copy the entire parent transcript.
+- Load one shared PKOS Memory Pack per run, then let each child verify its canonical Notion sources; do not independently dump broad memory into every session.
 - Pass paths, revisions, small context manifests, diffs, and evidence refs instead of pasting full files or logs.
 - Keep large outputs in run artifacts; return compact summaries.
 - Do not regenerate full plans after checkpoints; update the route ledger.
 - Use event-driven/long waits rather than rapid polling, and continue parent-owned inspection or integration preparation while workers run.
 - Batch small same-shape edits when one worker and one review surface are cheaper than several children.
 - Reserve budget for verification and one repair; concurrency is a ceiling, not a target.
+- Track live/idle/ambiguous sessions and disk/worktree usage. Queue at the confirmed cap and reuse idle affinity-matched sessions to preserve caches and persistent task context.
 - Track token volume, API money, subscription allowance, latency, and human effort as separate axes.
 
 ## Runtime and installation

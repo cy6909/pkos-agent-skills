@@ -1,0 +1,36 @@
+{
+  "version": "codex-sol-luna-session-pool-v1",
+  "run_id": "run-parallel-example",
+  "generation": 1,
+  "settled_lanes": [],
+  "sessions": [
+    {
+      "id": "worker-provider-a-existing",
+      "role_class": "worker",
+      "model": "gpt-5.6-luna",
+      "effort": "high",
+      "state": "idle",
+      "worktree": ".worktrees/run-parallel-example-provider-a",
+      "affinity": ["rust/providers", "provider-a"],
+      "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+      "generation": 1,
+      "unresolved_writes": false,
+      "last_lane": "inspect-provider-a",
+      "last_active_at": "2026-08-18T15:00:00Z"
+    },
+    {
+      "id": "worker-unrelated-busy",
+      "role_class": "worker",
+      "model": "gpt-5.6-luna",
+      "effort": "high",
+      "state": "busy",
+      "worktree": ".worktrees/unrelated",
+      "affinity": ["typescript/ui"],
+      "memory_pack_ref": ".codex/sol-luna/run-parallel-example/shared-memory-pack.md",
+      "generation": 1,
+      "unresolved_writes": false,
+      "last_lane": "unrelated-ui-task",
+      "last_active_at": "2026-08-18T15:30:00Z"
+    }
+  ]
+}
