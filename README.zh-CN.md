@@ -62,7 +62,7 @@ Memory GC            ≈ 垃圾回收器
 
 | Skill | 作用 |
 |---|---|
-| `codex-company-swarm` | 显式启动不优先考虑 Token 成本的 SOL Max 公司式开发组织：唯一技术总监、评审门禁、开发/测试配对、CI/Jenkins 证据、单一集成、图表汇报与 PKOS 回写。 |
+| `codex-company-swarm` | 显式启动渐进式加载的 SOL Max 公司式开发组织：唯一技术总监、持续 Notion 协调、开发/测试配对、CI/MFSQ 证据、恢复、追踪和 PKOS 回写。 |
 | `codex-sol-luna-workflow` | 成本与容量敏感的 Sol–Luna 规划/执行工作流，使用有界可复用会话和证据门禁结算。 |
 | `pkos-project-session` | 普通项目工作的总入口：开发前最小上下文路由，开发后长期事实回写。 |
 | `pkos-project-bootstrap` | 初始化新项目或把混乱旧项目迁移到 PKOS。 |
@@ -73,7 +73,7 @@ Memory GC            ≈ 垃圾回收器
 | `pkos-memory-writeback` | 提取、去重、替代、合并、审计长期记忆。 |
 | `pkos-memory-lint` | 对长期记忆执行 Lint + GC，清理重复、过期、低效用与上下文膨胀。 |
 
-Company Swarm 的安装和运行方式见：[Codex 公司式并行开发组织](docs/zh-CN/CODEX-COMPANY-SWARM.md)。
+Company Swarm 的安装和上下文预算规则见：[Codex 公司式并行开发组织](docs/zh-CN/CODEX-COMPANY-SWARM.md)。
 
 ## 仓库结构
 
