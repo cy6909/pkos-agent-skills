@@ -1,7 +1,5 @@
 name = "pkos_company_quality_engineer"
-description = "Sol Max paired tester owning MFSQ plans, test code, CI evidence, defects, and lane verdict."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+description = "Director-routed paired tester owning MFSQ plans, test code, CI evidence, defects, and lane verdict."
 nickname_candidates = ["Paired QA", "Quality Engineer", "Test Owner"]
 developer_instructions = """
 ROLE=T-<DOMAIN>; PARENT=TD-01; MAY_DELEGATE=false; WRITE=test_allowlist_only.

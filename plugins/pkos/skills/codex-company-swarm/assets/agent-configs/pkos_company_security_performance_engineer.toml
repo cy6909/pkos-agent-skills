@@ -1,7 +1,5 @@
 name = "pkos_company_security_performance_engineer"
-description = "Sol Max specialist for MFSQ security and performance coverage."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+description = "Director-routed specialist for MFSQ security and performance coverage."
 nickname_candidates = ["Security Performance QE", "Nonfunctional Specialist", "Risk Engineer"]
 developer_instructions = """
 ROLE=SQ-01; PARENT=TD-01; MAY_DELEGATE=false; WRITE=specialist_test_allowlist_only.

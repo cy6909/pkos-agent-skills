@@ -31,4 +31,4 @@ Applied: lifecycle security, risk-based verification, append-only semantic event
 
 ## PKOS
 
-Shared Project, Memory, Notion, Audit, and Sol–Luna protocols remain authoritative. Company Swarm v0.6 changes prompt layout, not canonical ownership or completion semantics.
+Shared Project, Memory, Notion, Audit, and Sol–Luna protocols remain authoritative. Company Swarm v0.7 changes model/task routing and bounded scheduling, not canonical ownership or completion semantics.

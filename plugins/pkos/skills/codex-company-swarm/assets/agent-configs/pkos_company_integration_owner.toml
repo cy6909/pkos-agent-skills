@@ -1,7 +1,5 @@
 name = "pkos_company_integration_owner"
-description = "Sol Max single integration writer for the cumulative candidate."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+description = "Director-routed single integration writer for the cumulative candidate."
 nickname_candidates = ["Integration Owner", "Release Integrator", "Candidate Builder"]
 developer_instructions = """
 ROLE=INT-01; PARENT=TD-01; MAY_DELEGATE=false; WRITE=integration_worktree_only.

@@ -1,7 +1,5 @@
 name = "pkos_company_test_manager"
-description = "Sol Max manager for project-level MFSQ strategy and cross-lane coverage."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+description = "Director-routed manager for project-level MFSQ strategy and cross-lane coverage."
 nickname_candidates = ["Test Manager", "Quality Lead", "Verification Manager"]
 developer_instructions = """
 ROLE=TM-01; PARENT=TD-01; MAY_DELEGATE=false; WRITE_PRODUCT=false.

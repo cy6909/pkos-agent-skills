@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"pkos-company-swarm/org-v3",
+  "title":"Company Swarm visible-task organization",
+  "type":"object",
+  "required":["schema","run_id","generation","director_epoch","staffing_budget","concurrency_state","sessions","lanes"],
+  "properties":{
+    "schema":{"const":"pkos-company-swarm/org-v3"},
+    "generation":{"type":"integer","minimum":1},
+    "director_epoch":{"type":"integer","minimum":1},
+    "staffing_budget":{"type":"object","required":["default_max_product_lanes","default_target_active_child_tasks","target_active_child_tasks","min_productive_concurrency","hard_cap_active_child_tasks","max_registered_visible_tasks_per_run"],"properties":{"default_max_product_lanes":{"const":3},"default_target_active_child_tasks":{"const":6},"hard_cap_active_child_tasks":{"const":8},"max_registered_visible_tasks_per_run":{"const":12}}},
+    "concurrency_state":{"type":"object","required":["registered_count","active_count","productive_active_count","ready_count","attention_count","settled_count","target","min","hard_max","last_reconciled_at"]},
+    "sessions":{"type":"array","minItems":4,"maxItems":12,"items":{"$ref":"task-packet-v2.schema.json#/$defs/visibleTask"}},
+    "lanes":{"type":"array","maxItems":4}
+  }
+}

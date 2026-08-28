@@ -65,10 +65,71 @@ class OrganizationValidationTests(unittest.TestCase):
         errors = ORG.validate(self.data)
         self.assertTrue(any("overlapping write scopes" in item for item in errors))
 
-    def test_rejects_model_downgrade(self) -> None:
-        self.data["sessions"][2]["model"] = "gpt-5.6-luna"
+    def test_accepts_small_two_lane_budget(self) -> None:
+        data = ORG.load_json(ROOT / "assets" / "examples" / "staffing-small-two-lane.example.json")
+        self.assertEqual([], ORG.validate(data))
+
+    def test_accepts_same_thread_luna_escalation(self) -> None:
+        data = ORG.load_json(ROOT / "assets" / "examples" / "staffing-luna-escalation-reuse.example.json")
+        self.assertEqual([], ORG.validate(data))
+
+    def test_rejects_unexplained_default_route_change(self) -> None:
+        self.data["sessions"][3]["model"] = "gpt-5.6-luna"
+        self.data["sessions"][3]["task_packet"]["model"] = "gpt-5.6-luna"
         errors = ORG.validate(self.data)
-        self.assertTrue(any("model must be gpt-5.6-sol" in item for item in errors))
+        self.assertTrue(any("default route must use gpt-5.6-sol" in item for item in errors))
+
+    def test_rejects_hidden_role(self) -> None:
+        self.data["sessions"][3]["visible_task"] = False
+        self.assertTrue(any("hidden roles" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_missing_thread_id(self) -> None:
+        self.data["sessions"][3]["threadId"] = ""
+        self.assertTrue(any("threadId must be non-empty" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_missing_packet_model_effort(self) -> None:
+        self.data["sessions"][4]["task_packet"].pop("reasoning_effort")
+        self.assertTrue(any("task_packet.reasoning_effort" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_stale_generation(self) -> None:
+        self.data["sessions"][3]["generation"] = 0
+        self.data["sessions"][3]["task_packet"]["generation"] = 0
+        self.assertTrue(any("stale generation" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_duplicate_reviewer(self) -> None:
+        duplicate = copy.deepcopy(next(item for item in self.data["sessions"] if item["session_id"] == "RB-01"))
+        duplicate["session_id"] = "RB-02"
+        duplicate["threadId"] = "thread-rb-2"
+        duplicate["title"] = "run-standard-six RB-02 review"
+        self.data["sessions"].append(duplicate)
+        self.data["concurrency_state"]["registered_count"] += 1
+        self.data["concurrency_state"]["settled_count"] += 1
+        self.assertTrue(any("exactly one review-chair" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_active_hard_cap_breach(self) -> None:
+        for sid in ("RB-01", "INT-01"):
+            task = next(item for item in self.data["sessions"] if item["session_id"] == sid)
+            task["state"] = "active"
+            task["productive"] = True
+            task["waiting_on_dependency"] = False
+        self.data["concurrency_state"].update({"active_count": 9, "productive_active_count": 9, "settled_count": 0})
+        self.assertTrue(any("hard cap" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_registered_hard_cap_breach(self) -> None:
+        template = next(item for item in self.data["sessions"] if item["session_id"] == "RB-01")
+        for number in range(2, 5):
+            task = copy.deepcopy(template)
+            task.update({"session_id": "V-%02d" % number, "role": "verifier", "threadId": "thread-v-%d" % number, "title": "run-standard-six V-%02d review" % number})
+            self.data["sessions"].append(task)
+        self.data["concurrency_state"].update({"registered_count": 13, "settled_count": 4})
+        self.assertTrue(any("registered visible task count exceeds" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_unexplained_low_concurrency(self) -> None:
+        for sid in ("D-FE-01", "T-FE-01", "D-BE-01", "T-BE-01"):
+            task = next(item for item in self.data["sessions"] if item["session_id"] == sid)
+            task.update({"state": "queued", "productive": False, "ready_for_dispatch": True})
+        self.data["concurrency_state"].update({"active_count": 3, "productive_active_count": 3, "ready_count": 4, "underfill_age_seconds": 90, "underfill_reason": "", "dispatch_action": "", "events": []})
+        self.assertTrue(any("CONCURRENCY_UNDERFILLED" in item for item in ORG.validate(self.data)))
 
 
 class MFSQValidationTests(unittest.TestCase):

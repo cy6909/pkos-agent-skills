@@ -1,28 +1,16 @@
-# Runtime installation and v0.6 smoke test
+# Runtime installation and v0.7 smoke test
 
 **READ WHEN:** installing roles, selecting an adapter, or certifying a runtime. Do not load during normal delivery.
 
 ## Adapter
 
-Require a Codex surface that can create/message/inspect children, preserve role identity, isolate writers, and settle artifacts. Preference:
-
-1. native custom subagents;
-2. visible App tasks/threads with model, reasoning, repo, and worktree controls;
-3. isolated `codex exec` processes managed by TD-01;
-4. manual visible sessions using the same packets and ledgers.
+Require a Codex surface that can create/message/inspect sidebar-visible tasks, preserve role identity, isolate writers, and settle artifacts. Formal Company Swarm roles use visible App tasks/threads with model, reasoning, repo, and worktree controls. Hidden custom subagents, hidden agents, and unregistered `codex exec` processes are not formal roles. Manual visible sessions may be used only when they preserve the same IDs, packets, ledgers, and inspectability.
 
 If the adapter cannot inspect or settle children, return `BLOCKED_RUNTIME`; do not claim centralized execution.
 
 ## Model
 
-Every role requests:
-
-```toml
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
-```
-
-Record identity as `observed | configured | unverified`. Explicit mismatch is `BLOCKED_MODEL_CONFIG`.
+TD-01 routes every task. Sol/max is preferred for Director, Chair, requirements/architecture, product development, integration, strict review, security/performance, migration and high-risk repair. Luna/max is preferred for independent testing, CI/verifier, and frozen low-risk mechanical work. Each manifest entry and packet records model, effort, rationale, risk, and routing source. User routing wins; TD-01 may override defaults with a reason. Escalate anomalous or repeatedly failing Luna work by following up the same task with Sol/max; do not create an automatic reviewer. Record identity as `observed | configured | unverified`. Explicit mismatch is `BLOCKED_MODEL_CONFIG`.
 
 ## Install
 
@@ -56,7 +44,7 @@ Execute one bounded sentinel route:
 
 1. Root records itself as TD-01; PK-01 starts first and is sole Notion writer.
 2. Bind/propose coordination schema; verify Run event, outbox, receipt, watermark, Pack, and checkpoint.
-3. Spawn RB-01 plus one isolated developer/tester pair; verify scope and freshness rejection.
+3. Create RB-01 plus one isolated developer/tester pair as sidebar-visible tasks; verify IDs, titles, worktrees, `may_delegate=false`, scope and freshness rejection.
 4. Exercise direct/snapshot/blocked context and one Pack Delta acknowledgement.
 5. Exercise MFSQ, exact-candidate CI, Jenkins-missing classification, INT-01 freeze, and G4 verdict.
 6. Exercise failed Notion write/replay, checkpoint/resume, authorized takeover, stale-epoch rejection, traceability, dashboard, retrospective, and canonical writeback.

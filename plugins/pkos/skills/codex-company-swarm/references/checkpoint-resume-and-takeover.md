@@ -1,4 +1,4 @@
-# Checkpoint, resume, and Technical Director takeover
+# Checkpoint, resume, and Technical Director takeover v0.7
 
 ## Checkpoint purpose
 
@@ -24,6 +24,7 @@ current Gate | Pack revision
 Notion run record | sync watermark | pending outbox IDs
 active candidate revision/commit/status
 Session and Lane projections
+staffing budget | concurrency state | visible task registry with threadId/hostId/worktree/state/last cursor/model route
 artifact manifest with sha256 and required-for-resume flag
 resume token | takeover record | verifiers
 ```
@@ -40,7 +41,7 @@ Use when the same logical and observable Director runtime continues:
 4. replay outbox above the watermark idempotently;
 5. rebuild current projections and traceability;
 6. inspect child runtime/worktree state;
-7. reuse only compatible clean sessions;
+7. bind stored visible task IDs/cursors and reuse only compatible clean tasks;
 8. reissue stale/incomplete packets;
 9. validate the bundle and write a new checkpoint.
 
@@ -56,7 +57,7 @@ Takeover procedure:
 4. PK-01 writes/verifies the event and updates the Run projection;
 5. increment `director_epoch` exactly one;
 6. mark former runtime/session assignments stale or superseded;
-7. reissue every active child packet with the new epoch, current generation and Pack;
+7. reissue every active child packet to its stored visible task with the new epoch, current generation and Pack;
 8. reject late old-epoch results from current state while preserving them as history;
 9. replay pending outbox, rebuild projections/traceability, validate, and checkpoint.
 

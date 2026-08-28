@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0 - 2026-08-28
+
+- Preserve the BOOT→G5 state machine, sole TD-01/PK-01/INT-01 authorities, developer/tester pairing, exact-candidate review, evidence chain, Notion receipts, and checkpoint/takeover semantics.
+- Replace the all-Sol-Max role lock with Director-controlled model routing recorded per visible task and Task Packet; default high-risk/product/integration work to Sol Max, bounded test/CI/mechanical work to Luna Max, and reuse/escalate the same task on anomalous Luna output.
+- Require every formal child role to be a sidebar-visible `create_thread` task with stored thread/host/worktree/title/lane/generation/epoch/model/effort/risk/rationale/cursor metadata; prohibit hidden formal subagents and child delegation.
+- Add explicit staffing registers: three default product lanes (four only with disjoint ownership evidence), target six active children, minimum productive concurrency four, active hard cap eight, registered hard cap twelve, and a 90-second underfill alert.
+- Add the TD-only reconciliation loop, bounded cursor-based waits, affinity follow-up reuse, slot release, verifiable underfill reasons, and `CONCURRENCY_UNDERFILLED` events while retaining single-writer barriers.
+- Add `org-v3` and Task Packet v2 schemas, three executable staffing examples, and negative validation for hidden/duplicate/stale/unrouted/over-cap/underfilled organizations.
+- Prefer project-approved CI and use Jenkins-as-code only as the governance fallback when no approved provider exists.
+- Remove fixed model keys from role packet templates, lower the runtime concurrency example to eight, and keep the plugin UI prompt list within Codex's three-prompt limit.
+
 ## 0.6.0 - 2026-08-28
 
 - Refactor `codex-company-swarm` into an executable-style progressive-disclosure entrypoint: registers, invariants, conditional reference map, BOOT→G5 state machine, guards, validators, and statuses.

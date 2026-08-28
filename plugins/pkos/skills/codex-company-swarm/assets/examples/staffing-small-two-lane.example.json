@@ -1,0 +1,10 @@
+{
+  "$extends":"organization.example.json",
+  "scenario":"Only two independent lanes; target adjusts to five active children (PK plus two developer/tester pairs).",
+  "remove_sessions":["D-DATA-01","T-DATA-01"],
+  "remove_lanes":["data"],
+  "patch":{
+    "staffing_budget":{"target_active_child_tasks":5,"adjustment_reason":"Only two mutually independent product lanes exist; a third lane would overlap shared contracts.","adjustment_evidence":["G0 ownership matrix: frontend and backend only"]},
+    "concurrency_state":{"registered_count":8,"active_count":5,"productive_active_count":5,"target":5}
+  }
+}

@@ -38,7 +38,7 @@ RESUME = load_module("test_resume", SCRIPTS / "build_resume_plan.py")
 ORG_V2 = load_module("test_org_v2", SCRIPTS / "validate_org.py")
 
 
-class OrganizationV2Tests(unittest.TestCase):
+class OrganizationV3Tests(unittest.TestCase):
     def setUp(self) -> None:
         self.data = example("organization.example.json")
 
@@ -55,7 +55,7 @@ class OrganizationV2Tests(unittest.TestCase):
         self.assertTrue(any("only session" in item for item in ORG_V2.validate(self.data)))
 
     def test_rejects_stale_pack_revision(self) -> None:
-        next(item for item in self.data["sessions"] if item["session_id"] == "D-BE-01")["pack_revision"] = "pack-1"
+        next(item for item in self.data["sessions"] if item["session_id"] == "D-BE-01")["pack_revision"] = "pack-stale"
         self.assertTrue(any("shared_pack_revision" in item for item in ORG_V2.validate(self.data)))
 
     def test_rejects_stale_director_epoch(self) -> None:

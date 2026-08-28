@@ -1,4 +1,4 @@
-# Organization and command chain v0.5
+# Organization and command chain v0.7
 
 ## Authority model
 
@@ -21,28 +21,27 @@ Other roles request staffing through a structured `staffing_request`; they never
 
 ## Organization manifest
 
-Use `pkos-company-swarm/org-v2`. It records:
+Use `pkos-company-swarm/org-v3`. It records:
 
 - run/generation/Director epoch/current Pack;
 - sole spawn authority;
-- configured/observed concurrency;
+- default/target/minimum/hard/registered staffing budgets and adjustment evidence;
+- derived active/ready/attention/settled counts, reconciliation time, cursor and underfill evidence;
 - Notion coordination writer/mode/schema/control requirements;
-- Session role/parent/manager/model/effort/state/persistence/Notion-write flag;
+- visible Task identity (`threadId`, `hostId`, title, worktree), role/lane/model/effort/rationale/risk, generation/epoch/state/cursor and authority flags;
 - worktree/write scope/pair/epoch/Pack;
 - Lane pair/scope/dependencies/epoch/Pack;
 - Gates and canonical pipeline.
 
-Exactly one technical director, one persistent coordination-governance scribe (`PK-01`), one review chair and one integration owner are required. PK-01 must be the only Session with `notion_write=true`.
+Exactly one technical director, one persistent coordination-governance scribe (`PK-01`), one review chair and one integration owner are required. PK-01 must be the only Task with `notion_write=true`. All must be sidebar-visible; TD-01 is the current root task and every other formal role is created with `create_thread`.
 
 ## Lifecycle
 
 ```text
-planned -> provisioned -> acknowledged -> active
--> waiting_on_dependency -> handed_off -> settled -> idle -> retired
--> blocked | superseded
+registered -> queued -> active -> attention -> settled -> archived
 ```
 
-Every material transition emits an event candidate. PK-01 confirms it in Notion before a dependent S2/S3 barrier. The current projection is derived from confirmed events, not chat messages.
+`queued` includes dependency waits and does not count as productive concurrency. `attention` releases the active slot while TD-01 decides retry/reassignment. `settled` tasks stay registered for follow-up reuse; `archived` is terminal but remains auditable. Every material transition emits an event candidate. PK-01 confirms it in Notion before a dependent S2/S3 barrier. The current projection is derived from confirmed events, not chat messages.
 
 ## Staffing order
 
@@ -51,9 +50,10 @@ Every material transition emits an event candidate. PK-01 confirms it in Notion 
 3. Bind/propose Notion schema, Run/event/outbox/receipt/Pack/checkpoint.
 4. Provision persistent RB-01.
 5. G0 determines domains, pairs, TM/CI/SQ/INT/AR needs.
-6. Provision each developer and paired tester together.
+6. Provision each developer and paired tester together as visible, worktree-isolated tasks.
 7. Provision INT-01 before first handoff but keep it waiting until G3.
-8. Do not create prestige roles without packet, artifact destination and settlement condition.
+8. Reuse the same visible task for related work and later generations; do not create one task per small repair.
+9. Do not create prestige roles without packet, artifact destination and settlement condition.
 
 ## Ownership
 

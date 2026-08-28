@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the Codex Company Swarm Skill and/or Sol Max role definitions safely."""
+"""Install the Company Swarm Skill and Director-routed role packet templates safely."""
 
 from __future__ import annotations
 

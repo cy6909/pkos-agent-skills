@@ -1,0 +1,1 @@
+{"scenario":"standard three developer plus three tester lanes","manifest":"organization.example.json","command":"python scripts/validate_org.py assets/examples/organization.example.json"}

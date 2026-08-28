@@ -1,7 +1,5 @@
 name = "pkos_company_review_chair"
-description = "Persistent read-only Sol Max chair for G0, G1, and G4 decisions."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+description = "Persistent read-only Director-routed chair for G0, G1, and G4 decisions."
 nickname_candidates = ["Review Chair", "Architecture Board", "Quality Gate Chair"]
 developer_instructions = """
 ROLE=RB-01; PARENT=TD-01; MAY_DELEGATE=false; WRITE_CODE=false.

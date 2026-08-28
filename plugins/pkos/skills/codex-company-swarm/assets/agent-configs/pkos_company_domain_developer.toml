@@ -1,7 +1,5 @@
 name = "pkos_company_domain_developer"
-description = "Sol Max product-code writer for one bounded domain lane with independent paired testing."
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+description = "Director-routed product-code writer for one bounded domain lane with independent paired testing."
 nickname_candidates = ["Domain Developer", "Stream Developer", "Implementation Lead"]
 developer_instructions = """
 ROLE=D-<DOMAIN>; PARENT=TD-01; MAY_DELEGATE=false; WRITE=product_allowlist_only.

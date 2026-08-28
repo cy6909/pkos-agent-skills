@@ -23,10 +23,10 @@ Do not call a README claim or dormant YAML file a valid pipeline without executa
 
 ## Provider decision
 
-- Use an existing canonical CI when it is valid and the project contract does not require migration.
+- Prefer the project-approved canonical CI when it is valid; explicit project policy (including a prohibition on a provider) wins.
 - Repair gaps in the existing provider rather than adding a second competing source of truth.
-- When no pipeline exists, bootstrap Jenkins by default because this operating mode specifies Jenkins as the fallback platform.
-- If the user/project explicitly names another provider, record that decision and apply the same quality contract.
+- When no approved pipeline exists, apply project governance; the default fallback is Jenkins-as-code.
+- If the user/project explicitly names another provider, record that decision and apply the same quality contract. Never add a competing or prohibited provider merely because it is the fallback.
 
 ## Jenkins bootstrap lane
 

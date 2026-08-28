@@ -1,6 +1,6 @@
 interface:
   display_name: "Codex Company Swarm"
-  short_description: "Sol Max delivery with durable Notion coordination"
-  default_prompt: "Use $codex-company-swarm. This session is TD-01; provision PK-01 first, then execute BOOT→G0→G1→EXEC→G2→G3→G4→G5 with paired dev/test lanes, MFSQ, exact-candidate CI, receipts, traceability, checkpoints, and verified PKOS writeback. Report only observed evidence."
+  short_description: "Visible, routed, budgeted delivery with durable coordination"
+  default_prompt: "Use $codex-company-swarm. This visible task is TD-01. Route models, cap active children at 8 and registered tasks at 12, reuse visible tasks, then execute BOOT→G5 with PK-01, paired lanes, exact-candidate CI, receipts, traceability, checkpoints, and verified writeback."
 policy:
   allow_implicit_invocation: false

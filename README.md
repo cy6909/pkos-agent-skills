@@ -60,7 +60,7 @@ The `pkos` plugin currently contains ten focused skills:
 
 | Skill | Purpose |
 |---|---|
-| `codex-company-swarm` | Run an explicitly requested Sol Max engineering organization with progressive disclosure, one Technical Director, persistent Notion coordination, paired delivery lanes, CI/MFSQ evidence, recovery, traceability, and PKOS writeback. |
+| `codex-company-swarm` | Run an explicitly requested engineering organization with one Director, Director-routed sidebar-visible tasks, bounded/reused lanes, persistent Notion coordination, CI/MFSQ evidence, recovery, traceability, and PKOS writeback. |
 | `codex-sol-luna-workflow` | Run the cost- and capacity-aware Sol–Luna planner/worker workflow with bounded reusable sessions and evidence-gated settlement. |
 | `pkos-project-session` | Orchestrate normal project work: minimal context before work, durable writeback after work. |
 | `pkos-project-bootstrap` | Initialize or migrate a software project into the PKOS skeleton. |

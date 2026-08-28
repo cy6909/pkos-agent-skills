@@ -1,7 +1,7 @@
 {
   "name": "pkos",
-  "version": "0.6.0",
-  "description": "Canonical project knowledge, bounded memory, and evidence-gated multi-agent delivery with durable Notion coordination.",
+  "version": "0.7.0",
+  "description": "Canonical project knowledge, bounded memory, and visible, Director-routed, budgeted multi-task delivery with durable coordination.",
   "author": {
     "name": "cy6909",
     "url": "https://github.com/cy6909"
@@ -31,9 +31,8 @@
     "category": "Productivity",
     "defaultPrompt": [
       "Load the smallest PKOS project context and handle the requested work.",
-      "Audit PKOS owners, pointers, freshness, and missing governance records.",
-      "Retrieve only the long-term memory required for this task.",
-      "Run $codex-company-swarm with progressive disclosure, persistent PK-01 coordination, paired delivery lanes, CI evidence, recovery, and verified writeback."
+      "Audit PKOS owners, pointers, freshness, memory, and missing governance records.",
+      "Run $codex-company-swarm with Director-routed visible tasks, bounded concurrency, paired lanes, exact-candidate evidence, recovery, and verified writeback."
     ]
   }
 }

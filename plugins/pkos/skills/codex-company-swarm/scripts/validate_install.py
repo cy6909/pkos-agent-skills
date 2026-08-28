@@ -12,13 +12,18 @@ from types import ModuleType
 from typing import Iterable, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.6"
+VERSION = "v0.7"
 
 REQUIRED_FILES = [
     "SKILL.md",
     "agents/openai.yaml",
     "assets/config.toml.fragment",
     "assets/examples/organization.example.json",
+    "assets/examples/staffing-standard-six.example.json",
+    "assets/examples/staffing-small-two-lane.example.json",
+    "assets/examples/staffing-luna-escalation-reuse.example.json",
+    "assets/schemas/organization-v3.schema.json",
+    "assets/schemas/task-packet-v2.schema.json",
     "assets/examples/mfsq-test-plan.example.json",
     "assets/examples/run-state.example.json",
     "assets/examples/coordination-state.example.json",
@@ -30,6 +35,7 @@ REQUIRED_FILES = [
     "assets/examples/checkpoint.example.json",
     "assets/examples/resume-plan.example.json",
     "references/organization-and-command-chain.md",
+    "references/visible-task-staffing-and-concurrency.md",
     "references/review-gates-and-delivery-lifecycle.md",
     "references/developer-tester-handoff.md",
     "references/mfsq-quality-model.md",
@@ -120,6 +126,8 @@ def validate_static(errors: List[str]) -> None:
             "G0",
             "G5",
             "TAKEOVER",
+            "visible Codex task",
+            "CONCURRENCY_UNDERFILLED",
             "BLOCKED_NOTION_COORDINATION",
         ):
             if marker not in skill:
@@ -138,9 +146,11 @@ def validate_static(errors: List[str]) -> None:
         errors.append("agent config set mismatch: %s" % sorted(actual))
     for path in sorted((ROOT / "assets" / "agent-configs").glob("*.toml")):
         value = path.read_text(encoding="utf-8")
-        for marker in ('model = "gpt-5.6-sol"', 'model_reasoning_effort = "max"', "ROLE=", "MAY_DELEGATE="):
+        for marker in ("ROLE=", "MAY_DELEGATE="):
             if marker not in value:
                 errors.append("%s missing marker: %s" % (path.name, marker))
+        if re.search(r'^model\s*=|^model_reasoning_effort\s*=', value, re.MULTILINE):
+            errors.append("%s must not hard-code model routing" % path.name)
     scribe_path = ROOT / "assets" / "agent-configs" / "pkos_company_governance_scribe.toml"
     if scribe_path.is_file():
         scribe = scribe_path.read_text(encoding="utf-8").lower()
@@ -182,6 +192,11 @@ def validate_examples(errors: List[str]) -> None:
         modules[script_name] = module
         value = module.load_json(examples / example_name)
         errors.extend("%s example: %s" % (label, item) for item in module.validate(value))
+
+    org_module = modules["validate_org.py"]
+    for example_name in ("staffing-small-two-lane.example.json", "staffing-luna-escalation-reuse.example.json"):
+        value = org_module.load_json(examples / example_name)
+        errors.extend("%s: %s" % (example_name, item) for item in org_module.validate(value))
 
     ledger = modules["validate_event_ledger.py"].load_json(examples / "event-ledger.example.json")
     checkpoint_module = load_module("company_checkpoint", scripts / "validate_checkpoint.py")
@@ -240,7 +255,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             print("- %s" % error, file=sys.stderr)
         return 1
 
-    print("Company Swarm %s validation OK: progressive disclosure, roles, coordination, examples, and dashboard." % VERSION)
+    print("Company Swarm %s validation OK: visible routing, budgets, concurrency, coordination, examples, and dashboard." % VERSION)
     return 0
 
 

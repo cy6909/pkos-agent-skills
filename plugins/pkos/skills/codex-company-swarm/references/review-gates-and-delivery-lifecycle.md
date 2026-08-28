@@ -1,4 +1,4 @@
-# Review gates and delivery lifecycle v0.5
+# Review gates and delivery lifecycle v0.7
 
 ```text
 Phase 0 durable coordination
@@ -38,7 +38,7 @@ Blocking checks:
 - current generation/Director epoch/Pack and mandatory acknowledgements;
 - settled Context Requests;
 - Notion schema/mode/sync watermark and initial checkpoint;
-- canonical environment/pipeline state and Jenkins bootstrap when needed;
+- canonical environment/project-approved pipeline state and governed fallback bootstrap when needed;
 - MFSQ ownership, Figma/design, security/data/migration/rollback;
 - secrets/external actions/production authority;
 - traceability plan.
