@@ -1,7 +1,7 @@
 {
   "name": "pkos",
-  "version": "0.3.0",
-  "description": "Project Knowledge Operating System skills for canonical project knowledge, audit governance, and bounded long-term memory.",
+  "version": "0.4.0",
+  "description": "Project Knowledge Operating System skills for canonical project knowledge, audit governance, bounded long-term memory, and evidence-gated multi-agent software delivery.",
   "author": {
     "name": "cy6909",
     "url": "https://github.com/cy6909"
@@ -16,19 +16,23 @@
     "knowledge-base",
     "memory",
     "codex",
-    "agent-skills"
+    "agent-skills",
+    "multi-agent",
+    "company-swarm",
+    "ci-cd"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "PKOS – Project & Memory OS",
-    "shortDescription": "Canonical project knowledge and bounded long-term memory for AI agents.",
-    "longDescription": "Use a pointer-based Notion knowledge architecture, canonical ownership, audit governance, feature registries, progressive disclosure, and bounded long-term-memory context across ChatGPT, Codex, and other agents.",
+    "shortDescription": "Canonical knowledge, bounded memory, and governed multi-agent delivery.",
+    "longDescription": "Use a pointer-based Notion knowledge architecture, canonical ownership, audit governance, feature registries, progressive disclosure, bounded long-term-memory context, and evidence-gated multi-agent software-delivery workflows across ChatGPT, Codex, and other agents.",
     "developerName": "cy6909",
     "category": "Productivity",
     "defaultPrompt": [
       "Initialize or understand this software project with the smallest PKOS context, then handle the requested work.",
       "Audit this project's PKOS knowledge structure for duplicate owners, stale pointers, and missing audit records.",
-      "Use PKOS Memory to retrieve only the long-term context needed for this task."
+      "Use PKOS Memory to retrieve only the long-term context needed for this task.",
+      "Run an explicitly requested end-to-end project in Codex Company Swarm mode with one Sol Max Technical Director, a Review Board, paired developers and testers, CI evidence, and PKOS writeback."
     ]
   }
 }

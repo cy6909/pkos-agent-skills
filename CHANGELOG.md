@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 - 2026-08-28
+
+- Add `codex-company-swarm`, an explicit token-insensitive rapid-agile mode with the current session as sole GPT-5.6 Sol Max Technical Director.
+- Add a persistent Review Board Chair, stream-aligned domain development lanes, reciprocal developer/tester pairing, Test Manager, CI/Jenkins, security/performance, single integration, and PKOS governance roles.
+- Add G0–G5 evidence gates covering requirement and gap analysis, implementation-path review, organizational readiness, developer-to-tester settlement, cumulative integration, Review Board acceptance, and Director reporting/writeback.
+- Define MFSQ operationally as Mission & Model, Functional & Flow, Security & Safety, and Quality Attributes; require security and performance disposition for behavior-changing work.
+- Discover an existing canonical CI/CD pipeline first and bootstrap Jenkins Pipeline as Code only when no usable pipeline exists; require all authoritative tests and new test cases to execute in CI.
+- Add deterministic organization/MFSQ validators, dashboard rendering, installation helpers, examples, and 14 negative/positive unit tests.
+- Preserve PKOS canonical-owner, bounded-memory, Notion Search-Before-Create, Current Truth, Audit/ADR/Incident, and verified-writeback rules.
+
 ## 0.3.0 - 2026-08-19
 
 - Keep the Skill-loading session as the sole Sol planner instead of spawning another planner.

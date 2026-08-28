@@ -1,0 +1,68 @@
+{
+  "schema": "pkos-company-swarm/run-state-v1",
+  "run_id": "example-run-001",
+  "generation": 2,
+  "status": "COMPANY_SWARM_ACCEPTED",
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoning_effort": "max",
+    "identity_confidence": "configured"
+  },
+  "sessions": [
+    {"session_id": "TD-01", "role": "technical-director", "domain": "all", "state": "complete", "paired_session_id": null},
+    {"session_id": "RB-01", "role": "review-chair", "domain": "all", "state": "complete", "paired_session_id": null},
+    {"session_id": "D-FE-01", "role": "domain-developer", "domain": "frontend", "state": "complete", "paired_session_id": "T-FE-01"},
+    {"session_id": "T-FE-01", "role": "quality-engineer", "domain": "frontend", "state": "complete", "paired_session_id": "D-FE-01"},
+    {"session_id": "D-BE-01", "role": "domain-developer", "domain": "backend", "state": "complete", "paired_session_id": "T-BE-01"},
+    {"session_id": "T-BE-01", "role": "quality-engineer", "domain": "backend", "state": "complete", "paired_session_id": "D-BE-01"},
+    {"session_id": "CI-01", "role": "ci-engineer", "domain": "platform", "state": "complete", "paired_session_id": null},
+    {"session_id": "SQ-01", "role": "security-performance-engineer", "domain": "all", "state": "complete", "paired_session_id": null},
+    {"session_id": "INT-01", "role": "integration-owner", "domain": "all", "state": "complete", "paired_session_id": null}
+  ],
+  "features": [
+    {"feature_id": "FEAT-1", "title": "Recommendation API", "type": "implement", "lane": "backend", "status": "accepted"},
+    {"feature_id": "FEAT-2", "title": "Recommendation UI", "type": "implement", "lane": "frontend", "status": "accepted"},
+    {"feature_id": "FEAT-3", "title": "Feed latency", "type": "performance", "lane": "backend", "status": "accepted"}
+  ],
+  "mfsq": {
+    "M": {"passed": 8, "failed": 0, "blocked": 0, "na": 0},
+    "F": {"passed": 31, "failed": 0, "blocked": 0, "na": 0},
+    "S": {"passed": 12, "failed": 0, "blocked": 0, "na": 1},
+    "Q": {"passed": 9, "failed": 0, "blocked": 0, "na": 0}
+  },
+  "pipeline": {
+    "provider": "jenkins",
+    "pipeline": "stylemuse/main",
+    "run_id": "411",
+    "candidate_commit": "abc123",
+    "status": "PASS",
+    "duration_seconds": 812,
+    "passed_jobs": 14,
+    "total_jobs": 14,
+    "artifacts": ["junit.xml", "security.sarif", "performance.json"]
+  },
+  "security": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 3,
+    "unresolved": 0
+  },
+  "performance": [
+    {"metric": "feed p95 latency", "baseline": 530, "candidate": 410, "unit": "ms", "threshold": "<= 450 ms", "result": "PASS"},
+    {"metric": "web LCP p75", "baseline": 2.8, "candidate": 2.2, "unit": "s", "threshold": "<= 2.5 s", "result": "PASS"}
+  ],
+  "reviews": [
+    {"gate": "G0", "verdict": "GO_WITH_ACTIONS", "generation": 1},
+    {"gate": "G4", "verdict": "RETURN_TO_LANE", "generation": 1},
+    {"gate": "G4", "verdict": "ACCEPT", "generation": 2}
+  ],
+  "ownership_violations": 0,
+  "risks": [
+    {"severity": "low", "description": "Performance baseline uses one test-cluster shape", "status": "accepted-residual"}
+  ],
+  "pkos_writeback": {
+    "status": "CONFIRMED",
+    "changed_nodes": ["FEAT-1", "FEAT-2", "DEC-14", "AUD-88"]
+  }
+}
