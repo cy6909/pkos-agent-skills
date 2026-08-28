@@ -1,6 +1,6 @@
 {
   "name": "pkos",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Canonical project knowledge, bounded memory, and visible, Director-routed, budgeted multi-task delivery with durable coordination.",
   "author": {
     "name": "cy6909",
@@ -32,7 +32,7 @@
     "defaultPrompt": [
       "Load the smallest PKOS project context and handle the requested work.",
       "Audit PKOS owners, pointers, freshness, memory, and missing governance records.",
-      "Run $codex-company-swarm with Director-routed visible tasks, bounded concurrency, paired lanes, exact-candidate evidence, recovery, and verified writeback."
+      "Run $codex-company-swarm with routed visible tasks, bounded reuse, paired lanes, exact CI, recovery, and writeback."
     ]
   }
 }

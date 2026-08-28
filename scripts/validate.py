@@ -26,6 +26,11 @@ try:
     for key in ['name', 'version', 'description', 'skills']:
         if not manifest.get(key):
             errors.append(f'plugin manifest missing {key}')
+    prompts = manifest.get('interface', {}).get('defaultPrompt', [])
+    if not isinstance(prompts, list) or len(prompts) > 3:
+        errors.append('plugin interface.defaultPrompt must contain at most 3 prompts')
+    elif any(not isinstance(prompt, str) or len(prompt) > 128 for prompt in prompts):
+        errors.append('each plugin interface.defaultPrompt must be a string of at most 128 characters')
 except Exception as e:
     errors.append(f'invalid plugin manifest json: {e}')
 

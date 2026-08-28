@@ -136,8 +136,8 @@ def validate_static(errors: List[str]) -> None:
     openai_path = ROOT / "agents" / "openai.yaml"
     if openai_path.is_file():
         value = openai_path.read_text(encoding="utf-8")
-        if "allow_implicit_invocation: false" not in value:
-            errors.append("Company Swarm must disable implicit invocation")
+        if "allow_implicit_invocation: true" not in value:
+            errors.append("Company Swarm must be discoverable in the Codex skills catalog")
         if "TD-01" not in value or "PK-01" not in value:
             errors.append("openai.yaml must route TD-01 and PK-01")
 

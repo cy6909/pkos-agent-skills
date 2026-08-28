@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 - 2026-08-28
+
+- Make `codex-company-swarm` discoverable in fresh Codex skill catalogs so explicit `$codex-company-swarm` activation works outside the source repository.
+- Shorten the Company Swarm plugin starter prompt to Codex's 128-character manifest limit and enforce the three-prompt/128-character contract in repository validation.
+
 ## 0.7.0 - 2026-08-28
 
 - Preserve the BOOT→G5 state machine, sole TD-01/PK-01/INT-01 authorities, developer/tester pairing, exact-candidate review, evidence chain, Notion receipts, and checkpoint/takeover semantics.
