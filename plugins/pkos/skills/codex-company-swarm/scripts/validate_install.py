@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Company Swarm packaging, Sol Max roles, durable Notion coordination, examples, and dashboard."""
+"""Validate Company Swarm packaging, prompt budget, roles, examples, and coordination contracts."""
 
 from __future__ import annotations
 
@@ -9,9 +9,10 @@ import sys
 import tempfile
 from pathlib import Path
 from types import ModuleType
-from typing import List
+from typing import Iterable, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = "v0.6"
 
 REQUIRED_FILES = [
     "SKILL.md",
@@ -28,7 +29,6 @@ REQUIRED_FILES = [
     "assets/examples/traceability.example.json",
     "assets/examples/checkpoint.example.json",
     "assets/examples/resume-plan.example.json",
-    "assets/examples/dashboard-v05.example.md",
     "references/organization-and-command-chain.md",
     "references/review-gates-and-delivery-lifecycle.md",
     "references/developer-tester-handoff.md",
@@ -43,6 +43,7 @@ REQUIRED_FILES = [
     "references/runtime-installation.md",
     "references/research-sources.md",
     "scripts/install.py",
+    "scripts/audit_prompt_budget.py",
     "scripts/validate_org.py",
     "scripts/validate_mfsq.py",
     "scripts/render_dashboard.py",
@@ -57,6 +58,7 @@ REQUIRED_FILES = [
     "scripts/build_resume_plan.py",
     "tests/test_company_swarm.py",
     "tests/test_notion_coordination.py",
+    "tests/test_prompt_budget.py",
 ]
 
 BUNDLE_FILES = [
@@ -92,8 +94,7 @@ def load_module(name: str, path: Path) -> ModuleType:
     return module
 
 
-def main() -> int:
-    errors: List[str] = []
+def validate_static(errors: List[str]) -> None:
     for rel in REQUIRED_FILES:
         if not (ROOT / rel).is_file():
             errors.append("missing required file: %s" % rel)
@@ -110,127 +111,136 @@ def main() -> int:
         if not match or match.group(1) != "codex-company-swarm":
             errors.append("SKILL.md name must be codex-company-swarm")
         for marker in (
+            "Treat this file as an executable control program",
+            "## Registers",
+            "## Reference loading",
             "TD-01",
             "PK-01",
-            "RB-01",
-            "Notion Durable Coordination Plane",
             "MFSQ",
-            "Jenkins",
             "G0",
             "G5",
             "TAKEOVER",
-            "traceability",
             "BLOCKED_NOTION_COORDINATION",
         ):
             if marker not in skill:
-                errors.append("SKILL.md missing required marker: %s" % marker)
+                errors.append("SKILL.md missing marker: %s" % marker)
 
     openai_path = ROOT / "agents" / "openai.yaml"
     if openai_path.is_file():
-        openai_text = openai_path.read_text(encoding="utf-8")
-        if "allow_implicit_invocation: false" not in openai_text:
-            errors.append("expensive Company Swarm must disable implicit invocation")
-        if "persistent PK-01" not in openai_text or "Notion Durable Coordination Plane" not in openai_text:
-            errors.append("openai.yaml default prompt must require persistent PK-01 and durable coordination")
+        value = openai_path.read_text(encoding="utf-8")
+        if "allow_implicit_invocation: false" not in value:
+            errors.append("Company Swarm must disable implicit invocation")
+        if "TD-01" not in value or "PK-01" not in value:
+            errors.append("openai.yaml must route TD-01 and PK-01")
 
-    actual_agents = {path.name for path in (ROOT / "assets" / "agent-configs").glob("*.toml")}
-    if actual_agents != EXPECTED_AGENTS:
-        errors.append("agent config set mismatch: expected %s, found %s" % (sorted(EXPECTED_AGENTS), sorted(actual_agents)))
+    actual = {path.name for path in (ROOT / "assets" / "agent-configs").glob("*.toml")}
+    if actual != EXPECTED_AGENTS:
+        errors.append("agent config set mismatch: %s" % sorted(actual))
     for path in sorted((ROOT / "assets" / "agent-configs").glob("*.toml")):
-        text = path.read_text(encoding="utf-8")
-        if 'model = "gpt-5.6-sol"' not in text:
-            errors.append("%s must request gpt-5.6-sol" % path.name)
-        if 'model_reasoning_effort = "max"' not in text:
-            errors.append("%s must request max reasoning" % path.name)
-        if "developer_instructions" not in text:
-            errors.append("%s missing developer_instructions" % path.name)
-        if path.name != "pkos_company_requirements_architect.toml" and "director_epoch" not in text.lower() and "Director epoch" not in text:
-            errors.append("%s must enforce Director epoch freshness" % path.name)
-        if "Pack" not in text:
-            errors.append("%s must enforce Shared Pack freshness" % path.name)
+        value = path.read_text(encoding="utf-8")
+        for marker in ('model = "gpt-5.6-sol"', 'model_reasoning_effort = "max"', "ROLE=", "MAY_DELEGATE="):
+            if marker not in value:
+                errors.append("%s missing marker: %s" % (path.name, marker))
     scribe_path = ROOT / "assets" / "agent-configs" / "pkos_company_governance_scribe.toml"
     if scribe_path.is_file():
-        scribe = scribe_path.read_text(encoding="utf-8")
-        for marker in ("single Notion coordination writer", "outbox", "receipts", "watermark", "Context Request", "takeover"):
-            if marker.lower() not in scribe.lower():
-                errors.append("governance scribe missing continuous coordination marker: %s" % marker)
+        scribe = scribe_path.read_text(encoding="utf-8").lower()
+        for marker in ("single", "notion", "outbox", "receipt", "watermark", "context request", "takeover"):
+            if marker not in scribe:
+                errors.append("PK-01 config missing marker: %s" % marker)
 
-    if not errors:
-        try:
-            org = load_module("company_validate_org", ROOT / "scripts" / "validate_org.py")
-            org_data = org.load_json(ROOT / "assets" / "examples" / "organization.example.json")
-            errors.extend("organization example: %s" % item for item in org.validate(org_data))
+    budget = load_module("company_prompt_budget", ROOT / "scripts" / "audit_prompt_budget.py")
+    budget_errors, metrics = budget.audit(ROOT)
+    errors.extend("prompt budget: %s" % item for item in budget_errors)
+    print(
+        "Prompt budget: SKILL=%s bytes (~%s tokens); root core=%s bytes (~%s tokens)."
+        % (
+            metrics.get("skill_bytes", 0),
+            metrics.get("skill_tokens_estimate", 0),
+            metrics.get("root_core_load_bytes", 0),
+            metrics.get("root_core_tokens_estimate", 0),
+        )
+    )
 
-            mfsq = load_module("company_validate_mfsq", ROOT / "scripts" / "validate_mfsq.py")
-            mfsq_data = mfsq.load_json(ROOT / "assets" / "examples" / "mfsq-test-plan.example.json")
-            errors.extend("MFSQ example: %s" % item for item in mfsq.validate(mfsq_data))
 
-            validators = [
-                ("coordination", "validate_coordination.py", "coordination-state.example.json"),
-                ("events", "validate_event_ledger.py", "event-ledger.example.json"),
-                ("notion schema", "validate_notion_schema.py", "notion-schema.example.json"),
-                ("notion sync", "validate_notion_sync.py", "notion-sync.example.json"),
-                ("pack delta", "validate_pack_delta.py", "pack-delta.example.json"),
-                ("traceability", "validate_traceability.py", "traceability.example.json"),
-            ]
-            for label, script_name, example_name in validators:
-                module = load_module("company_%s" % label.replace(" ", "_"), ROOT / "scripts" / script_name)
-                value = module.load_json(ROOT / "assets" / "examples" / example_name)
-                errors.extend("%s example: %s" % (label, item) for item in module.validate(value))
+def validate_examples(errors: List[str]) -> None:
+    examples = ROOT / "assets" / "examples"
+    scripts = ROOT / "scripts"
 
-            event_module = load_module("company_events_checkpoint", ROOT / "scripts" / "validate_event_ledger.py")
-            checkpoint_module = load_module("company_checkpoint", ROOT / "scripts" / "validate_checkpoint.py")
-            ledger = event_module.load_json(ROOT / "assets" / "examples" / "event-ledger.example.json")
-            checkpoint = checkpoint_module.load_json(ROOT / "assets" / "examples" / "checkpoint.example.json")
-            errors.extend("checkpoint example: %s" % item for item in checkpoint_module.validate(checkpoint, ledger))
+    pairs: List[Tuple[str, str, str]] = [
+        ("organization", "validate_org.py", "organization.example.json"),
+        ("MFSQ", "validate_mfsq.py", "mfsq-test-plan.example.json"),
+        ("coordination", "validate_coordination.py", "coordination-state.example.json"),
+        ("events", "validate_event_ledger.py", "event-ledger.example.json"),
+        ("Notion schema", "validate_notion_schema.py", "notion-schema.example.json"),
+        ("Notion sync", "validate_notion_sync.py", "notion-sync.example.json"),
+        ("Pack Delta", "validate_pack_delta.py", "pack-delta.example.json"),
+        ("traceability", "validate_traceability.py", "traceability.example.json"),
+    ]
+    modules = {}
+    for label, script_name, example_name in pairs:
+        module = load_module("company_%s" % label.lower().replace(" ", "_"), scripts / script_name)
+        modules[script_name] = module
+        value = module.load_json(examples / example_name)
+        errors.extend("%s example: %s" % (label, item) for item in module.validate(value))
 
-            bundle = load_module("company_coordination_bundle", ROOT / "scripts" / "validate_coordination_bundle.py")
-            errors.extend(
-                "coordination bundle: %s" % item
-                for item in bundle.validate_bundle(ROOT / "assets" / "examples" / "coordination-bundle")
-            )
+    ledger = modules["validate_event_ledger.py"].load_json(examples / "event-ledger.example.json")
+    checkpoint_module = load_module("company_checkpoint", scripts / "validate_checkpoint.py")
+    checkpoint = checkpoint_module.load_json(examples / "checkpoint.example.json")
+    errors.extend("checkpoint example: %s" % item for item in checkpoint_module.validate(checkpoint, ledger))
 
-            resume = load_module("company_resume", ROOT / "scripts" / "build_resume_plan.py")
-            plan = resume.build(checkpoint, takeover=True)
-            if plan.get("target_director_epoch") != checkpoint.get("director_epoch") + 1:
-                errors.append("resume plan must increment Director epoch on takeover")
-            if not plan.get("sessions_requiring_reissue"):
-                errors.append("takeover resume plan must reissue stale session packets")
+    bundle = load_module("company_bundle", scripts / "validate_coordination_bundle.py")
+    errors.extend(
+        "coordination bundle: %s" % item
+        for item in bundle.validate_bundle(examples / "coordination-bundle")
+    )
 
-            dashboard = load_module("company_render_dashboard", ROOT / "scripts" / "render_dashboard.py")
-            state = dashboard.load_json(ROOT / "assets" / "examples" / "run-state.example.json")
-            rendered = dashboard.render(state)
-            for heading in (
-                "# Company Swarm Dashboard",
-                "## Durable coordination",
-                "## Organization",
-                "## MFSQ evidence",
-                "## CI/CD",
-                "## PKOS writeback",
-            ):
-                if heading not in rendered:
-                    errors.append("dashboard missing heading: %s" % heading)
-            for marker in ("Notion mode", "Event watermark", "Traceability", "Resume token"):
-                if marker not in rendered:
-                    errors.append("dashboard missing coordination marker: %s" % marker)
-            with tempfile.TemporaryDirectory() as temp_dir:
-                out = Path(temp_dir) / "dashboard.md"
-                out.write_text(rendered, encoding="utf-8")
-                if out.stat().st_size < 1000:
-                    errors.append("rendered dashboard is unexpectedly small")
-        except Exception as exc:
-            errors.append("example validation raised: %s" % exc)
+    resume = load_module("company_resume", scripts / "build_resume_plan.py")
+    plan = resume.build(checkpoint, takeover=True)
+    if plan.get("target_director_epoch") != checkpoint.get("director_epoch") + 1:
+        errors.append("takeover plan must increment Director epoch")
+    if not plan.get("sessions_requiring_reissue"):
+        errors.append("takeover plan must reissue stale packets")
+
+    dashboard = load_module("company_dashboard", scripts / "render_dashboard.py")
+    state = dashboard.load_json(examples / "run-state.example.json")
+    rendered = dashboard.render(state)
+    for marker in (
+        "# Company Swarm Dashboard",
+        "## Durable coordination",
+        "## Organization",
+        "## MFSQ evidence",
+        "## CI/CD",
+        "## PKOS writeback",
+        "Event watermark",
+        "Traceability",
+        "Resume token",
+    ):
+        if marker not in rendered:
+            errors.append("dashboard missing marker: %s" % marker)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output = Path(temp_dir) / "dashboard.md"
+        output.write_text(rendered, encoding="utf-8")
+        if output.stat().st_size < 1000:
+            errors.append("rendered dashboard is unexpectedly small")
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    del argv
+    errors: List[str] = []
+    try:
+        validate_static(errors)
+        if not errors:
+            validate_examples(errors)
+    except Exception as exc:
+        errors.append("validation raised: %s" % exc)
 
     if errors:
-        print("Company Swarm install validation failed:")
+        print("Company Swarm install validation failed:", file=sys.stderr)
         for error in errors:
-            print("- %s" % error)
+            print("- %s" % error, file=sys.stderr)
         return 1
 
-    print(
-        "Company Swarm v0.5 install validation OK: %d Sol Max roles, durable Notion coordination bundle, examples, and dashboard valid."
-        % len(actual_agents)
-    )
+    print("Company Swarm %s validation OK: progressive disclosure, roles, coordination, examples, and dashboard." % VERSION)
     return 0
 
 

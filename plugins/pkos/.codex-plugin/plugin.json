@@ -1,7 +1,7 @@
 {
   "name": "pkos",
-  "version": "0.5.0",
-  "description": "Project Knowledge Operating System skills for canonical project knowledge, audit governance, bounded long-term memory, and evidence-gated multi-agent delivery with durable Notion coordination.",
+  "version": "0.6.0",
+  "description": "Canonical project knowledge, bounded memory, and evidence-gated multi-agent delivery with durable Notion coordination.",
   "author": {
     "name": "cy6909",
     "url": "https://github.com/cy6909"
@@ -12,30 +12,28 @@
   "keywords": [
     "pkos",
     "notion",
-    "project-management",
-    "knowledge-base",
     "memory",
     "codex",
     "agent-skills",
     "multi-agent",
     "company-swarm",
     "ci-cd",
-    "event-sourcing",
     "traceability",
-    "durable-coordination"
+    "durable-coordination",
+    "progressive-disclosure"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "PKOS – Project & Memory OS",
-    "shortDescription": "Canonical knowledge, bounded memory, and durable multi-agent coordination.",
-    "longDescription": "Use a pointer-based Notion knowledge architecture, canonical ownership, audit governance, feature registries, progressive disclosure, bounded long-term-memory context, and evidence-gated multi-agent delivery with a durable Notion coordination plane, event ledger, evidence registry, checkpoints, recovery, and traceability.",
+    "shortDescription": "Canonical knowledge, bounded memory, durable agent coordination.",
+    "longDescription": "Route bounded project and memory context, maintain one canonical truth, and run evidence-gated multi-agent delivery with Notion coordination, event receipts, checkpoints, recovery, and traceability.",
     "developerName": "cy6909",
     "category": "Productivity",
     "defaultPrompt": [
-      "Initialize or understand this software project with the smallest PKOS context, then handle the requested work.",
-      "Audit this project's PKOS knowledge structure for duplicate owners, stale pointers, and missing audit records.",
-      "Use PKOS Memory to retrieve only the long-term context needed for this task.",
-      "Run an explicitly requested end-to-end project in Codex Company Swarm v0.5 with one Sol Max Technical Director, persistent PK-01 Notion coordination, Review Board gates, paired developers/testers, CI evidence, checkpoints, traceability, and verified PKOS writeback."
+      "Load the smallest PKOS project context and handle the requested work.",
+      "Audit PKOS owners, pointers, freshness, and missing governance records.",
+      "Retrieve only the long-term memory required for this task.",
+      "Run $codex-company-swarm with progressive disclosure, persistent PK-01 coordination, paired delivery lanes, CI evidence, recovery, and verified writeback."
     ]
   }
 }
