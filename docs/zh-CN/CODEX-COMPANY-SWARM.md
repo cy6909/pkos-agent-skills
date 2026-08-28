@@ -1,40 +1,77 @@
-# Codex 公司式并行开发组织
+# Codex 公司式并行开发组织 v0.5
 
-`codex-company-swarm` 是 PKOS 的最高质量、高并发、无需优先考虑 Token 成本的完整交付模式。它把一个 Codex 根会话作为技术总监，由该会话统一管理常驻评审委员会、各领域开发组、与开发强制配对的独立测试组、CI/CD 平台组、安全与性能专家、单一集成负责人以及 PKOS 回写角色。
+`codex-company-swarm` 是 PKOS 的最高质量、高并发、无需优先考虑 Token 成本的完整交付模式。一个 Codex 根会话作为逻辑技术总监，统一管理持续运行的 Notion 协调记录员、评审委员会、各领域开发/测试配对、CI/CD、安全与性能、单一集成负责人、端到端追踪、检查点恢复和 PKOS 权威知识回写。
 
-## 安装
+## v0.5 的核心变化
 
-刷新并安装本仓库的 `pkos` 插件后，安装自定义角色 TOML：
+Notion 不再只是“启动时读取、结束时写回”，而是成为关键状态和恢复信息的持久协调控制面：
 
-```bash
-python plugins/pkos/skills/codex-company-swarm/scripts/install.py --agents-only
+```text
+Codex 实时消息
+    ↓ 结构化事件
+.pkos Outbox / Checkpoint
+    ↓ PK-01 单写者核验
+Notion 当前状态投影 / 事件账本 / 证据索引
+    ↓ 最终权威回写
+PKOS Feature / Current Truth / ADR / Audit / Memory
 ```
 
-仅为某个项目安装：
+Notion **不会**保存完整聊天、原始控制台日志和每次微小代码修改。
+
+### PK-01 持续协调
+
+`PK-01` 在评审主席之前拉起，并持续工作到 G5，统一负责：
+
+- Run、Lane、Session、Task、Pack、Checkpoint 当前状态；
+- 只追加的语义事件与决策历史；
+- Git、CI、测试、安全、性能等证据指针和校验值；
+- Feature 关键生命周期状态投影；
+- Context Request 和代理快照；
+- Pack Delta 与强制确认；
+- Outbox、写入回执、连续同步水位、失败重试和死信；
+- 技术总监接管与恢复记录；
+- 最终经过批准的 PKOS Current Truth、Feature、Audit、ADR、Incident、Memory 回写与复盘。
+
+其他会话可以只读核验 Notion，但不能并发创建或修改协调记录。
+
+### 最小 Notion 结构
+
+继续复用现有唯一 Project Feature Registry，只增加三个数据库：
+
+1. Swarm Run & Lane Registry；
+2. Event & Decision Ledger；
+3. Evidence Registry。
+
+创建前必须搜索稳定 ID、别名和 Control Plane 指针，禁止重复创建第二套 Feature List 或“最新状态页”。
+
+### 信息不缺漏但保持精炼
+
+- 当前状态只保留投影；
+- 历史变化放事件账本；
+- 大日志留在 Git/CI/Artifact Store；
+- Notion 只保存证据摘要、URI、Checksum、Producer/Verifier；
+- 缺失上下文通过 Context Request 补充；
+- 共享规范变化通过 Pack Delta 广播；
+- Requirement → Feature → Acceptance → Commit → Test → CI → Review → Notion Receipt 由脚本强制验证。
+
+### 恢复与接管
+
+每个关键 Gate、交接、候选冻结和评审结果都会生成带校验值的 Checkpoint。根会话异常退出后，新会话必须读取最后检查点、核验 Event Ledger 和同步水位，并在用户授权下写入 `TAKEOVER` 事件、将 Director Epoch 加一，再重新下发受影响任务包。旧 Epoch 的结果会保留为证据，但不能修改当前状态。
+
+## 安装或更新
 
 ```bash
-python plugins/pkos/skills/codex-company-swarm/scripts/install.py \
-  --project-root /path/to/project
+codex plugin marketplace upgrade pkos-agent-skills
+python plugins/pkos/skills/codex-company-swarm/scripts/install.py --agents-only --force
 ```
 
-按当前 Codex 版本支持情况合并 `assets/config.toml.fragment`，重启 Codex 或新开任务，然后显式调用：
+重启 Codex 或打开新任务，然后显式调用：
 
 ```text
 $codex-company-swarm
 ```
 
-由于这个模式可能创建大量 SOL Max 会话，Skill 默认禁止隐式触发。
-
-## 核心组织规则
-
-- 当前会话就是唯一的 `TD-01` 技术总监，禁止再拉起第二个总监。
-- `RB-01` 评审主席负责需求、现状差距、实现路径、功能清单和最终实现评审。
-- 每个产品代码开发会话必须与一个测试会话双向绑定；开发不负责决定测试范围，也不能自行宣布测试通过。
-- 测试会话使用 MFSQ 设计并实现测试，行为变化必须有安全与性能测试或经评审主席批准的 N/A；所有权威测试必须进入流水线。
-- 已有有效 CI/CD 时继续使用；没有可用流水线时，由 CI 角色搭建源码化 Jenkins Pipeline。
-- 只有一个集成负责人生成累计候选版本；评审委员会负责通过或打回；技术总监最终用图表和证据向用户汇报，并执行或生成可核验的 PKOS 回写。
-
-完整 G0–G5 规则见 Skill 的 `SKILL.md` 与 `references/`。
+因为该模式可能创建大量 SOL Max 会话和 Notion 协调写入，所以仍然禁止隐式触发。
 
 ## 验证
 
@@ -43,3 +80,5 @@ python plugins/pkos/skills/codex-company-swarm/scripts/validate_install.py
 python -m unittest discover \
   -s plugins/pkos/skills/codex-company-swarm/tests -v
 ```
+
+完整通过必须满足 Notion 可写、Schema Ready、同步水位到达最新事件、Outbox/死信清空、Traceability 完整、G4 ACCEPT、权威 PKOS 回写确认。Notion 只读或不可用时可以形成可恢复 Checkpoint，但不能返回 `COMPANY_SWARM_ACCEPTED`。
