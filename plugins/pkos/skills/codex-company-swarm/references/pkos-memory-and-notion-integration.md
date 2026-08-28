@@ -1,111 +1,81 @@
-# PKOS memory and Notion integration
+# PKOS project, memory, and Notion integration v0.5
 
-## Existing PKOS remains authoritative
+## One knowledge system
 
-Company Swarm introduces execution artifacts, not a second project-knowledge or memory system. Continue to use:
+Company Swarm adds execution coordination, not a second project or memory architecture. Existing PKOS remains authoritative:
 
 - Project Root Map and progressive disclosure;
 - one Project Feature Registry;
-- one canonical owner for every durable fact;
-- Current Truth plus Audit/ADR/Incident separation;
+- one Canonical Owner per durable fact;
+- Current Truth separated from Audit/ADR/Incident/Evidence;
 - bounded Memory Context Compiler;
 - Search Before Create;
-- verified Notion writes or explicit pending writeback.
+- verified external writes or exact pending writeback.
 
-Read the shared PKOS references under `plugins/pkos/references/` rather than copying them into run artifacts.
+Run/Lane projections are operational views. They never become duplicate product truth.
 
-## Shared Collaboration Pack
+## Phase 0 reads
 
-Before staffing, `TD-01` compiles one versioned pack containing only constraints every role must share:
+TD-01/PK-01 resolve only the smallest needed:
 
-- canonical Project/Memory Node IDs and source references;
-- run ID, base revision, generation, and pack revision;
-- user goal, explicit constraints, exclusions, authority boundaries;
-- project architecture/feature pointers needed across lanes;
-- environment aliases and CI provider;
-- design/Figma prerequisites;
-- organization command rules and Sol Max requirement;
-- Notion write policy, memory sensitivity, security/deployment rules;
-- unresolved conflicts and validity timestamp.
+1. Project Root and current snapshot;
+2. target Capability/Feature/Architecture nodes;
+3. Feature Registry schema/rows;
+4. active procedural Memory and environment/design/deployment rules;
+5. evidence required to resolve conflicts.
 
-Each child receives:
+Do not recursively fetch Notion or copy broad history into children.
 
-```text
-Shared Collaboration Pack
-+ lane/role task packet
-+ smallest task-scoped code/design/Notion context
-```
+## Shared Pack and Source Manifest
 
-Do not fork the complete Director transcript or recursively load Notion. Every result acknowledges the exact pack revision and cites canonical sources used.
+Compile one versioned Shared Collaboration Pack from active canonical sources. Every child receives the same common constraints plus task-scoped context and acknowledges either direct verified sources or a brokered snapshot hash. Pack Delta/versioning rules are mandatory when shared facts change.
 
-## Long-term-memory loading
+Long-term memory still uses `none | core | scoped | deep`. Token-insensitive mode does not justify stale/noisy history.
 
-Use the existing gate:
+## Continuous coordination versus canonical writeback
 
-```text
-none | core | scoped | deep
-```
+PK-01 continuously writes compact Run/Lane/Session/Task/Feature projections, event decisions and evidence pointers. These are C1 operational coordination unless they also change durable product truth.
 
-Even in token-insensitive execution, long-term memory remains bounded because excess memory reduces precision and creates stale conflicts. “Ignore token cost” authorizes high reasoning and parallel staffing, not indiscriminate history ingestion.
+Canonical writeback occurs when durable truth changes:
 
-## Feature Registry integration
+- Feature behavior/status/acceptance -> Feature Registry and FEAT owner;
+- API/schema/permission/contract -> canonical owner + Audit, ADR when needed;
+- architecture/security/deployment model -> canonical owner + Audit + ADR;
+- incident/data/security failure -> Incident plus stable prevention updates;
+- reusable collaboration rule -> procedural Memory after write gate.
 
-G0 builds a run feature inventory, but it does not become a second durable feature ledger. Map every run feature to:
+Do not defer operational coordination to G5, but do defer unverified canonical truth until evidence/review supports it.
 
-- existing `Feature ID`, or
-- proposed new stable ID after Search Before Create.
+## Feature projection
 
-During G5:
+G0 maps every run Feature to an existing stable Feature ID or proposes one after Search Before Create. The existing Feature Registry projects current run/lane/development/test/CI/review/candidate/defect/evidence state at material transitions. History remains in the Event Ledger.
 
-- update the canonical Project Feature Registry status, acceptance, platforms, implementation/test evidence, release, and verification date;
-- create a `FEAT-*` detail node only when complexity requires it;
-- update Capability/Domain pointer summaries when material;
-- do not paste full run logs into Current Truth.
+At G5, accepted durable fields, validation evidence, release and Last Verified are finalized in canonical owners. Full run logs are not pasted into them.
 
-## Change classification and writeback
+## Change and memory gates
 
-Classify final changes:
+Use C0–C5. Only stable reusable process lessons become procedural Memory. Do not store transient Session IDs, raw logs, temporary branches, one-off failures, volatile candidate IDs, or unsupported inference as durable memory.
 
-- C0 editorial;
-- C1 state/progress;
-- C2 contract/API/schema/behavior;
-- C3 architecture/boundary/topology/security model;
-- C4 canonical-structure change;
-- C5 incident/security/data-loss/rollback.
-
-Follow existing PKOS Audit/ADR gates. Company-wide organization artifacts may be episodic evidence, but only stable, reusable process changes become procedural memory.
-
-## Memory write gate
-
-Persist a collaboration memory only when it is likely to matter beyond this run, for example:
-
-- stable project environment alias or CI provider;
-- durable Figma/design prerequisite;
-- recurring branch/worktree/deployment rule;
-- approved MFSQ override;
-- stable security/performance threshold;
-- persistent user preference for Company Swarm defaults.
-
-Do not store one-off session IDs, transient failures, raw logs, temporary branches, or speculative conclusions as durable memory.
+A retrospective may remain episodic evidence. Compile stable prevention and reusable collaboration changes into current project nodes or procedural Memory with provenance/confidence/scope.
 
 ## Notion capability behavior
 
-When Notion is writable:
+### Writable
 
-1. discover/search the correct nodes;
-2. read the smallest relevant ranges;
-3. update the smallest canonical owners;
-4. verify each write response;
-5. report exact nodes/rows changed;
-6. record Audit/ADR/Incident evidence when required.
+Search/bind, write through outbox, verify receipts, update current projection, then perform approved canonical writeback. Report exact rows/nodes and receipts.
 
-When read-only or unavailable:
+### Read-only/unavailable
 
-- continue repository work when safe;
-- write `.pkos/company-swarm/<run-id>/pkos-writeback.json` containing target nodes, intended changes, classification, evidence, and dependencies;
-- mark `writeback_status=READ_ONLY|UNAVAILABLE|FAILED`;
-- never claim Notion was updated.
+Continue safe repository work when possible, preserve outbox and pending `pkos-writeback.json`, expose the block in the dashboard/checkpoint, and never claim Notion synchronization. Full accepted durable coordination is unavailable.
 
 ## Conflict resolution
 
-Code/config/runtime/design evidence may reveal that Notion is stale. Record the conflict, inspect authoritative evidence, let `RB-01` and `TD-01` establish current truth, then repair the canonical Notion owner. Never silently choose whichever source is most convenient.
+When Notion conflicts with code/config/runtime/design/CI:
+
+1. record the conflict event/evidence;
+2. stop affected material transitions;
+3. inspect authoritative evidence;
+4. let TD-01/RB-01 establish current truth;
+5. repair projection and canonical owner;
+6. record Audit/ADR/Incident as applicable;
+7. issue Pack Delta if shared context changed.

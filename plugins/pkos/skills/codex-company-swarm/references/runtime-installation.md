@@ -1,17 +1,17 @@
-# Runtime installation and smoke test
+# Runtime installation and v0.5 smoke test
 
-## Runtime requirements
+## Adapter requirements
 
-This mode needs a Codex surface that can create or manage inspectable child sessions, preserve role identity, and isolate parallel writers. Preferred adapters:
+Company Swarm needs a Codex surface that can create/message/inspect child sessions, preserve custom role identity, isolate writers, and settle result artifacts. Preferred adapters:
 
-1. native Codex subagents/custom agents with project or user agent TOMLs;
-2. visible Codex App tasks/threads with explicit model, reasoning, project, and worktree controls;
-3. isolated `codex exec` processes managed by the current Director session;
-4. manually opened visible sessions using the same durable roster and packets when the host cannot spawn directly.
+1. native custom subagents with project/user TOMLs;
+2. visible Codex App tasks/threads with explicit model/reasoning/project/worktree;
+3. isolated `codex exec` processes managed by TD-01;
+4. manually opened visible sessions using the same durable organization/packets when spawning is unavailable.
 
-Do not claim centralized management occurred when the host cannot create, message, inspect, or settle the child sessions. Use `BLOCKED_RUNTIME` or disclose the manual adapter.
+Do not claim centralized management if the adapter cannot inspect or settle children.
 
-## Model requirement
+## Models
 
 Every role requests:
 
@@ -20,41 +20,31 @@ model = "gpt-5.6-sol"
 model_reasoning_effort = "max"
 ```
 
-Record identity confidence as `observed`, `configured`, or `unverified`. An explicit mismatch is `BLOCKED_MODEL_CONFIG`. Do not silently downgrade.
+Record identity as `observed | configured | unverified`. Explicit mismatch is `BLOCKED_MODEL_CONFIG`; do not silently downgrade.
 
-## Role files
+## Install
 
-Role definitions live under:
-
-```text
-assets/agent-configs/
-```
-
-The Technical Director file is used only when selecting the root role before this Skill loads. After invocation, the current session is `TD-01`; never spawn another Director.
-
-Install role TOMLs globally:
+Plugin installation exposes the Skill. Install custom role TOMLs separately:
 
 ```bash
-python scripts/install.py --agents-only
+python plugins/pkos/skills/codex-company-swarm/scripts/install.py --agents-only
 ```
 
-Install the standalone Skill plus roles:
+Standalone:
 
 ```bash
 python scripts/install.py --standalone
 ```
 
-Install project-local Skill and role definitions:
+Project-local:
 
 ```bash
 python scripts/install.py --project-root /path/to/project
 ```
 
-The installer does not overwrite existing files unless `--force` is given and never modifies the user's main Codex configuration automatically.
+The installer never edits active Codex configuration automatically.
 
-## Concurrency configuration
-
-A sample is provided at `assets/config.toml.fragment`:
+Sample supported configuration:
 
 ```toml
 [agents]
@@ -65,88 +55,52 @@ hide_spawn_agent_metadata = false
 tool_namespace = "agents"
 ```
 
-Merge only keys supported by the installed Codex version. Runtime limits lower than 24 take precedence and are recorded in `02-org.json`.
+Merge only keys supported by the installed Codex version. Runtime lower limits win.
 
-## Worktree layout
+## Worktrees
 
-Suggested layout:
+Use one worktree per repository writer. Read-only planners/reviewers should use read-only sandboxes when enforceable. Do not run two write sessions in one checkout.
 
-```text
-.worktrees/company-swarm/<run-id>/
-  D-FE-01/
-  T-FE-01/
-  D-BE-01/
-  T-BE-01/
-  CI-01/
-  INT-01/
-```
+## Invocation
 
-Do not run two workspace-write sessions in one checkout. Review/analysis roles should use read-only access when the adapter can enforce it.
-
-## Native role invocation pattern
-
-Illustrative adapter call:
+The current root is TD-01. Provision PK-01 first, then establish/validate coordination before other staffing. Illustrative child packet:
 
 ```text
-agents.spawn_agent(
-  agent_type="pkos_company_domain_developer",
-  fork_turns="none",
-  message="Load <shared-pack> and <task-packet>; acknowledge the revisions; work only in <worktree>; write the structured result to <artifact>; do not delegate."
-)
+Load <Pack/Source Manifest>, acknowledge run/generation/Director epoch/Pack,
+work only in <worktree/write scope>, emit events/results to <paths>,
+do not delegate or write Notion directly.
 ```
-
-The exact tool namespace may differ. The Director maps runtime calls to the organization contract and records observed child IDs.
-
-## Isolated process fallback
-
-Illustrative developer:
-
-```bash
-codex exec \
-  -m gpt-5.6-sol \
-  -c 'model_reasoning_effort="max"' \
-  --sandbox workspace-write \
-  < .pkos/company-swarm/<run-id>/lanes/backend/task-packet.md
-```
-
-Illustrative Review Chair:
-
-```bash
-codex exec \
-  -m gpt-5.6-sol \
-  -c 'model_reasoning_effort="max"' \
-  --sandbox read-only \
-  < .pkos/company-swarm/<run-id>/reviews/g4-packet.md
-```
-
-The parent process/session remains the Director and settles result artifacts.
 
 ## Smoke test
 
-Before production-critical use:
+1. Validate installation, organization v2, examples and unit tests.
+2. Start a Sol Max root and invoke `$codex-company-swarm` explicitly.
+3. Verify it records itself as logical TD-01 and does not spawn another Director.
+4. Provision PK-01 first; verify it is persistent and the sole Notion writer.
+5. Discover/bind or safely propose the three coordination databases and Feature extension.
+6. Create/verify Run event, outbox, receipt, watermark, Pack, Source Manifest and initial checkpoint.
+7. Spawn RB-01 and one developer/tester pair in separate worktrees; verify reciprocal pairing and path separation.
+8. Verify children reject each other's scopes, stale Pack and stale Director epoch.
+9. Exercise `DIRECT_VERIFIED`, `BROKERED_SNAPSHOT`, `CONTEXT_REQUESTED` and blocked-freshness paths.
+10. Publish a C2+ Pack Delta and verify mandatory reload/invalidation/generation rules.
+11. Validate MFSQ including negative Security/performance cases.
+12. Classify missing CI and create a Jenkins bootstrap task without claiming a live server.
+13. Run exact-candidate CI/evidence, integrate with INT-01 and freeze the candidate.
+14. Exercise a failed Notion write, retry/idempotency, receipt, dead-letter and replay.
+15. Create/check checkpoints and generate a normal resume plan.
+16. Perform an explicitly authorized takeover; verify epoch increment/reissued packets/old-result rejection.
+17. Validate complete traceability and one intentionally broken link.
+18. Have RB-01 review the frozen candidate; verify durable verdict/checkpoint.
+19. Render the v0.5 dashboard and verify coordination fields.
+20. Confirm canonical PKOS writeback or exact pending payload; run retrospective/memory gate.
 
-1. validate installation and examples;
-2. start a Sol Max root and explicitly invoke `$codex-company-swarm`;
-3. verify the current root records itself as `TD-01` and does not spawn another Director;
-4. spawn/read back `RB-01` and verify it cannot write product code or delegate;
-5. spawn one developer/tester pair in separate temporary worktrees;
-6. verify reciprocal pairing and disjoint product/test ownership using `validate_org.py`;
-7. make the developer write a harmless sentinel product file and the tester write a separate sentinel test;
-8. verify each refuses the other's path and produces structured results;
-9. validate an MFSQ example, then verify missing S/performance coverage fails validation;
-10. classify an intentionally missing pipeline and verify a CI bootstrap task is created without claiming a live Jenkins server;
-11. have `INT-01` combine only the sentinel commits after the barrier;
-12. have `RB-01` review the frozen candidate and produce a verdict;
-13. render the dashboard and inspect all counts/evidence;
-14. verify PKOS/Notion writes are either confirmed or explicitly pending;
-15. remove temporary worktrees and artifacts.
-
-## Validation commands
+## Validation
 
 ```bash
-python scripts/validate_install.py
-python -m unittest discover -s tests -v
-python scripts/validate_org.py assets/examples/organization.example.json
-python scripts/validate_mfsq.py assets/examples/mfsq-test-plan.example.json
-python scripts/render_dashboard.py assets/examples/run-state.example.json
+python plugins/pkos/skills/codex-company-swarm/scripts/validate_install.py
+python -m unittest discover -s plugins/pkos/skills/codex-company-swarm/tests -v
+python plugins/pkos/skills/codex-company-swarm/scripts/validate_coordination_bundle.py \
+  plugins/pkos/skills/codex-company-swarm/assets/examples/coordination-bundle
 ```
+
+Classify actual runtime/model/Notion/CI behavior honestly; packaging validation is not runtime certification.

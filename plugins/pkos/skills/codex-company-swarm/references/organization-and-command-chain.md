@@ -1,109 +1,90 @@
-# Organization and command chain
+# Organization and command chain v0.5
 
-## Purpose
+## Authority model
 
-The Company Swarm is a hierarchical control plane around parallel, isolated execution. It borrows the useful parts of a modern engineering organization—stream-aligned teams, an enabling quality group, a delivery platform, independent review, and one accountable technical leader—without pretending chat sessions are people or a real legal organization.
+Company Swarm is a hierarchical control plane around parallel isolated execution. Only logical TD-01 has staffing/route authority. PK-01 is the persistent single Notion coordination writer. RB-01 owns Gate verdicts. Domain/test/CI/integration roles own evidence within bounded scopes.
 
-## Authority matrix
-
-| Role | May spawn/retire sessions | May change architecture | May write product code | May write tests | May decide test scope | May integrate | May accept |
+| Role | Staff | Decide contracts | Product code | Test code/scope | Notion coordination | Integrate | Accept |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Technical Director | yes | yes, with Review Board record | no | no | no | no | final after Chair accepts |
-| Review Board Chair | no | recommends / gates | no | no | reviews | no | implementation verdict |
-| Requirements & Architecture Analyst | no | analyzes only | no | no | no | no | no |
-| Domain Developer | no | only packet-local implementation choices | yes, allowlist only | no | no | no | no |
-| Paired Quality Engineer | no | no | no | yes, allowlist only | yes | no | lane test verdict |
-| Test Manager | no | no | no | may coordinate shared test assets | final test strategy | no | test-plan approval |
-| CI/CD & Jenkins Engineer | no | delivery-platform decisions only | no | pipeline/config only | no | no | pipeline readiness |
-| Security & Performance QE | no | no | no | security/performance tests only | specialist scope | no | specialist findings |
-| Integration Owner | no | no | mechanical integration only | no | no | yes | no |
-| PKOS Governance Scribe | no | no | no | no | no | no | no; writes approved durable truth |
+| TD-01 | yes | yes with review/evidence | no | no | authorize only | no | final after RB-01 |
+| PK-01 | no | no | no | no | single writer | no | no |
+| RB-01 | no | gate/recommend | no | review only | no | no | G0/G1/G4 verdict |
+| AR-01 | no | analyze | no | no | no | no | no |
+| Domain Developer | no | packet-local only | allowlist | no | no | no | no |
+| Paired QE | no | no | no | allowlist/yes | no | no | lane verdict |
+| TM-01 | no | no | no | strategy/review | no | no | plan approval |
+| CI-01 | no | delivery platform only | no | pipeline/config | no | no | pipeline readiness |
+| SQ-01 | no | no | no | security/performance | no | no | findings |
+| INT-01 | no | no | mechanical conflicts only | no | no | yes | no |
 
-Only the Director holds staffing authority. Other roles may request help by writing a `staffing_request` artifact with purpose, required role, scope, urgency, and blocking dependency.
+Other roles request staffing through a structured `staffing_request`; they never create children.
 
-## Session identity
+## Organization manifest
 
-Every session record contains:
+Use `pkos-company-swarm/org-v2`. It records:
 
-```json
-{
-  "session_id": "D-BE-01",
-  "role": "domain-developer",
-  "domain": "backend",
-  "parent_session_id": "TD-01",
-  "managed_by": "TD-01",
-  "model": "gpt-5.6-sol",
-  "reasoning_effort": "max",
-  "may_delegate": false,
-  "generation": 1,
-  "state": "planned",
-  "worktree": ".worktrees/company-swarm/run-123/D-BE-01",
-  "write_scope": ["server/**"],
-  "paired_session_id": "T-BE-01",
-  "task_packet": ".pkos/company-swarm/run-123/lanes/backend/task-packet.md"
-}
-```
+- run/generation/Director epoch/current Pack;
+- sole spawn authority;
+- configured/observed concurrency;
+- Notion coordination writer/mode/schema/control requirements;
+- Session role/parent/manager/model/effort/state/persistence/Notion-write flag;
+- worktree/write scope/pair/epoch/Pack;
+- Lane pair/scope/dependencies/epoch/Pack;
+- Gates and canonical pipeline.
 
-The runtime identity is classified as `observed`, `configured`, or `unverified`. A role name is not proof of a model. This mode requires all active role records to request Sol Max; unverified identity must be disclosed, and an explicit mismatch blocks the route.
+Exactly one technical director, one persistent coordination-governance scribe (`PK-01`), one review chair and one integration owner are required. PK-01 must be the only Session with `notion_write=true`.
 
-## Role lifecycle
+## Lifecycle
 
 ```text
 planned -> provisioned -> acknowledged -> active
-       -> waiting_on_dependency -> active
-       -> handed_off -> settled -> idle -> retired
-       -> blocked
-       -> superseded (new generation only)
+-> waiting_on_dependency -> handed_off -> settled -> idle -> retired
+-> blocked | superseded
 ```
 
-The Director records every transition. A session may not be reused across an incompatible domain, generation, write scope, or memory-pack revision without an explicit reassignment packet and clean worktree state.
+Every material transition emits an event candidate. PK-01 confirms it in Notion before a dependent S2/S3 barrier. The current projection is derived from confirmed events, not chat messages.
 
-## Staffing rules
+## Staffing order
 
-1. Create `RB-01` before implementation planning is accepted.
-2. Create one developer only for a coherent stream-aligned domain with disjoint ownership.
-3. Create the paired tester at the same time as the developer, not after implementation.
-4. Create `TM-01` for any multi-lane, security-sensitive, performance-sensitive, mobile, AI/data, or production-critical change.
-5. Create `CI-01` whenever pipeline capability is unknown, gapped, missing, or must be changed.
-6. Create `SQ-01` when security or performance is material; for behavior-changing work, it is normally material.
-7. Create `INT-01` before the first lane handoff, but do not let it write until the integration barrier opens.
-8. Create `PK-01` only when durable Notion/PKOS writeback is non-trivial; the Director may perform simple governance orchestration itself.
-9. Do not create empty prestige roles. A role must have a packet, artifact destination, and settlement condition.
+1. TD-01 establishes Run identity and authority.
+2. Provision persistent PK-01.
+3. Bind/propose Notion schema, Run/event/outbox/receipt/Pack/checkpoint.
+4. Provision persistent RB-01.
+5. G0 determines domains, pairs, TM/CI/SQ/INT/AR needs.
+6. Provision each developer and paired tester together.
+7. Provision INT-01 before first handoff but keep it waiting until G3.
+8. Do not create prestige roles without packet, artifact destination and settlement condition.
 
-## Work ownership
-
-Parallel development requires:
+## Ownership
 
 - one worktree per writer;
 - one active writer per path prefix;
-- explicit test-path versus product-path ownership;
-- frozen interface owners;
-- no direct push to the integration branch by lanes;
-- unrelated user changes preserved and listed;
-- late or stale results retained as history but excluded from the active generation.
+- product/test/pipeline/security/performance/integration ownership separated;
+- shared generated files, schemas, lockfiles, navigation/localization/build manifests get one named owner or deterministic integration rule;
+- no lane pushes directly to the integration branch;
+- unrelated user changes are preserved/listed;
+- stale generation/epoch/Pack results remain history but cannot update current state.
 
-Overlapping path ownership is a G1 failure. Shared generated files, lockfiles, schemas, localization catalogs, navigation registries, or build manifests get one named owner or are deferred to `INT-01` with a deterministic update rule.
+Overlapping write ownership is a G1 failure.
 
-## Review Board meetings
+## Review meetings
 
-A “meeting” is a synchronized evidence review, not free-form discussion. `RB-01` writes:
-
-- meeting ID and gate;
-- frozen candidate or plan revision;
-- agenda and questions;
-- required attendee session IDs;
-- evidence each attendee must provide;
-- response deadline expressed as a barrier condition, never a wall-clock promise;
-- decision rule and verdict artifact path.
-
-`TD-01` sends the same meeting packet to attendees, waits for required results, and returns the settled evidence set to the Chair. Missing evidence is recorded as missing; it is not reconstructed from memory.
+A meeting is a synchronized evidence review. RB-01 writes meeting ID, Gate, frozen plan/candidate revision, agenda/questions, required attendees/evidence, barrier condition, decision rule and verdict path. TD-01 routes the same packet; PK-01 records the meeting/verdict/evidence pointers. Missing evidence is explicitly missing, never reconstructed from memory.
 
 ## Escalation
 
-- Developer implementation ambiguity -> Director; do not invent a new contract.
-- Tester finds a product defect -> paired developer through a structured defect packet.
-- Tester finds architectural/testability failure -> Test Manager + Review Chair + Director.
-- CI authority/infrastructure missing -> Director with `BLOCKED_EXTERNAL_BOUNDARY` evidence.
-- Integration semantic conflict -> Review Chair and Director; Integration Owner does not choose behavior.
-- Repeated repair (three generations) -> `REPLAN_ORG`.
-- Notion/code/runtime conflict -> verify evidence, establish current truth, then write back under PKOS governance.
+```text
+implementation ambiguity -> TD-01
+missing/stale context -> CONTEXT_REQUESTED -> PK-01/TD-01
+product defect -> paired developer
+systemic testability/architecture -> TM-01 + RB-01 + TD-01
+CI infrastructure/authority -> TD-01 with external-boundary evidence
+semantic integration conflict -> owning lanes + RB-01 + TD-01
+Notion write/schema conflict -> PK-01 dead-letter/conflict event + TD-01
+three repair generations -> REPLAN_ORG
+director loss -> verified checkpoint + authorized TAKEOVER
+```
+
+## Split-brain protection
+
+Every packet/result/event contains Director epoch. A takeover increments it exactly one and reissues active packets. Old-epoch results cannot mutate the current projection. The protocol does not claim a transactional lock; when exclusive authority cannot be established, block honestly.

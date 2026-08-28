@@ -1,6 +1,6 @@
 interface:
   display_name: "Codex Company Swarm"
-  short_description: "Sol Max director, review board, paired dev/QA, and CI gates"
-  default_prompt: "Use $codex-company-swarm in rapid-agile Sol Max mode. Keep this session as TD-01, create a managed company roster with a persistent Review Board Chair, pair every domain developer with an independent tester, require MFSQ security/performance coverage and authoritative CI evidence, bootstrap Jenkins only when no usable pipeline exists, integrate through one owner, and finish with a dashboard plus verified PKOS writeback."
+  short_description: "Sol Max company delivery with durable Notion coordination"
+  default_prompt: "Use $codex-company-swarm in rapid-agile Sol Max mode. Keep this session as logical TD-01; provision persistent PK-01 first as the single Notion Durable Coordination Plane writer; establish Run/Lane/Event/Evidence/Feature projections, outbox receipts, a bounded Shared Pack, checkpoint and traceability; then create RB-01 and reciprocal developer/tester lanes, require MFSQ security/performance and exact-candidate CI, integrate through INT-01, reject stale Pack/Director epoch results, support authorized takeover/resume, and finish only after durable G4/G5 evidence, dashboard, retrospective, and verified PKOS writeback."
 policy:
   allow_implicit_invocation: false

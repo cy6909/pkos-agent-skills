@@ -24,13 +24,11 @@ def load_json(path: Path) -> Dict[str, Any]:
 
 
 def text(value: Any) -> str:
-    if value is None:
-        return "—"
-    return str(value).replace("|", "\\|").replace("\n", " ")
+    return "—" if value is None else str(value).replace("|", "\\|").replace("\n", " ")
 
 
-def percent(numerator: int, denominator: int) -> str:
-    return "—" if denominator <= 0 else "%.1f%%" % (100.0 * numerator / denominator)
+def percent(num: int, den: int) -> str:
+    return "—" if den <= 0 else "%.1f%%" % (100.0 * num / den)
 
 
 def node_id(value: str) -> str:
@@ -40,38 +38,51 @@ def node_id(value: str) -> str:
 def render(data: Dict[str, Any]) -> str:
     sessions = data.get("sessions") if isinstance(data.get("sessions"), list) else []
     features = data.get("features") if isinstance(data.get("features"), list) else []
-    mfsq = data.get("mfsq") if isinstance(data.get("mfsq"), dict) else {}
+    coordination = data.get("coordination") if isinstance(data.get("coordination"), dict) else {}
+    notion = coordination.get("notion") if isinstance(coordination.get("notion"), dict) else {}
+    checkpoint = coordination.get("checkpoint") if isinstance(coordination.get("checkpoint"), dict) else {}
+    traceability = coordination.get("traceability") if isinstance(coordination.get("traceability"), dict) else {}
+    context = coordination.get("context") if isinstance(coordination.get("context"), dict) else {}
+    model = data.get("model") if isinstance(data.get("model"), dict) else {}
     pipeline = data.get("pipeline") if isinstance(data.get("pipeline"), dict) else {}
+    mfsq = data.get("mfsq") if isinstance(data.get("mfsq"), dict) else {}
     security = data.get("security") if isinstance(data.get("security"), dict) else {}
     performance = data.get("performance") if isinstance(data.get("performance"), list) else []
     reviews = data.get("reviews") if isinstance(data.get("reviews"), list) else []
     risks = data.get("risks") if isinstance(data.get("risks"), list) else []
     writeback = data.get("pkos_writeback") if isinstance(data.get("pkos_writeback"), dict) else {}
-    model = data.get("model") if isinstance(data.get("model"), dict) else {}
-
     session_states = Counter(str(item.get("state", "unknown")) for item in sessions if isinstance(item, dict))
-    feature_states = Counter(str(item.get("status", "unknown")) for item in features if isinstance(item, dict))
-    accepted = feature_states.get("accepted", 0) + feature_states.get("complete", 0)
+    accepted = sum(1 for item in features if isinstance(item, dict) and str(item.get("status", "")).lower() in {"accepted", "complete"})
 
     out: List[str] = [
-        "# Company Swarm Dashboard — %s" % text(data.get("run_id")),
-        "",
-        "| Field | Value |",
-        "|---|---|",
+        "# Company Swarm Dashboard — %s" % text(data.get("run_id")), "",
+        "| Field | Value |", "|---|---|",
         "| Status | `%s` |" % text(data.get("status")),
         "| Generation | %s |" % text(data.get("generation")),
         "| Requested model | `%s` |" % text(model.get("requested")),
         "| Reasoning effort | `%s` |" % text(model.get("reasoning_effort")),
         "| Identity confidence | `%s` |" % text(model.get("identity_confidence")),
         "| Sessions | %d total; %s |" % (len(sessions), ", ".join("%s=%d" % item for item in sorted(session_states.items())) or "none"),
-        "| Features | %d/%d accepted or complete (%s) |" % (accepted, len(features), percent(accepted, len(features))),
-        "",
-        "## Organization",
-        "",
-        "```mermaid",
-        "graph TD",
+        "| Features | %d/%d accepted (%s) |" % (accepted, len(features), percent(accepted, len(features))), "",
+        "## Durable coordination", "",
+        "| Field | Value |", "|---|---|",
+        "| Current Gate | `%s` |" % text(coordination.get("current_gate")),
+        "| Coordination state | `%s` |" % text(coordination.get("run_state")),
+        "| State version / last event | %s / %s |" % (text(coordination.get("state_version")), text(coordination.get("last_event_seq"))),
+        "| Director epoch | %s |" % text(coordination.get("director_epoch")),
+        "| Shared Pack | `%s` |" % text(coordination.get("pack_revision")),
+        "| Notion mode | `%s` |" % text(notion.get("mode")),
+        "| Notion schema / sync | `%s` / `%s` |" % (text(notion.get("schema_state")), text(notion.get("sync_status"))),
+        "| Event watermark | %s |" % text(notion.get("watermark_event_seq")),
+        "| Pending / dead-letter | %s / %s |" % (text(notion.get("pending_count")), text(notion.get("dead_letter_count"))),
+        "| Last write receipt | `%s` |" % text(notion.get("last_receipt_id")),
+        "| Checkpoint | `%s` at event %s |" % (text(checkpoint.get("checkpoint_id")), text(checkpoint.get("event_seq"))),
+        "| Resume token | `%s` |" % text(checkpoint.get("resume_token")),
+        "| Traceability | `%s`; %s requirements / %s features |" % (text(traceability.get("status")), text(traceability.get("requirements")), text(traceability.get("features"))),
+        "| Open Context Requests | %s |" % text(context.get("open_requests")),
+        "| Stale results rejected | %s |" % text(context.get("stale_results_rejected")), "",
+        "## Organization", "", "```mermaid", "graph TD",
     ]
-
     for item in sessions:
         if not isinstance(item, dict):
             continue
@@ -80,16 +91,15 @@ def render(data: Dict[str, Any]) -> str:
         out.append('  %s["%s"]' % (node_id(sid), label.replace('"', "'")))
         if sid != "TD-01":
             out.append("  %s --> %s" % (node_id("TD-01"), node_id(sid)))
-    seen_pairs = set()
+    seen = set()
     for item in sessions:
         if not isinstance(item, dict):
             continue
-        sid = item.get("session_id")
-        pair = item.get("paired_session_id")
+        sid, pair = item.get("session_id"), item.get("paired_session_id")
         if isinstance(sid, str) and isinstance(pair, str):
             key = tuple(sorted((sid, pair)))
-            if key not in seen_pairs:
-                seen_pairs.add(key)
+            if key not in seen:
+                seen.add(key)
                 out.append("  %s -. paired .- %s" % (node_id(sid), node_id(pair)))
     out.extend(["```", "", "| Session | Role | Domain | State | Pair |", "|---|---|---|---|---|"])
     for item in sessions:
@@ -108,28 +118,20 @@ def render(data: Dict[str, Any]) -> str:
     out.extend(["", "## MFSQ evidence", "", "| Axis | Passed | Failed | Blocked | N/A | Pass rate |", "|---|---:|---:|---:|---:|---:|"])
     for axis in ("M", "F", "S", "Q"):
         values = mfsq.get(axis) if isinstance(mfsq.get(axis), dict) else {}
-        passed = int(values.get("passed", 0) or 0)
-        failed = int(values.get("failed", 0) or 0)
-        blocked = int(values.get("blocked", 0) or 0)
-        na = int(values.get("na", 0) or 0)
+        passed, failed, blocked, na = (int(values.get(key, 0) or 0) for key in ("passed", "failed", "blocked", "na"))
         out.append("| %s | %d | %d | %d | %d | %s |" % (axis, passed, failed, blocked, na, percent(passed, passed + failed + blocked)))
 
-    passed_jobs = int(pipeline.get("passed_jobs", 0) or 0)
-    total_jobs = int(pipeline.get("total_jobs", 0) or 0)
-    out.extend([
-        "", "## CI/CD", "", "| Field | Value |", "|---|---|",
+    passed_jobs, total_jobs = int(pipeline.get("passed_jobs", 0) or 0), int(pipeline.get("total_jobs", 0) or 0)
+    out.extend(["", "## CI/CD", "", "| Field | Value |", "|---|---|",
         "| Provider | %s |" % text(pipeline.get("provider")),
         "| Pipeline | %s |" % text(pipeline.get("pipeline")),
-        "| Run ID | %s |" % text(pipeline.get("run_id")),
-        "| Candidate | %s |" % text(pipeline.get("candidate_commit")),
-        "| Status | %s |" % text(pipeline.get("status")),
-        "| Duration (s) | %s |" % text(pipeline.get("duration_seconds")),
+        "| Run ID / Candidate | %s / `%s` |" % (text(pipeline.get("run_id")), text(pipeline.get("candidate_commit"))),
+        "| Status / Duration | %s / %s s |" % (text(pipeline.get("status")), text(pipeline.get("duration_seconds"))),
         "| Job pass rate | %d/%d (%s) |" % (passed_jobs, total_jobs, percent(passed_jobs, total_jobs)),
-        "| Artifacts | %s |" % (", ".join(text(item) for item in pipeline.get("artifacts", [])) if isinstance(pipeline.get("artifacts"), list) and pipeline.get("artifacts") else "—"),
+        "| Artifacts | %s |" % (", ".join(text(item) for item in pipeline.get("artifacts", [])) if pipeline.get("artifacts") else "—"),
         "", "## Security", "", "| Critical | High | Medium | Low | Unresolved |", "|---:|---:|---:|---:|---:|",
         "| %s | %s | %s | %s | %s |" % tuple(text(security.get(key, 0)) for key in ("critical", "high", "medium", "low", "unresolved")),
-        "", "## Performance", "", "| Metric | Baseline | Candidate | Threshold | Result |", "|---|---:|---:|---|---|",
-    ])
+        "", "## Performance", "", "| Metric | Baseline | Candidate | Threshold | Result |", "|---|---:|---:|---|---|"])
     for item in performance:
         if isinstance(item, dict):
             unit = text(item.get("unit"))
@@ -150,14 +152,13 @@ def render(data: Dict[str, Any]) -> str:
                 out.append("- **%s / %s:** %s" % (text(item.get("severity")), text(item.get("status")), text(item.get("description"))))
     else:
         out.append("- None recorded.")
-
     changed = writeback.get("changed_nodes") if isinstance(writeback.get("changed_nodes"), list) else []
-    out.extend([
-        "", "## PKOS writeback", "",
+    receipts = writeback.get("receipt_ids") if isinstance(writeback.get("receipt_ids"), list) else []
+    out.extend(["", "## PKOS writeback", "",
         "- Status: `%s`" % text(writeback.get("status")),
         "- Changed nodes/rows: %s" % (", ".join("`%s`" % text(item) for item in changed) if changed else "none confirmed"),
-        "", "_Generated from the durable run-state artifact; verify referenced commits, CI reports, and Notion write responses before relying on this dashboard._", ""
-    ])
+        "- Receipt IDs: %s" % (", ".join("`%s`" % text(item) for item in receipts) if receipts else "none confirmed"),
+        "", "_Generated from durable run state. Verify referenced commits, CI reports, checksums and Notion receipts before relying on this dashboard._", ""])
     return "\n".join(out)
 
 

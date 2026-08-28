@@ -1,139 +1,89 @@
-# Review gates and delivery lifecycle
-
-## Lifecycle overview
+# Review gates and delivery lifecycle v0.5
 
 ```text
-G0 Intake and gap review
-  -> G1 Organization / interface / CI readiness
-    -> parallel product implementation + test design + pipeline work
-      -> G2 paired developer-to-tester settlement per lane
-        -> G3 single-owner cumulative integration + full pipeline
-          -> G4 Review Board acceptance or return
-            -> G5 Technical Director decision, dashboard, PKOS writeback
+Phase 0 durable coordination
+-> G0 requirements/gap/path/Feature review
+-> G1 organization/context/ownership/CI readiness
+-> parallel development + test design + pipeline + coordination
+-> G2 paired lane settlement
+-> G3 single-owner integration + exact-candidate CI
+-> G4 Review Board decision
+-> G5 Director acceptance, canonical writeback, dashboard, retrospective
 ```
 
-A gate is a durable decision with evidence, not an informal progress update.
+A Gate is an evidence-backed durable decision. It is not settled until the verdict event and dependent projections have verified receipts and a checkpoint.
 
-## G0 — Intake and gap review
+## G0
 
 Required artifacts:
 
-- goal contract;
-- requirement normalization and assumption register;
-- repository/current-state map;
-- requested-versus-current gap matrix;
-- selected implementation path and rejected alternatives;
-- architecture/interface/security/deployment freeze list;
-- feature inventory;
-- domain and platform impact matrix;
-- initial MFSQ strategy;
-- staffing and dependency proposal;
-- verdict.
+- goal contract, normalized requirements, assumptions/exclusions, acceptance IDs;
+- repository/current-state and requested-gap matrices;
+- selected path and rejected alternatives/trade-offs;
+- architecture/interface/data/security/deployment freeze list;
+- Feature inventory with stable IDs, types, platforms, dependencies, risks, lane/pair, test strategy and PKOS owners;
+- MFSQ and CI intent;
+- staffing, ownership, dependency, integration and rollback plan;
+- coordination readiness and verdict.
 
-The feature inventory must distinguish at least:
+PK-01 projects Features `PLANNED -> ANALYZED`, registers evidence and confirms the verdict/checkpoint. No product implementation begins before durable `GO | GO_WITH_ACTIONS` and blocking actions have owners.
 
-| Type | Meaning |
-|---|---|
-| implement | new user/system behavior |
-| modify | change existing behavior or contract |
-| optimize | improve maintainability, UX, or internal efficiency without intended contract change |
-| performance | latency, throughput, startup, memory, storage, battery, cost, or capacity target |
-| security | explicit security control, remediation, threat mitigation, or compliance work |
-| migration | schema/data/API/config/runtime transition |
-| operations | deployment, monitoring, incident readiness, rollback, runbooks |
-| documentation | durable operator/developer/product knowledge |
-
-Each feature has stable ID, acceptance IDs, owner lane, platforms, dependencies, risk, test strategy, and PKOS owner pointer.
-
-## G1 — Readiness
+## G1
 
 Blocking checks:
 
-- all lanes are independently implementable;
-- shared contracts are frozen or versioned;
-- every writer has an isolated worktree and disjoint write allowlist;
-- every development lane has a reciprocal paired tester;
-- memory-pack revision and task packets are acknowledged;
-- canonical environment and pipeline status are known;
-- missing CI has a blocking bootstrap lane;
-- MFSQ plan ownership is assigned;
-- secrets/external actions/production writes are authorized;
-- design evidence is available where required;
-- rollback and migration sequencing are defined.
+- independent lanes and frozen/versioned shared contracts;
+- isolated worktrees/disjoint ownership;
+- reciprocal developer/tester pairs;
+- current generation/Director epoch/Pack and mandatory acknowledgements;
+- settled Context Requests;
+- Notion schema/mode/sync watermark and initial checkpoint;
+- canonical environment/pipeline state and Jenkins bootstrap when needed;
+- MFSQ ownership, Figma/design, security/data/migration/rollback;
+- secrets/external actions/production authority;
+- traceability plan.
 
-`GO_WITH_ACTIONS` from G0 is not G1 pass until every blocking action is closed.
+PK-01 registers Session/Lane/Task records, projects Features to `READY`, and confirms G1/checkpoint. `GO_WITH_ACTIONS` is not ready until blocking actions close.
 
-## G2 — Lane settlement
-
-Per-lane state:
+## G2 lane state
 
 ```text
-PLANNED
-  -> DEV_ACTIVE + TEST_DESIGN_ACTIVE
-  -> DEV_HANDOFF_READY
-  -> TEST_PLAN_APPROVED
-  -> TESTS_IMPLEMENTED
-  -> PIPELINE_RUNNING
-  -> PASS | DEFECT_RETURN | BLOCKED_ENVIRONMENT | REPLAN_REQUIRED
+PLANNED -> DEV_ACTIVE + TEST_DESIGN_ACTIVE -> DEV_HANDOFF_READY
+-> TEST_PLAN_APPROVED -> TESTS_IMPLEMENTED -> PIPELINE_RUNNING
+-> PASS | DEFECT_RETURN | BLOCKED_ENVIRONMENT | REPLAN_REQUIRED
 ```
 
-Lane evidence includes developer commit, test commit, ownership validation, MFSQ matrix, CI run, results, defects, and risk. A green local command is not a pipeline pass.
+Lane evidence includes developer/test commits, ownership, MFSQ, exact-candidate CI/reports, defects, risk, Pack/epoch and receipts. Green local commands are not pipeline acceptance. PK-01 confirms handoff, material defects, CI and verdict before settlement.
 
-## G3 — Integration
+## G3
 
-The Integration Owner receives only settled lane artifacts. Integration order follows the frozen dependency graph, not completion time.
+INT-01 receives only settled current run/generation/epoch/Pack artifacts. Integration order follows dependencies, not completion time. Verify cumulative paths/contracts/schema/data/migration, unchanged interactions, full pipeline, security/performance, deploy/rollback evidence, traceability, watermark and candidate checkpoint. Freeze one immutable candidate for G4.
 
-Required checks:
+## G4
 
-- active generation only;
-- exact lane commits and test commits;
-- cumulative diff and path ownership;
-- API/schema/data/migration compatibility;
-- cross-lane tests and unchanged-code interactions;
-- full canonical pipeline;
-- security and performance aggregate evidence;
-- deploy/rollback/test-environment evidence when applicable;
-- artifact provenance.
+RB-01 reviews one frozen candidate in one pass. Blocking findings state violated contract, reachable scenario/missing evidence, impact/severity, paths/commits/tests/stages, owner, retest and whether architecture stays frozen.
 
-The integration candidate becomes immutable for G4. Any change after freeze creates a new candidate revision and invalidates stale review evidence.
+Verdicts:
 
-## G4 — Review Board
+- `ACCEPT`;
+- `RETURN_TO_LANE`;
+- `REPLAN_ORG`;
+- `BLOCKED_EXTERNAL_BOUNDARY`.
 
-The Chair performs one complete review. Findings are grouped by severity:
+PK-01 confirms verdict/findings/checkpoint. A return creates a new generation for affected lanes, invalidates named artifacts/Pack context and preserves independent accepted work. Three same-architecture repairs maximum.
 
-- `P0`: exploitable security/data-loss/unsafe production behavior or objective failure of a critical requirement;
-- `P1`: material functional, integration, migration, reliability, or performance failure;
-- `P2`: non-blocking robustness/maintainability/observability problem with evidence;
-- `P3`: optional hardening or preference.
+## G5
 
-Only evidence-backed findings may block. Each blocking finding states:
+TD-01 verifies:
 
-- violated acceptance/contract/standard;
-- concrete reachable scenario or missing evidence;
-- impact and severity;
-- affected paths/commits/tests/pipeline stages;
-- owner lane;
-- required retest scope;
-- whether architecture remains frozen.
+- G4 ACCEPT for exact final candidate;
+- exact-candidate canonical CI and no silently skipped tests;
+- Security/performance thresholds or authorized residual risk;
+- complete traceability and no open P0/P1/orphan evidence;
+- Notion mode writable, schema ready, watermark current, no pending/dead-letter S2–S4 events;
+- current Pack/epoch acknowledgements;
+- Feature/current-truth/Audit/ADR/Incident/Memory writeback receipts;
+- retained stable evidence/checksums;
+- final checkpoint/resume token, dashboard and retrospective.
 
-The Chair returns all current findings in one pass rather than drip-feeding avoidable rounds.
-
-## Repair generations
-
-`RETURN_TO_LANE` creates a new run generation for affected lanes while preserving accepted independent work. Results from previous generations remain evidence but do not settle the new candidate.
-
-Maximum same-architecture repairs: three. The next failure triggers `REPLAN_ORG` because repeated repair usually signals an incorrect requirement, boundary, ownership, architecture, or test strategy.
-
-## G5 — Completion
-
-The Director checks that:
-
-- Chair verdict is `ACCEPT` for the exact final candidate;
-- pipeline result belongs to the exact final commit;
-- no required test is unrun or silently skipped;
-- security/performance thresholds are satisfied or explicitly accepted as residual risk by authorized user policy;
-- no production/deployment/Notion action is overstated;
-- PKOS Feature Registry, Current Truth, Audit, ADR, Incident, and Memory obligations are settled or listed as pending;
-- user dashboard is generated from evidence.
-
-A code-complete but externally blocked result is a checkpoint, not accepted delivery.
+Code-complete but externally/coordination blocked work is a checkpoint, not accepted delivery.

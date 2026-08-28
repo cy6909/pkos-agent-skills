@@ -1,40 +1,61 @@
-# Codex Company Swarm
+# Codex Company Swarm v0.5
 
-`codex-company-swarm` is PKOS's maximum-quality, high-concurrency delivery mode. It treats one Codex root session as a Technical Director that centrally manages a persistent Review Board, domain development lanes, paired independent testers, CI/CD platform work, security/performance specialists, one Integration Owner, and PKOS writeback.
+`codex-company-swarm` is PKOS's maximum-quality, high-concurrency delivery mode. One Codex root session acts as logical Technical Director and centrally manages a persistent Notion coordination scribe, Review Board, domain developer/tester pairs, CI/CD, security/performance, one Integration Owner, traceability, checkpoints, and canonical PKOS writeback.
 
-## Install
+## What changed in v0.5
 
-Refresh/install the `pkos` plugin from this repository, then install the custom role TOMLs:
+Notion is no longer only read at startup and updated at the end. It becomes a durable coordination control plane for material project events and recovery:
 
-```bash
-python plugins/pkos/skills/codex-company-swarm/scripts/install.py --agents-only
+```text
+Codex messages -> .pkos outbox/checkpoints -> PK-01 -> Notion projections/events/evidence
+                                               ↓
+                                  PKOS Feature/Current Truth/ADR/Audit/Memory
 ```
 
-For project-local installation:
+The design deliberately does **not** store full chats or raw logs in Notion.
+
+### Persistent PK-01
+
+`PK-01` is provisioned before the Review Board and remains active through G5. It is the single writer for:
+
+- Run/Lane/Session/Task/Pack/Checkpoint current state;
+- append-only semantic Event & Decision history;
+- evidence pointers and checksums;
+- material Feature lifecycle projections;
+- Context Requests and brokered snapshots;
+- Pack Delta acknowledgements;
+- outbox receipts/watermark/dead letters;
+- takeover/recovery records;
+- final authorized PKOS canonical writeback and retrospective.
+
+### Minimal Notion schema
+
+Reuse the existing Project Feature Registry and add:
+
+1. Swarm Run & Lane Registry;
+2. Event & Decision Ledger;
+3. Evidence Registry.
+
+Schema discovery follows Search Before Create and validates stable IDs/properties before creating anything.
+
+### Recovery and completeness
+
+Every current packet/result carries generation, Director epoch, Pack revision, and source identity. v0.5 adds checksummed checkpoints, resume tokens, authorized takeover with epoch increment, stale-result rejection, and Requirement-to-Notion traceability validators.
+
+## Install/update
 
 ```bash
-python plugins/pkos/skills/codex-company-swarm/scripts/install.py \
-  --project-root /path/to/project
+codex plugin marketplace upgrade pkos-agent-skills
+python plugins/pkos/skills/codex-company-swarm/scripts/install.py --agents-only --force
 ```
 
-Merge supported keys from `assets/config.toml.fragment`, restart Codex or open a fresh task, and invoke explicitly:
+Restart Codex or open a fresh task, then invoke explicitly:
 
 ```text
 $codex-company-swarm
 ```
 
-The Skill disables implicit invocation because it can create many Sol Max sessions.
-
-## Operating model
-
-- The current session is the sole `TD-01`; never spawn a second Director.
-- `RB-01` leads requirements/current-state gap/implementation-path/feature-inventory review and the final implementation review.
-- Every product-code developer has one reciprocal paired tester; developers do not own test scope or acceptance.
-- Testers design and implement MFSQ tests, including security and performance, and all authoritative tests run in the canonical pipeline.
-- Existing CI/CD is reused when valid. When no usable pipeline exists, the CI role bootstraps Jenkins as source-controlled Pipeline as Code.
-- One Integration Owner builds the cumulative candidate; the Review Board accepts or returns it; the Director reports with an evidence dashboard and verified PKOS writeback.
-
-Read the Skill's `SKILL.md` and `references/` for the full G0–G5 contracts.
+This expensive mode keeps implicit invocation disabled.
 
 ## Validate
 
@@ -43,3 +64,5 @@ python plugins/pkos/skills/codex-company-swarm/scripts/validate_install.py
 python -m unittest discover \
   -s plugins/pkos/skills/codex-company-swarm/tests -v
 ```
+
+A full accepted route requires writable, ready, in-sync Notion coordination. Read-only/unavailable Notion can produce a durable checkpoint, but not `COMPANY_SWARM_ACCEPTED`.
