@@ -1,253 +1,204 @@
 ---
 name: codex-company-swarm
-description: Run an end-to-end software project as a centrally managed GPT-5.6 Sol Max engineering organization with the current session as Technical Director, persistent Notion coordination, Review Board gates, paired developers and testers, MFSQ security/performance coverage, CI/Jenkins enforcement, single-owner integration, durable checkpoints, takeover recovery, end-to-end traceability, and PKOS canonical writeback. Use only for explicit maximum-quality, high-concurrency, token-insensitive project delivery.
+description: Orchestrate explicit maximum-quality parallel software delivery with this session as TD-01, persistent PK-01 Notion coordination, Review Board gates, paired developers/testers, MFSQ plus CI, single-owner integration, recovery, traceability, and PKOS writeback. Use only for Company Swarm or equivalent Sol Max project delivery.
 metadata:
-  short-description: Sol Max company swarm with durable Notion coordination
+  short-description: Sol Max delivery with durable Notion coordination
 ---
 
-# Codex Company Swarm v0.5
+# Codex Company Swarm v0.6
 
-Operate one software outcome as a managed engineering company, not a loose set of chats. Every active role requests `gpt-5.6-sol` with `model_reasoning_effort="max"`; high reasoning never relaxes ownership, evidence, context freshness, or external-action boundaries.
+Treat this file as an executable control program. Do not preload its references.
 
-This Skill extends PKOS and `codex-sol-luna-workflow`. It adds a **Notion Durable Coordination Plane** for cross-session state, append-only event history, evidence pointers, Feature projection, context brokerage, checkpoints, recovery, and retrospective. It does not create a second project-knowledge or memory system.
-
-## Command contract
-
-- The current Skill-loading session is logical Technical Director `TD-01`; never spawn another Director.
-- Only TD-01 controls staffing, route, generation, shared contracts, candidate freeze, and final user reporting. All children use `may_delegate=false`.
-- Provision persistent `PK-01` before RB-01 or delivery lanes. PK-01 is the single Notion coordination writer for the whole run, not a final-only scribe.
-- Codex messages are low-latency transport; `.pkos` is the write-ahead/outbox/checkpoint store; Git/CI/Figma are executable or visual evidence; Notion is the durable coordination projection; PKOS canonical nodes own durable project truth and memory.
-- Every material Session/Lane/Feature/Pack/Context/Defect/CI/Candidate/Gate/Takeover transition emits a structured event and receives a verified Notion receipt before its dependent barrier releases.
-- Every product developer is reciprocally paired with one independent tester. Developers write product code only; testers own test scope, test code, CI interpretation, defects, and lane test verdict.
-- Only `INT-01` creates the cumulative candidate. Lanes do not merge directly into the integration branch.
-- Every active result carries `run_id`, `generation`, `director_epoch`, `pack_revision`, candidate/base identity, Source Manifest or snapshot hash, and evidence references. Preserve but reject stale results.
-- A report is not evidence. Exact commits, paths, tests, CI runs/reports, checksums, review verdicts, and Notion receipts decide acceptance.
-- Never claim model identity, child sessions, Jenkins, deployment, Notion writes, CI, or PKOS writeback without observed evidence.
-
-Read [organization and command chain](references/organization-and-command-chain.md) and [Notion Durable Coordination Plane](references/notion-durable-coordination-plane.md) before provisioning.
-
-## Organization
+## Registers
 
 ```text
-User / Product Sponsor
-└── TD-01 Technical Director (current logical root; sole staffing authority)
-    ├── PK-01 Coordination & Governance Scribe (persistent single Notion writer)
-    ├── RB-01 Review Board Chair (persistent read-only gate owner)
-    │   └── AR-01 Requirements & Architecture Analyst (optional)
-    ├── D-FE Frontend Developer       ↔ T-FE Frontend Quality Engineer
-    ├── D-BE Backend Developer        ↔ T-BE Backend Quality Engineer
-    ├── D-AND Android Developer       ↔ T-AND Android Quality Engineer
-    ├── D-IOS iOS Developer           ↔ T-IOS iOS Quality Engineer
-    ├── D-AI AI/Data Developer        ↔ T-AI AI/Data Quality Engineer
-    ├── D-PLAT Platform Developer     ↔ T-PLAT Platform Quality Engineer
-    ├── TM-01 Test Manager
-    ├── CI-01 CI/CD & Jenkins Engineer
-    ├── SQ-01 Security & Performance Quality Engineer
-    └── INT-01 Integration Owner
+RUN   = {project_id, run_id, generation, director_epoch, pack_revision}
+STATE = BOOT -> G0 -> G1 -> EXEC -> G2 -> G3 -> G4 -> G5
+ROOT  = .pkos/company-swarm/<run_id>/
+MODEL = gpt-5.6-sol / max for every active role
 ```
 
-Create only justified roles. Explicit invocation authorizes a default ceiling of 24 child sessions, subject to the runtime's lower hard limit.
-
-## Phase 0 — establish durable coordination
-
-Before ordinary staffing, TD-01 must:
-
-1. Inspect applicable `AGENTS.md`, requirements, Git state, relevant code/tests/design, and execution environments without recursively reading the repository.
-2. Resolve the PKOS Project Root, Memory Root, one Feature Registry, current canonical nodes, and external-action authority.
-3. Classify Notion as `DIRECT_WRITABLE | DIRECT_READ_ONLY | BROKERED | UNAVAILABLE`.
-4. Provision PK-01 and discover the minimal coordination schema:
-   - Swarm Run & Lane Registry;
-   - Event & Decision Ledger;
-   - Evidence Registry;
-   - coordination fields on the existing Feature Registry.
-5. Search Before Create. Bind existing databases first; create missing schema only with authorized Notion writes. Otherwise produce a proposed schema and enter degraded mode.
-6. Create the Run record, `RUN_CREATED` event, idempotent outbox item, verified receipt, contiguous sync watermark, bounded Shared Collaboration Pack, Source Manifest, and initial checkpoint/resume token.
-7. Validate the initial coordination bundle before RB-01 or delivery lanes start.
-
-Full `COMPANY_SWARM_ACCEPTED` requires a writable, `READY`, `IN_SYNC` Notion coordination plane. Read-only/unavailable operation may continue safe repository work to a checkpoint but cannot claim certified durable coordination.
-
-## Durable artifacts
+Storage roles:
 
 ```text
-.pkos/company-swarm/<run-id>/
-├── 00-charter.md
-├── 01-shared-memory-pack.md
-├── 02-org.json
-├── 03-feature-inventory.json
-├── 04-route.json
-├── 05-ci-capability.json
-├── coordination/
-│   ├── coordination-state.json
-│   ├── event-ledger.json
-│   ├── notion-schema.json
-│   ├── notion-sync.json
-│   ├── traceability.json
-│   ├── checkpoint.json
-│   ├── resume-plan.json
-│   ├── outbox/ receipts/ dead-letter/
-│   ├── pack-deltas/ context-requests/ checkpoints/
-├── lanes/<lane-id>/ task-packet, results, tests, defects, evidence
-├── integration/ manifest, candidate, pipeline evidence
-├── reviews/ G0, G1, G4, return orders
-├── retrospective.md
-├── dashboard.md
-└── pkos-writeback.json
+Codex messages = low-latency transport
+ROOT            = write-ahead events, receipts, checkpoints, manifests
+Git/CI/Figma    = executable or visual evidence
+Notion          = durable coordination projections and event/evidence indexes
+PKOS nodes      = canonical project truth and long-term memory
 ```
 
-Chat history is transport, never the run ledger.
+## Invariants
 
-## Event/outbox discipline
+1. Current session is logical `TD-01`; never spawn a second Director.
+2. Only TD-01 changes staffing, shared contracts, generation, candidate freeze, takeover, or final status. Children set `may_delegate=false`.
+3. Provision persistent `PK-01` first. PK-01 is the sole Notion coordination writer; other roles may only read or emit event candidates.
+4. Pair every product developer with one independent tester. Developer owns product code; tester owns test scope/code, CI interpretation, defects, and lane verdict.
+5. Only `INT-01` creates the cumulative candidate.
+6. Every mutable result carries current `{run_id, generation, director_epoch, pack_revision}` plus base/candidate identity and evidence refs. Reject stale values.
+7. Claims never settle work. Require commits, paths, tests, exact-candidate CI, reports/checksums, review verdicts, and verified Notion receipts.
+8. Never invent model identity, sessions, external writes, Jenkins, deployment, CI, or Notion/PKOS success.
 
-TD-01 authorizes event sequence and state transition. PK-01 writes the local outbox first, performs an idempotent Notion write, reads back/verifies the affected row, stores a receipt, advances the highest contiguous confirmed watermark, and updates current projections.
+## Reference loading
 
-Sync classes:
+Load only the row needed for the next transition; stop reading once that transition is executable. Load a second reference only when the first exposes a blocker.
 
-- `S0 EPHEMERAL`: no Notion write;
-- `S1 PROGRESS`: coalesce into the next checkpoint;
-- `S2 CONTROL`: sync before dependent handoff/barrier;
-- `S3 GATE`: sync before Gate settles;
-- `S4 GOVERNANCE`: sync before acceptance when durable truth changed.
+| Condition | Load |
+|---|---|
+| Staff, authority, ownership, session lifecycle | `references/organization-and-command-chain.md` |
+| Bind/create Notion coordination schema | `references/notion-durable-coordination-plane.md` |
+| Outbox, receipts, watermark, replay | `references/event-sync-and-outbox.md` |
+| Context Request, Source Manifest, Pack Delta | `references/context-pack-versioning.md` |
+| Gate semantics and repair generations | `references/review-gates-and-delivery-lifecycle.md` |
+| Developer/tester handoff or defect routing | `references/developer-tester-handoff.md` |
+| MFSQ case design | `references/mfsq-quality-model.md` |
+| CI discovery or Jenkins bootstrap | `references/jenkins-pipeline-contract.md` |
+| Resume or Director takeover | `references/checkpoint-resume-and-takeover.md` |
+| G4/G5 completeness and retrospective | `references/traceability-and-retrospective.md` |
+| Canonical Feature/Current Truth/Memory writeback | `references/pkos-memory-and-notion-integration.md` plus shared PKOS refs only as needed |
+| Install or smoke test | `references/runtime-installation.md` |
 
-Required event families cover Run, Session, Lane, Task, Context, Pack, Feature, Handoff, Test, Defect, CI, Evidence, Candidate, Gate, Checkpoint, Takeover, PKOS writeback, retrospective, acceptance, and block. `IN_SYNC` requires watermark = latest sequence and zero pending/dead-letter S2–S4 entries.
+Never load `references/research-sources.md` during execution.
 
-```bash
-python scripts/validate_event_ledger.py coordination/event-ledger.json
-python scripts/validate_notion_sync.py coordination/notion-sync.json
+## BOOT — establish control plane
+
+```text
+INPUT  = user goal + repo + available tools
+OUTPUT = RUN, org, schema binding, Pack, initial checkpoint
 ```
 
-Read [event sync and outbox](references/event-sync-and-outbox.md).
+1. Inspect only applicable `AGENTS.md`, requirements, Git state, relevant code/tests/design, environments, and external-action authority.
+2. Resolve PKOS Project Root, Memory Root, the single Feature Registry, and required canonical nodes.
+3. Provision PK-01; classify Notion as `DIRECT_WRITABLE | DIRECT_READ_ONLY | BROKERED | UNAVAILABLE`.
+4. Search Before Create; bind or propose the three coordination stores and Feature projection fields.
+5. Persist `RUN_CREATED` through local outbox -> Notion write -> read-back receipt -> contiguous watermark.
+6. Compile bounded Shared Pack + Source Manifest; create checksummed checkpoint/resume token.
+7. Validate organization and coordination bundle before staffing RB-01 or delivery lanes.
 
-## Context and Pack freshness
+`COMPANY_SWARM_ACCEPTED` requires writable, schema-ready, in-sync Notion. Other modes may produce a recoverable checkpoint only.
 
-Each child receives a bounded task packet with run/generation/Director epoch/Pack revision, role/lane, worktree and write scope, pair, acceptance IDs, blockers, artifact destinations, and one of:
+## G0 — decide what to build
 
-- `DIRECT_VERIFIED`: directly verify named Notion canonical sources;
-- `BROKERED_SNAPSHOT`: consume a PK-01/TD-01 bounded hash-addressed snapshot;
-- `BLOCKED_CONTEXT_FRESHNESS`: stop because required current facts cannot be established.
+RB-01 returns one evidence-backed package:
 
-Missing facts emit `CONTEXT_REQUESTED`; PK-01 returns only the relevant nodes/evidence and emits `CONTEXT_SUPPLIED`. Shared C2+ contract, interface, schema, security, environment, CI, design, or authority changes create a Pack Delta with `from/to`, source revisions, change class, affected lanes/sessions, invalidated artifacts, mandatory acknowledgements, and generation/compatibility decision. No affected handoff or Gate advances until all required acknowledgements settle.
-
-```bash
-python scripts/validate_pack_delta.py coordination/pack-deltas/<revision>.json
+```text
+requirements + assumptions/exclusions + acceptance
+current-state/gap matrices
+options -> selected path + freezes + migration/rollback
+Feature inventory + PKOS owners
+platform/domain impact + dev/test pairs
+MFSQ/CI/dependency/ownership/integration plan
+verdict = GO | GO_WITH_ACTIONS | REPLAN
 ```
 
-Read [context pack versioning](references/context-pack-versioning.md).
+PK-01 projects Features and persists the G0 verdict/checkpoint before implementation.
 
-## G0 — requirements, gap, path, and Feature review
+## G1 — prove readiness
 
-RB-01 produces one evidence-backed package containing normalized requirements/assumptions/exclusions/acceptance, current-state and requested-gap matrices, implementation options and selected path, architecture/interface/data/security/deployment freezes, migration/rollback, complete Feature inventory (`implement | modify | optimize | performance | security | migration | operations | documentation`), domain/platform impact, developer/tester pairs, MFSQ/CI intent, dependency/ownership/integration plan, PKOS owner mapping, and `GO | GO_WITH_ACTIONS | REPLAN`.
+Guard all of the following:
 
-PK-01 registers Run/Feature/requirement/evidence projections and confirms the G0 verdict/checkpoint before implementation begins.
+```text
+isolated worktrees; disjoint write scopes; reciprocal pairs
+current RUN/Pack and settled Context Requests
+frozen or versioned contracts; design evidence where required
+MFSQ strategy; canonical test environment
+CI = EXISTS_VALID | EXISTS_GAPPED | MISSING | BLOCKED
+security/data/migration/rollback and external authority
+Notion schema/watermark and traceability plan
+```
 
-## G1 — organization and delivery readiness
+When CI is missing, create a Jenkins Pipeline-as-Code bootstrap lane. It may run beside implementation but blocks G2-G4 settlement. Persist G1 and checkpoint.
 
-Verify isolated worktrees and disjoint ownership, reciprocal pairs, current epoch/Pack and settled Context Requests, frozen/versioned contracts, MFSQ strategy, canonical test environment, CI state (`EXISTS_VALID | EXISTS_GAPPED | MISSING | BLOCKED`), Jenkins bootstrap lane when missing, Figma/design prerequisites, security/data/migration/rollback, external authority, Notion schema/mode/watermark, and traceability plan.
+## EXEC + G2 — parallel implementation and lane settlement
 
-PK-01 projects Features `ANALYZED -> READY`, registers Session/Lane/Task records, and confirms G1/checkpoint. Missing CI may allow implementation in parallel with bootstrap but blocks G2–G4. Missing writable Notion blocks certified acceptance.
+Run developers, paired testers, CI-01, SQ-01, and PK-01 concurrently within their scopes.
 
-## Parallel implementation and test preparation
+```text
+Developer -> product commit + compact DEV_HANDOFF
+Tester    -> MFSQ tests + exact-candidate canonical CI + defects + lane verdict
+CI-01     -> reuse valid CI, repair gaps, or bootstrap Jenkins
+PK-01     -> material events, projections, evidence pointers, receipts
+```
 
-Developers implement product scope in isolated worktrees while paired testers design/review MFSQ tests; CI-01 repairs/bootstraps source-controlled delivery; SQ-01 prepares security/performance coverage; PK-01 continuously settles material events and evidence pointers. Ordinary thought logs, compile output, and micro-edits stay S0/S1 and do not pollute Notion.
+Developer handoff must include exact base/head, paths, acceptance mapping, runtime/migration effects, risks/exclusions, pair, RUN freshness, and evidence. Testers never repair product code; developer claims never close defects.
 
-Feature projections move through `PLANNED -> ANALYZED -> READY -> IN_DEVELOPMENT -> DEV_HANDOFF -> IN_TEST -> TEST_PASSED | DEFECT_RETURN | BLOCKED -> INTEGRATING -> IN_REVIEW -> ACCEPTED`.
+Event classes:
 
-## MFSQ
+```text
+S0 ephemeral: local only
+S1 progress: coalesce at checkpoint
+S2 control: sync before dependent handoff
+S3 gate: sync before Gate settles
+S4 governance: sync before acceptance
+```
 
-- **M — Mission & Model:** requirement, component, interface, data/state/migration/platform coverage.
-- **F — Functional & Flow:** happy, alternate, negative, boundary, concurrency, retry, idempotency, rollback, recovery.
-- **S — Security & Safety:** identity, authorization, validation, data/secrets/supply-chain/abuse/isolation/privacy/failure safety.
-- **Q — Quality Attributes:** performance is mandatory for behavior changes; also reliability, compatibility, accessibility, observability, maintainability, resource use, recoverability.
+`IN_SYNC` means watermark equals latest event and no pending/dead-letter S2-S4 item.
 
-Every change has M/F/S/Q disposition or RB-01-approved N/A. Every executable case maps to version-controlled test code and a canonical pipeline stage.
+Context mode is exactly one of `DIRECT_VERIFIED | BROKERED_SNAPSHOT | BLOCKED_CONTEXT_FRESHNESS`. Any shared C2+ change emits a Pack Delta; affected work cannot hand off until required acknowledgements settle. Contract-breaking changes normally start a new generation.
 
-## G2 — developer/tester settlement
+## G3 — build one candidate
 
-Developer handoff includes exact base/head, paths, acceptance mapping, migrations/runtime effects, risks/exclusions, feedback outcomes, pair, current epoch/Pack, and committed candidate. The paired tester independently decides final scope, implements tests, runs exact-candidate canonical CI, opens/closes structured defects, and issues lane verdict. Testers never repair product code; developer claims never close defects.
+INT-01 applies only settled current RUN lane/test commits in dependency order, resolves mechanical conflicts, runs the full canonical pipeline, and freezes one immutable candidate. Require agreement among contracts, migrations, event watermark, traceability, security/performance evidence, and checkpoint. Persist candidate and `INTEGRATING` projections.
 
-Before settlement, PK-01 confirms `DEV_HANDOFF`, test-plan review, P0/P1 defect transitions, CI/evidence, lane verdict, and Feature projection.
+## G4 — review one frozen candidate
 
-## CI/CD and Jenkins
+RB-01 reviews the exact candidate once against G0/G1 contracts, implementation, MFSQ, unchanged-code interactions, security/performance, migration/rollback/operations, CI, freshness, event health, artifact retention, and PKOS obligations.
 
-CI-01 reuses a valid canonical provider, repairs gapped source-controlled CI, or bootstraps Jenkins Pipeline as Code only when no usable provider exists. Prefer `Jenkinsfile`, multibranch discovery, reproducible agents, credentials by reference, retained JUnit/security/performance reports, artifacts/SBOM, test-environment deployment, and safe release gates. Local-only results cannot settle G2–G4. Evidence Registry pointers retain candidate commit, producer/verifier, URI, checksum, retention, and status.
+```text
+VERDICT = ACCEPT | RETURN_TO_LANE | REPLAN_ORG | BLOCKED_EXTERNAL_BOUNDARY
+```
 
-## G3 — cumulative integration
+A return creates a new generation for affected lanes, preserves independent accepted work, invalidates affected artifacts, updates Pack/projections, and requires retest. Maximum three same-architecture repair generations.
 
-Only INT-01 applies settled current-generation/current-epoch/current-Pack lane/test commits in dependency order, resolves mechanical conflicts, runs the full canonical pipeline, and freezes one immutable candidate. Event ledger, coordination projection, watermark, traceability, contracts, migrations, security/performance, and checkpoint must agree. PK-01 projects Features into `INTEGRATING` and confirms candidate/evidence/checkpoint records.
+## G5 — certify or checkpoint
 
-## G4 — Review Board
-
-RB-01 reviews one frozen candidate in one pass against G0/G1 contracts, implementation completeness, MFSQ traceability, unchanged-code interactions, security/performance, migration/rollback/operations, exact-candidate CI, Pack/epoch freshness, pending/dead-letter events, artifact retention, and PKOS obligations.
-
-Return exactly `ACCEPT | RETURN_TO_LANE | REPLAN_ORG | BLOCKED_EXTERNAL_BOUNDARY`. PK-01 confirms verdict/findings/checkpoint. A return increments generation for affected lanes, preserves accepted independent work, updates Feature projections, and invalidates affected route/Pack/test/review artifacts. Three same-architecture repairs maximum.
-
-## Traceability
-
-Maintain and validate:
+Traceability must be complete:
 
 ```text
 Requirement -> Feature -> Acceptance -> Lane/Packet -> Product Commit
--> MFSQ Test/Test Commit -> exact-candidate CI and reports
--> Security/Performance Evidence -> G4 Verdict
--> Notion Canonical Owner and verified write receipt
+-> MFSQ Test/Test Commit -> exact-candidate CI/reports
+-> Security/Performance -> G4 -> Notion canonical owner + verified receipt
 ```
 
-Accepted delivery requires complete links, no open P0/P1, no orphan evidence, exact-candidate CI PASS, and confirmed Notion writeback for durable changes.
+TD-01 returns `COMPANY_SWARM_ACCEPTED` only when all are true:
+
+```text
+coordination bundle PASS
+Notion DIRECT_WRITABLE + schema READY + IN_SYNC
+pending/dead-letter S2-S4 = 0
+current Pack/epoch acknowledged
+exact-candidate CI PASS; open P0/P1 = 0
+traceability PASS; G4 ACCEPT
+canonical PKOS writeback receipts confirmed
+stable evidence retained
+final checkpoint + dashboard + retrospective produced
+```
+
+Only stable reusable lessons enter procedural Memory; transient sessions and raw logs do not.
+
+## Recovery
+
+Checkpoint at G0, G1, handoff batches, candidate freeze, every G4 result, takeover, and G5. A replacement runtime may assume TD-01 only with observable authority: validate checkpoint/ledger, replay outbox, append `TAKEOVER`, increment `director_epoch` exactly one, verify the Notion Run projection, and reissue affected packets. Old-epoch results remain evidence but cannot mutate current state.
+
+## Validators
+
+Run from this Skill directory or adapt paths explicitly:
 
 ```bash
-python scripts/validate_traceability.py coordination/traceability.json
-python scripts/validate_coordination_bundle.py coordination/
+python scripts/validate_org.py assets/examples/organization.example.json
+python scripts/validate_mfsq.py assets/examples/mfsq-test-plan.example.json
+python scripts/validate_coordination_bundle.py assets/examples/coordination-bundle
+python scripts/audit_prompt_budget.py
+python scripts/validate_install.py
 ```
-
-## Checkpoint, resume, and TAKEOVER
-
-Create checkpoints at G0, G1, handoff batches, candidate freeze, every G4 verdict/return, before/after takeover, and G5 completion/block. Record event/state version, generation, Director runtime/epoch, Pack revision, Notion watermark/run record, candidate, sessions/lanes, artifact checksums, pending outbox, resume token, and verifiers.
-
-A replacement runtime may assume logical TD-01 only with observable authority. Append `TAKEOVER`, increment `director_epoch` exactly one, update and verify the Notion Run record, invalidate stale runtime refs, and reissue affected packets. Old-epoch results cannot mutate current state.
-
-```bash
-python scripts/validate_checkpoint.py coordination/checkpoint.json --ledger coordination/event-ledger.json
-python scripts/build_resume_plan.py coordination/checkpoint.json --takeover --output coordination/resume-plan.json
-```
-
-Read [checkpoint, resume, and takeover](references/checkpoint-resume-and-takeover.md).
-
-## G5 — acceptance, canonical writeback, dashboard, retrospective
-
-TD-01 may accept only after RB-01 `ACCEPT` for the exact candidate and all of these pass:
-
-1. Coordination bundle validation.
-2. Notion `DIRECT_WRITABLE`, schema `READY`, watermark at latest event, zero pending/dead-letter S2–S4 events.
-3. Complete traceability, exact-candidate CI PASS, no open P0/P1.
-4. Current Pack/epoch acknowledged by all relevant sessions.
-5. Feature Registry projection and Current Truth/Audit/ADR/Incident/Memory obligations confirmed with receipts.
-6. Required Git/CI/design/run artifacts retained with stable pointers/checksums.
-7. Final checkpoint/resume token and evidence dashboard.
-8. Retrospective covering plan-vs-actual, repairs, defects, coordination/barrier delays, security/performance change, weak evidence, and prevention lessons.
-9. Only stable reusable lessons become procedural Memory; transient sessions/logs remain episodic or are discarded.
-
-The dashboard reports Gate/state version/epoch/Pack/checkpoint, organization and pairs, Feature projection, Notion mode/schema/watermark/outbox/dead letters/receipts, Context Requests, traceability, CI, MFSQ, security/performance, reviews, writeback, and residual risk.
 
 ## Final statuses
 
-- `COMPANY_SWARM_ACCEPTED`
-- `COMPANY_SWARM_CHECKPOINT`
-- `RETURNED_TO_LANES`
-- `REPLAN_ORGANIZATION`
-- `BLOCKED_MODEL_CONFIG`
-- `BLOCKED_RUNTIME`
-- `BLOCKED_CONTEXT_FRESHNESS`
-- `BLOCKED_NOTION_COORDINATION`
-- `BLOCKED_CI`
-- `BLOCKED_EXTERNAL_BOUNDARY`
-
-The final report distinguishes observed from proposed work and includes organization, model confidence, generation/epoch/Pack, Notion mode/schema/watermark/receipts, changed scope, candidate/CI, Review verdict, repairs, traceability, PKOS writeback, checkpoint, unrun evidence, and residual risk.
-
-## Validation
-
-```bash
-python plugins/pkos/skills/codex-company-swarm/scripts/validate_install.py
-python -m unittest discover -s plugins/pkos/skills/codex-company-swarm/tests -v
-python scripts/validate.py
+```text
+COMPANY_SWARM_ACCEPTED | COMPANY_SWARM_CHECKPOINT
+RETURNED_TO_LANES | REPLAN_ORGANIZATION
+BLOCKED_MODEL_CONFIG | BLOCKED_RUNTIME | BLOCKED_CONTEXT_FRESHNESS
+BLOCKED_NOTION_COORDINATION | BLOCKED_CI | BLOCKED_EXTERNAL_BOUNDARY
 ```
 
-Runtime smoke-test schema binding, outbox receipts, context modes, Pack Delta reload, one developer/tester pair, CI evidence, integration, checkpoint/resume, authorized takeover, traceability, and canonical writeback before production-critical use.
+Final reporting must distinguish observed from proposed work and include RUN freshness, organization, Notion sync, candidate/CI, review, repairs, traceability, PKOS writeback, checkpoint, unrun evidence, and residual risk.
