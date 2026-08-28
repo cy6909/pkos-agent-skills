@@ -1,48 +1,34 @@
-# Design sources and rationale
+# Design sources
 
-The Skill combines established engineering, event-sourcing, transactional-outbox, secure-delivery and PKOS ideas. Sources inform design; explicit Skill contracts govern a run.
+**READ WHEN:** maintaining the Skill design. Never load during a delivery run.
 
 ## OpenAI Codex
 
-- Codex subagents: https://developers.openai.com/codex/subagents/
-- Configuration reference: https://developers.openai.com/codex/config-reference/
-- Agent Skills: https://developers.openai.com/codex/skills/
+- Build skills / progressive disclosure: https://developers.openai.com/codex/build-skills
+- Customization overview: https://developers.openai.com/codex/customization/overview
+- Subagents: https://developers.openai.com/codex/subagents/
+- Configuration: https://developers.openai.com/codex/config-reference/
 - AGENTS.md: https://developers.openai.com/codex/guides/agents-md/
 
-Applied: focused child context, custom roles/model effort, inspectable sessions, cautious parallel writes, Skill packaging and instruction discovery.
+Applied: concise `SKILL.md`, conditional references, scripts for deterministic checks, focused child context, custom roles, inspectable sessions, and isolated writes.
 
 ## Organization and delivery
 
 - Team Topologies: https://teamtopologies.com/key-concepts
-- Scrum Guide / Definition of Done: https://scrumguides.org/scrum-guide.html
+- Scrum Guide: https://scrumguides.org/scrum-guide.html
+- Jenkins Pipeline/Jenkinsfile/Multibranch: https://www.jenkins.io/doc/book/pipeline/
 
-Applied: stream-aligned lanes, enabling quality roles, CI platform capability, explicit evidence-based done. The requested Technical Director hierarchy is stronger than Scrum autonomy.
+Applied: stream-aligned lanes, enabling quality roles, CI platform capability, evidence-based done, and source-controlled delivery.
 
-## CI/Jenkins
-
-- Jenkins Pipeline: https://www.jenkins.io/doc/book/pipeline/
-- Jenkinsfile: https://www.jenkins.io/doc/book/pipeline/jenkinsfile/
-- Multibranch: https://www.jenkins.io/doc/book/pipeline/multibranch/
-
-Applied: source-controlled Pipeline as Code, multibranch discovery, reproducible agents, retained reports/artifacts and safe promotion.
-
-## Secure development
+## Security and durability
 
 - NIST SSDF SP 800-218: https://csrc.nist.gov/pubs/sp/800/218/final
-- OWASP ASVS: https://owasp.org/www-project-application-security-verification-standard/
-- OWASP MASVS: https://mas.owasp.org/MASVS/
-- OWASP WSTG: https://owasp.org/www-project-web-security-testing-guide/
+- OWASP ASVS/MASVS/WSTG: https://owasp.org/
+- Event Sourcing: https://martinfowler.com/eaaDev/EventSourcing.html
+- Transactional outbox: https://learn.microsoft.com/azure/architecture/patterns/transactional-outbox
 
-Applied: lifecycle security, risk-based verification, mobile/web coverage, retained evidence and triage rather than scanner-only confidence.
-
-## Durable coordination
-
-- Martin Fowler, Event Sourcing: https://martinfowler.com/eaaDev/EventSourcing.html
-- Microsoft transactional outbox guidance: https://learn.microsoft.com/azure/architecture/patterns/transactional-outbox
-- AWS Prescriptive Guidance, transactional outbox: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
-
-Applied: append-only semantic events, current projections, local write-ahead outbox, idempotency, receipts, watermarks, replay and checkpoints. The Skill does not claim cross-system ACID or a distributed lock.
+Applied: lifecycle security, risk-based verification, append-only semantic events, local write-ahead outbox, idempotency, receipts, watermarks, replay, and checkpoints. The Skill does not claim cross-system ACID or a distributed lock.
 
 ## PKOS
 
-The repository's canonical Project, Memory, Notion tool, Audit and Sol–Luna protocols remain primary internal sources. Company Swarm v0.5 adds a durable execution coordination plane while preserving one Feature Registry, one Current Truth and bounded memory.
+Shared Project, Memory, Notion, Audit, and Sol–Luna protocols remain authoritative. Company Swarm v0.6 changes prompt layout, not canonical ownership or completion semantics.

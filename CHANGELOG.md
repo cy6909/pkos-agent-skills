@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0 - 2026-08-28
+
+- Refactor `codex-company-swarm` into an executable-style progressive-disclosure entrypoint: registers, invariants, conditional reference map, BOOT→G5 state machine, guards, validators, and statuses.
+- Remove unconditional startup reference reads and move duplicated organization, Notion, event, MFSQ, CI, recovery, traceability, and field-level detail behind condition-specific references.
+- Shorten discovery metadata, the UI starter prompt, and all ten Sol Max role contracts while preserving authority, freshness, evidence, testing, integration, and writeback boundaries.
+- Add `audit_prompt_budget.py` with CI-enforced limits for SKILL, metadata, root core load, role TOMLs, reference size, duplicate runtime paragraphs, and reference-preload regressions.
+- Add prompt-budget negative tests and make installation validation report estimated activation context.
+- Preserve v0.5 Notion coordination, outbox receipts/watermark, Pack Delta, checkpoints/takeover, traceability, MFSQ, exact-candidate CI, and G0–G5 acceptance semantics.
+
 ## 0.5.0 - 2026-08-28
 
 - Upgrade `codex-company-swarm` from PKOS-backed final writeback to a continuous **Notion Durable Coordination Plane**.
