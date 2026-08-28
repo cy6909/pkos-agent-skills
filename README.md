@@ -60,7 +60,7 @@ The `pkos` plugin currently contains ten focused skills:
 
 | Skill | Purpose |
 |---|---|
-| `codex-company-swarm` | Run an explicitly requested, token-insensitive Sol Max engineering organization with one Technical Director, Review Board gates, paired developers/testers, CI/Jenkins evidence, single-owner integration, dashboards, and PKOS writeback. |
+| `codex-company-swarm` | Run an explicitly requested Sol Max engineering organization with progressive disclosure, one Technical Director, persistent Notion coordination, paired delivery lanes, CI/MFSQ evidence, recovery, traceability, and PKOS writeback. |
 | `codex-sol-luna-workflow` | Run the cost- and capacity-aware Sol–Luna planner/worker workflow with bounded reusable sessions and evidence-gated settlement. |
 | `pkos-project-session` | Orchestrate normal project work: minimal context before work, durable writeback after work. |
 | `pkos-project-bootstrap` | Initialize or migrate a software project into the PKOS skeleton. |
@@ -71,7 +71,7 @@ The `pkos` plugin currently contains ten focused skills:
 | `pkos-memory-writeback` | Extract, deduplicate, supersede, consolidate, and audit durable memories. |
 | `pkos-memory-lint` | Audit / GC long-term memory for duplicates, stale facts, low utility, and context bloat. |
 
-For the Company Swarm installation and operating model, see [Codex Company Swarm](docs/en/CODEX-COMPANY-SWARM.md).
+For Company Swarm setup and prompt-budget rules, see [Codex Company Swarm](docs/en/CODEX-COMPANY-SWARM.md).
 
 ## Repository layout
 
