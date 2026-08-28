@@ -56,10 +56,12 @@ Memory GC            ≈ garbage collector
 
 ## What is included?
 
-The `pkos` plugin currently contains eight focused skills:
+The `pkos` plugin currently contains ten focused skills:
 
 | Skill | Purpose |
 |---|---|
+| `codex-company-swarm` | Run an explicitly requested, token-insensitive Sol Max engineering organization with one Technical Director, Review Board gates, paired developers/testers, CI/Jenkins evidence, single-owner integration, dashboards, and PKOS writeback. |
+| `codex-sol-luna-workflow` | Run the cost- and capacity-aware Sol–Luna planner/worker workflow with bounded reusable sessions and evidence-gated settlement. |
 | `pkos-project-session` | Orchestrate normal project work: minimal context before work, durable writeback after work. |
 | `pkos-project-bootstrap` | Initialize or migrate a software project into the PKOS skeleton. |
 | `pkos-context-router` | Load the smallest project working set instead of recursively reading documentation. |
@@ -68,6 +70,8 @@ The `pkos` plugin currently contains eight focused skills:
 | `pkos-memory-context-router` | Compile a bounded, task-relevant long-term-memory working set. |
 | `pkos-memory-writeback` | Extract, deduplicate, supersede, consolidate, and audit durable memories. |
 | `pkos-memory-lint` | Audit / GC long-term memory for duplicates, stale facts, low utility, and context bloat. |
+
+For the Company Swarm installation and operating model, see [Codex Company Swarm](docs/en/CODEX-COMPANY-SWARM.md).
 
 ## Repository layout
 
