@@ -1,0 +1,7 @@
+# Merge only keys supported by the installed Codex version.
+[agents]
+max_concurrent_threads_per_session = 24
+
+[features.multi_agent_v2]
+hide_spawn_agent_metadata = false
+tool_namespace = "agents"

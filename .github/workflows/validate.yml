@@ -13,3 +13,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate.py
+      - run: python plugins/pkos/skills/codex-company-swarm/scripts/validate_install.py
+      - run: python -m unittest discover -s plugins/pkos/skills/codex-company-swarm/tests -v
