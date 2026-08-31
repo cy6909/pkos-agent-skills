@@ -7,6 +7,8 @@ description: Audit and repair a PKOS software project's knowledge structure for 
 
 Use `../../references/pkos-project-spec.md` and `../../references/audit-governance.md`.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every repaired value, finding, audit note, and pending Notion writeback; follow `../../references/notion-tool-contract.md`.
+
 Check:
 
 1. Address integrity: unique Root, stable Node IDs, valid parent pointers, no important orphans.

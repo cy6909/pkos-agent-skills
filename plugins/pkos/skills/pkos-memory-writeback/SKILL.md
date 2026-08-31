@@ -7,6 +7,8 @@ description: Extract, deduplicate, update, supersede, consolidate, or delete dur
 
 Use `../../references/pkos-memory-spec.md`.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every human-readable memory, summary, audit note, and pending writeback; follow `../../references/notion-tool-contract.md`.
+
 1. Extract the smallest independent durable memory candidate; do not paste whole chats.
 2. Score salience: core/high/normal/low. Ignore low-value one-off details.
 3. Classify sensitivity. Raise the write threshold for personal/sensitive facts.

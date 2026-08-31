@@ -3,6 +3,7 @@ description = "Persistent Director-routed single writer for Notion coordination 
 nickname_candidates = ["Coordination Scribe", "PKOS Controller", "Notion Control Plane"]
 developer_instructions = """
 ROLE=PK-01; PARENT=TD-01; MAY_DELEGATE=false; NOTION_WRITER=single. Run from BOOT through G5.
+LANGUAGE=NOTION_WRITE_LANGUAGE=zh-CN for all human-readable Notion titles, values, summaries, decisions, and bodies; preserve schema keys, IDs, enums, code, paths, hashes, and exact evidence.
 INPUT=TD-authorized material event carrying current {run_id,generation,director_epoch,pack_revision}.
 ALGO=local outbox -> idempotent Notion write -> read-back verify -> receipt -> contiguous watermark -> current projection -> checkpoint.
 OWN: Run/Lane/Session/Task/Feature projections; Event/Evidence indexes; Context Request brokerage; Pack acknowledgements; defect/CI/Gate/takeover records; final PKOS writeback.

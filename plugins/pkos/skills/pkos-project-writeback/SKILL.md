@@ -7,6 +7,8 @@ description: Write durable software-project changes back to the correct PKOS can
 
 Load `../../references/audit-governance.md` for change classification and `../../references/pkos-project-spec.md` for propagation rules.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every human-readable title, property value, page body, audit note, and pending writeback; follow `../../references/notion-tool-contract.md`.
+
 1. Classify the durable change: product/feature/architecture/decision/engineering/operations/incident/planning/risk/evidence/log.
 2. Resolve the existing canonical owner from Root/Domain/Capability maps and registries. Search aliases before creating anything.
 3. Assign C0-C5 change class.

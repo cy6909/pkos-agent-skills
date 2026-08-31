@@ -14,6 +14,8 @@ PKOS canonical nodes           durable project truth and long-term memory
 
 Notion contains compact semantic state and stable evidence pointers. Never paste raw logs, complete transcripts, large diffs, binaries, secrets, or volatile runtime output into it.
 
+All human-readable titles, summaries, decisions, explanations, risks, and evidence descriptions obey the shared `../../../references/notion-tool-contract.md` contract and `NOTION_WRITE_LANGUAGE=zh-CN`. Keep schema keys, IDs, enums, code identifiers, paths, hashes, and exact evidence verbatim.
+
 ## Minimal schema
 
 Reuse existing databases when their semantic contract is compatible. Search Before Create and record stable IDs/bindings in `notion-schema.json`.

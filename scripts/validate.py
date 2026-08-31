@@ -39,8 +39,25 @@ skills = sorted(skill_root.glob('*/SKILL.md'))
 if not skills:
     errors.append('no SKILL.md files found')
 
+notion_language_marker = 'NOTION_WRITE_LANGUAGE=zh-CN'
+notion_contract_path = ROOT / 'plugins/pkos/references/notion-tool-contract.md'
+if not notion_contract_path.exists():
+    errors.append('missing shared Notion tool contract')
+else:
+    notion_contract = notion_contract_path.read_text(encoding='utf-8')
+    for required in [
+        notion_language_marker,
+        'accurate, natural, easy-to-understand Simplified Chinese',
+        'Keep machine contracts and precision-sensitive values verbatim',
+        'Read back every affected title, property value, and page section',
+    ]:
+        if required not in notion_contract:
+            errors.append(f'Notion tool contract missing required language rule: {required}')
+
 for p in skills:
     text = p.read_text(encoding='utf-8')
+    if notion_language_marker not in text:
+        errors.append(f'{p.relative_to(ROOT)} missing {notion_language_marker}')
     if not text.startswith('---\n'):
         errors.append(f'{p.relative_to(ROOT)} missing YAML frontmatter')
         continue

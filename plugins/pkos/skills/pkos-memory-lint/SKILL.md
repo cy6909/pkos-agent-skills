@@ -7,6 +7,8 @@ description: Audit and garbage-collect PKOS long-term memory for duplicate activ
 
 Use `../../references/pkos-memory-spec.md`.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every repaired value, audit note, and pending Notion writeback; follow `../../references/notion-tool-contract.md`.
+
 Check:
 
 - multiple active memories for the same Subject/Scope/Meaning;

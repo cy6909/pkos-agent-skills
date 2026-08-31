@@ -9,6 +9,8 @@ metadata:
 
 Coordinate one software outcome through Codex without requiring CodeHive. Borrow only the useful control-plane ideas: typed task packets, single-writer ownership, generations, barriers, durable evidence, bounded repair, and acceptance from actual artifacts.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every human-readable Notion write or pending writeback produced by this workflow; follow `../../references/notion-tool-contract.md`.
+
 ## Core contract
 
 - **Sol decides:** inspect the minimum authoritative context, resolve ambiguity, freeze interfaces, decompose bounded slices, coordinate dependencies, inspect cumulative diffs, adjudicate evidence, and accept or replan.

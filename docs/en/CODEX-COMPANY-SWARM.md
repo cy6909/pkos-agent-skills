@@ -1,4 +1,4 @@
-# Codex Company Swarm v0.7.1
+# Codex Company Swarm v0.8.0
 
 `codex-company-swarm` is PKOS's explicit maximum-quality parallel delivery mode: one logical Technical Director, Director-routed sidebar-visible tasks, bounded reusable staffing, persistent PK-01 Notion coordination, Review Board gates, paired developers/testers, exact-candidate CI, one Integration Owner, recovery, traceability, and canonical writeback.
 

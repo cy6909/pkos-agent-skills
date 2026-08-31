@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0 - 2026-08-31
+
+- Require all ten PKOS Skill entrypoints to apply `NOTION_WRITE_LANGUAGE=zh-CN` to human-readable Notion writes and pending writeback payloads.
+- Define one shared Chinese-writing contract covering natural wording, semantic accuracy, factual status, technical-term preservation, existing-schema compatibility, and read-back verification.
+- Extend Company Swarm's PK-01 role and coordination/writeback references so its sole Notion writer emits understandable Chinese without translating machine contracts.
+- Add repository validation that rejects a PKOS Skill missing the language marker or a shared Notion contract missing its accuracy and verification rules.
+
 ## 0.7.1 - 2026-08-28
 
 - Make `codex-company-swarm` discoverable in fresh Codex skill catalogs so explicit `$codex-company-swarm` activation works outside the source repository.

@@ -7,6 +7,8 @@ description: Initialize or migrate a software project's durable knowledge into t
 
 Read `../../references/pkos-project-spec.md` and `../../references/templates.md` as needed.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every human-readable title, property value, page body, and pending writeback; follow `../../references/notion-tool-contract.md`.
+
 ## Workflow
 
 1. Discover existing project sources before creating anything: Notion pages/databases, repositories, architecture, features, incidents, operations, plans, and design sources.

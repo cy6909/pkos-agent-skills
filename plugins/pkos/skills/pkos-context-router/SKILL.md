@@ -7,6 +7,8 @@ description: Load the smallest task-relevant context from a PKOS-managed softwar
 
 Use progressive disclosure from `../../references/pkos-project-spec.md`.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies if this Skill produces any human-readable Notion update or pending writeback; follow `../../references/notion-tool-contract.md`.
+
 1. Read the Project Root Map only.
 2. Extract task entities: feature/capability, component, platform, symptom, environment, action, constraints.
 3. Match Root pointers and READ WHEN / SKIP WHEN rules; expand at most 1-3 domain/capability maps first.

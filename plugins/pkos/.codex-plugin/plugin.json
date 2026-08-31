@@ -1,6 +1,6 @@
 {
   "name": "pkos",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Canonical project knowledge, bounded memory, and visible, Director-routed, budgeted multi-task delivery with durable coordination.",
   "author": {
     "name": "cy6909",
@@ -26,7 +26,7 @@
   "interface": {
     "displayName": "PKOS – Project & Memory OS",
     "shortDescription": "Canonical knowledge, bounded memory, durable agent coordination.",
-    "longDescription": "Route bounded project and memory context, maintain one canonical truth, and run evidence-gated multi-agent delivery with Notion coordination, event receipts, checkpoints, recovery, and traceability.",
+    "longDescription": "Route bounded project and memory context, maintain one canonical truth, write clear and accurate Simplified Chinese to Notion, and run evidence-gated multi-agent delivery with receipts, recovery, and traceability.",
     "developerName": "cy6909",
     "category": "Productivity",
     "defaultPrompt": [

@@ -5,7 +5,7 @@ metadata:
   short-description: Visible, routed, budgeted delivery with durable coordination
 ---
 
-# Codex Company Swarm v0.7
+# Codex Company Swarm
 
 Treat this file as an executable control program. Do not preload its references.
 
@@ -32,7 +32,8 @@ PKOS nodes      = canonical project truth and long-term memory
 
 1. Current session is logical `TD-01`; never spawn a second Director.
 2. Only TD-01 changes staffing, shared contracts, generation, candidate freeze, takeover, or final status. Children set `may_delegate=false`.
-3. Provision persistent `PK-01` first. PK-01 is the sole Notion coordination writer; other roles may only read or emit event candidates.
+3. Provision `PK-01` first. It is the sole Notion writer; other roles only read or emit event candidates.
+   Notion human text uses `NOTION_WRITE_LANGUAGE=zh-CN`.
 4. Pair every product developer with one independent tester. Developer owns product code; tester owns test scope/code, CI interpretation, defects, and lane verdict.
 5. Only `INT-01` creates the cumulative candidate.
 6. Every mutable result carries current `{run_id, generation, director_epoch, pack_revision}` plus base/candidate identity and evidence refs. Reject stale values.
@@ -174,4 +175,4 @@ BLOCKED_MODEL_CONFIG | BLOCKED_RUNTIME | BLOCKED_CONTEXT_FRESHNESS
 BLOCKED_NOTION_COORDINATION | BLOCKED_CI | BLOCKED_EXTERNAL_BOUNDARY
 ```
 
-Final report separates observed/proposed work and includes RUN freshness, organization, Notion sync, candidate/CI, review, repairs, traceability, PKOS writeback, checkpoint, unrun evidence, and residual risk.
+Final report separates observed/proposed work and covers RUN freshness, organization, Notion sync, candidate/CI, review, traceability, writeback, checkpoint, unrun evidence, and risk.

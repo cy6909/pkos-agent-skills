@@ -12,7 +12,7 @@ from types import ModuleType
 from typing import Iterable, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.7"
+VERSION = "v0.8"
 
 REQUIRED_FILES = [
     "SKILL.md",
@@ -128,6 +128,7 @@ def validate_static(errors: List[str]) -> None:
             "TAKEOVER",
             "visible Codex task",
             "CONCURRENCY_UNDERFILLED",
+            "NOTION_WRITE_LANGUAGE=zh-CN",
             "BLOCKED_NOTION_COORDINATION",
         ):
             if marker not in skill:
@@ -154,7 +155,7 @@ def validate_static(errors: List[str]) -> None:
     scribe_path = ROOT / "assets" / "agent-configs" / "pkos_company_governance_scribe.toml"
     if scribe_path.is_file():
         scribe = scribe_path.read_text(encoding="utf-8").lower()
-        for marker in ("single", "notion", "outbox", "receipt", "watermark", "context request", "takeover"):
+        for marker in ("single", "notion", "outbox", "receipt", "watermark", "context request", "takeover", "notion_write_language=zh-cn"):
             if marker not in scribe:
                 errors.append("PK-01 config missing marker: %s" % marker)
 

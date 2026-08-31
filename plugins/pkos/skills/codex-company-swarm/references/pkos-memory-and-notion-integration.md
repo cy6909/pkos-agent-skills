@@ -14,6 +14,8 @@ Company Swarm adds execution coordination, not a second project or memory archit
 
 Run/Lane projections are operational views. They never become duplicate product truth.
 
+All human-readable Notion projections, canonical writebacks, memories, audit records, and pending payloads obey `NOTION_WRITE_LANGUAGE=zh-CN` from the shared Notion Tool Contract. Technical identifiers and machine contracts remain verbatim.
+
 ## Phase 0 reads
 
 TD-01/PK-01 resolve only the smallest needed:

@@ -1,11 +1,13 @@
 ---
 name: pkos-project-session
-description: Apply PKOS during normal software-project work: route the smallest project context before implementation and write durable project truth back afterward when Notion tools are available. Use for repository-specific feature work, architecture changes, debugging, refactoring, deployment changes, or project analysis where persistent project knowledge may matter. Do not use for generic coding questions unrelated to a concrete project.
+description: "Apply PKOS during normal software-project work: route the smallest project context before implementation and write durable project truth back afterward when Notion tools are available. Use for repository-specific feature work, architecture changes, debugging, refactoring, deployment changes, or project analysis where persistent project knowledge may matter. Do not use for generic coding questions unrelated to a concrete project."
 ---
 
 # PKOS Project Session
 
 Use this as the normal PKOS project-work orchestration workflow.
+
+`NOTION_WRITE_LANGUAGE=zh-CN` applies to every human-readable Notion write or pending writeback; follow `../../references/notion-tool-contract.md`.
 
 1. Detect whether a Notion-capable tool/app is available. Do not assume exact tool names; use `../../references/notion-tool-contract.md` when needed.
 2. Resolve the project Root Map from the repo's `AGENTS.md`, current instructions, project name, or a targeted Notion search.

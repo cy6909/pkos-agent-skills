@@ -1,4 +1,4 @@
-# Runtime installation and v0.7 smoke test
+# Runtime installation and v0.8 smoke test
 
 **READ WHEN:** installing roles, selecting an adapter, or certifying a runtime. Do not load during normal delivery.
 

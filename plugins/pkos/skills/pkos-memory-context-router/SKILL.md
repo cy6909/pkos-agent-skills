@@ -7,6 +7,8 @@ description: Retrieve and compile the smallest relevant long-term user/agent con
 
 Read `../../references/pkos-memory-spec.md` when detailed memory rules are needed.
 
+`NOTION_WRITE_LANGUAGE=zh-CN` applies if this Skill produces any human-readable Notion update or pending writeback; follow `../../references/notion-tool-contract.md`.
+
 1. Start with `memory_required = none | core | scoped | deep`; default to `none`.
 2. If memory is required, read the Memory Root/Core first, not the whole registry.
 3. Select relevant scopes only.

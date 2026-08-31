@@ -1,5 +1,9 @@
 # Notion MCP Integration
 
+## Simplified Chinese writes
+
+Every PKOS Skill defaults human-facing Notion content to accurate, natural, understandable Simplified Chinese (`NOTION_WRITE_LANGUAGE=zh-CN`). Schema keys, IDs, enums, code/API identifiers, paths, commands, URLs, hashes, commit SHAs, and exact error evidence remain verbatim. Read-back must confirm both persistence and semantic accuracy. An explicit user locale or documented canonical-node locale overrides this default.
+
 PKOS does not hard-code a Notion MCP implementation. The agent should discover the tool surface and map it to these capabilities:
 
 - search pages/databases;
