@@ -1,6 +1,13 @@
-# Codex Company Swarm v0.8.0
+# Codex Company Swarm v0.9.0
 
 `codex-company-swarm` is PKOS's explicit maximum-quality parallel delivery mode: one logical Technical Director, Director-routed sidebar-visible tasks, bounded reusable staffing, persistent PK-01 Notion coordination, Review Board gates, paired developers/testers, exact-candidate CI, one Integration Owner, recovery, traceability, and canonical writeback.
+
+## v0.9: requirement-led MFSQ v2
+
+- M remains Mission & Model; Material/provenance is a separate fail-closed pre-gate.
+- Traceability now runs Requirement → canonical Feature → platform units/dependencies → atomic Acceptance → approved visual/text Test Design → step-level cases/test code → exact-candidate CI.
+- Every step records its expected result; unit cases map stable test symbols to tested code symbols, purpose, and rationale.
+- Notion uses normalized related views while preserving one canonical Product Feature Registry.
 
 ## v0.7: visible routing and bounded concurrency
 

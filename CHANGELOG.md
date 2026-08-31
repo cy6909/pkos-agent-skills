@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 - 2026-08-31
+
+- Replace the historical MFSQ v1 manifest with `pkos-mfsq/v2` and enforce Requirement → Feature → platform implementation unit/dependency → atomic Acceptance → approved visual/text Test Design → executable test/CI traceability.
+- Keep M as Mission & Model and add a separate fail-closed Material/provenance pre-gate for exact source, lockfiles, generated files, toolchains, models/data, SBOM and artifact integrity.
+- Require every test step to carry its expected result; require unit tests to identify test/code symbols, purpose and rationale; require dependency and user-facing acceptance coverage.
+- Define normalized Notion Requirement, implementation-unit, dependency, atomic-acceptance, Test Design and MFSQ Test Case projections while preserving the single canonical Product Feature Registry.
+- Add validator and negative-test coverage for legacy manifests, orphan acceptances, missing code mappings, missing dependency/E2E coverage and incomplete Material gates.
+
 ## 0.8.0 - 2026-08-31
 
 - Require all ten PKOS Skill entrypoints to apply `NOTION_WRITE_LANGUAGE=zh-CN` to human-readable Notion writes and pending writeback payloads.

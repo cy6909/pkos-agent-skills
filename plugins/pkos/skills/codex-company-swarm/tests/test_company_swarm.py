@@ -139,6 +139,11 @@ class MFSQValidationTests(unittest.TestCase):
     def test_valid_example(self) -> None:
         self.assertEqual([], MFSQ.validate(self.data))
 
+    def test_rejects_v1_schema_for_new_runs(self) -> None:
+        self.data["schema"] = "pkos-mfsq/v1"
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("historical evidence only" in item for item in errors))
+
     def test_rejects_missing_security(self) -> None:
         self.data["cases"] = [item for item in self.data["cases"] if item["axis"] != "S"]
         errors = MFSQ.validate(self.data)
@@ -152,10 +157,12 @@ class MFSQValidationTests(unittest.TestCase):
     def test_accepts_approved_performance_exclusion(self) -> None:
         self.data["cases"] = [item for item in self.data["cases"] if item.get("quality_attribute") != "performance"]
         self.data["exclusions"] = [{
+            "scope": "axis",
             "axis": "Q",
             "quality_attribute": "performance",
             "reason": "Documentation-only code path has no runtime behavior",
-            "approved_by": "RB-01"
+            "approved_by": "RB-01",
+            "approval_artifact": "notion://RV-Q-N-A-001"
         }]
         self.assertEqual([], MFSQ.validate(self.data))
 
@@ -163,6 +170,41 @@ class MFSQValidationTests(unittest.TestCase):
         self.data["cases"][0]["pipeline_stage"] = "local"
         errors = MFSQ.validate(self.data)
         self.assertTrue(any("authoritative pipeline_stage" in item for item in errors))
+
+    def test_rejects_step_without_expected_result(self) -> None:
+        del self.data["cases"][0]["steps"][0]["expected"]
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("steps[0].expected" in item for item in errors))
+
+    def test_rejects_unit_case_without_code_mapping(self) -> None:
+        unit_case = next(item for item in self.data["cases"] if item["case_type"] == "unit")
+        unit_case["code_refs"] = []
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("unit case requires code_refs" in item for item in errors))
+
+    def test_rejects_uncovered_acceptance(self) -> None:
+        self.data["acceptance_ids"].append("AC-ORDER-UNTESTED")
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("AC-ORDER-UNTESTED has no executable test case" in item for item in errors))
+
+    def test_rejects_dependency_without_cross_unit_contract_case(self) -> None:
+        contract_case = next(item for item in self.data["cases"] if item["case_type"] == "contract")
+        contract_case["implementation_unit_ids"] = ["BE-API-ORDER-RETRY"]
+        e2e_case = next(item for item in self.data["cases"] if item["case_type"] == "e2e")
+        e2e_case["case_type"] = "component"
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("DEP-ORDER-RETRY-001 lacks a contract" in item for item in errors))
+
+    def test_rejects_user_facing_unit_without_acceptance_case(self) -> None:
+        e2e_case = next(item for item in self.data["cases"] if item["case_type"] == "e2e")
+        e2e_case["case_type"] = "component"
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("FE-WEB-ORDER-RETRY lacks E2E" in item for item in errors))
+
+    def test_rejects_missing_material_provenance_checks(self) -> None:
+        self.data["material_gate"]["checks"] = []
+        errors = MFSQ.validate(self.data)
+        self.assertTrue(any("material_gate.checks must be a non-empty array" in item for item in errors))
 
 
 class DashboardTests(unittest.TestCase):

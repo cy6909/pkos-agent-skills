@@ -1,128 +1,95 @@
-# MFSQ quality model
+# MFSQ quality and test-design contract
 
-## Status of the term
+## Meaning
 
-This Skill does not assume that “MFSQ” has one universally recognized software-testing expansion. It defines a project-operational model so every run is deterministic. If a repository already owns a canonical MFSQ definition, the G0 review may use it only after recording the source and a complete mapping to the four obligations below.
+- **M — Mission & Model:** requirements, acceptances, contracts, state/data models, platform allocation, migration and compatibility.
+- **F — Functional & Flow:** happy/alternate/invalid/boundary paths, retry, cancellation, concurrency, offline, recovery and E2E.
+- **S — Security & Safety:** identity, authorization, isolation, validation, privacy, abuse, supply chain and safe degradation.
+- **Q — Quality Attributes:** performance, reliability, accessibility, compatibility, observability, recoverability, maintainability and cost.
 
-## M — Mission & Model coverage
+Material is not M. Exact source, clean tree, lockfiles, tool/image digests, SBOM, provenance and hashes form a separate fail-closed **Material & Provenance pre-gate**. Historical `pkos-mfsq/v1` is evidence only; new runs require `pkos-mfsq/v2`.
 
-Purpose: prove that the intended mission and system model are represented by tests.
+## Required chain
 
-Typical coverage:
-
-- every requirement and acceptance criterion;
-- component boundaries and dependency direction;
-- API/event/schema contracts;
-- data model, state model, lifecycle, permissions, and tenancy;
-- platform variants: web, backend, Android, iOS, AI/data, infrastructure;
-- migrations, backward compatibility, rollout, rollback, and feature flags;
-- AI/data-specific datasets, evaluation slices, nondeterminism controls, and failure modes.
-
-Examples:
-
-- requirement traceability test;
-- contract/schema compatibility test;
-- migration forward/backward test;
-- platform parity matrix;
-- model/evaluation slice coverage.
-
-## F — Functional & Flow coverage
-
-Purpose: prove behavior across complete user/system flows, not only happy-path functions.
-
-Typical coverage:
-
-- happy path and alternate paths;
-- invalid input and authorization failures;
-- boundaries, empty/extreme values, time/date/localization;
-- state transitions and forbidden transitions;
-- retry, timeout, cancellation, idempotency, duplicate delivery;
-- concurrency, ordering, race, offline/online transitions;
-- partial failure, rollback, recovery, and compensation;
-- UI interaction, accessibility interaction, device lifecycle, and backgrounding where applicable.
-
-## S — Security & Safety coverage
-
-Purpose: prove the change does not introduce unacceptable security or unsafe failure behavior.
-
-Typical coverage:
-
-- authentication, session lifecycle, authorization, object-level access;
-- input validation, injection, deserialization, file handling, SSRF and path control;
-- secrets, credentials, logs, error messages, and privacy-sensitive data;
-- encryption and transport expectations;
-- tenant/user isolation and privilege boundaries;
-- dependency, supply-chain, SBOM, signature, container and IaC checks;
-- abuse/rate limiting, fraud/misuse paths, replay, automation resistance;
-- mobile storage, IPC, deep links, WebView/network controls;
-- safe degradation, fail-closed/fail-safe decisions, and destructive-operation protection.
-
-Use project risk and applicable standards, including NIST SSDF and OWASP ASVS/MASVS/WSTG, rather than blindly executing a generic checklist.
-
-## Q — Quality-attribute coverage
-
-Purpose: prove non-functional behavior. **Performance is mandatory for behavior-changing work unless RB-01 approves N/A with evidence.**
-
-Typical attributes:
-
-- latency, throughput, startup, frame time, memory, CPU/GPU, disk, network, battery, cost, capacity;
-- reliability, availability, durability, and fault tolerance;
-- observability: logs, metrics, traces, audit, alertability;
-- recoverability, backup/restore, rollback, disaster behavior;
-- compatibility, upgrade, downgrade, browser/device/OS matrix;
-- accessibility and internationalization;
-- maintainability/testability and deterministic build behavior;
-- resource leaks, long-run stability, load shedding and graceful degradation.
-
-Performance cases require a baseline, environment, workload, warmup, repetitions, candidate result, statistic, threshold, and regression decision. “Feels fast” is not evidence.
-
-## Required plan fields
-
-Each executable test case contains:
-
-```json
-{
-  "case_id": "TC-Q-004",
-  "axis": "Q",
-  "title": "p95 recommendation latency under target load",
-  "acceptance_ids": ["AC-8"],
-  "risk": "high",
-  "quality_attribute": "performance",
-  "preconditions": ["test dataset revision ds-17"],
-  "procedure": "Run k6 scenario perf/recommendations.js",
-  "expected": "p95 <= 450 ms and error rate < 0.5%",
-  "automation_path": "tests/performance/recommendations.js",
-  "pipeline_stage": "performance",
-  "owner_session_id": "T-BE-01",
-  "status": "planned",
-  "evidence": []
-}
+```text
+Requirement -> canonical Product Feature
+-> platform implementation unit(s) + typed dependency edges
+-> atomic Acceptance -> approved visual + textual Test Design
+-> MFSQ Case -> ordered action/expected steps
+-> test path/symbol + tested code path/symbol
+-> exact-candidate pipeline result/evidence
 ```
 
-Plan-level fields:
+Platform units (`frontend | backend | android | ios | ai_data | ops | shared`) do not duplicate the Product Feature. Dependencies name consumer, provider and contract; each requires a contract, integration or E2E case spanning both units.
 
-- `schema = pkos-mfsq/v1`;
-- run, generation, lane, feature ID, behavior-changing flag;
-- developer/tester pairing;
-- canonical environment and pipeline provider;
-- cases;
-- exclusions with axis, reason, approved-by, approval artifact;
-- review status and reviewers.
+## Test Design
 
-## Coverage rules
+Before implementation, the plan references one versioned design with stable ID/version, visual mind map or equivalent, textual scope/risk/environment/data/coverage design, checksum, `APPROVED` status and TM/RB reviewers. The visual view finds gaps; written cases remain executable truth. G1 fails if design, implementation map or dependencies are stale/unapproved.
 
-1. Every feature/change has visible M, F, S, and Q disposition.
-2. An axis may be `N/A` only with a concrete reason and `RB-01` approval.
-3. Behavior-changing work requires a security case or S exception and a performance case or Q/performance exception.
-4. Every executable case has an automation path and pipeline stage. Truly manual acceptance requires a machine-retained evidence artifact and Chair approval; it does not replace automatable coverage.
-5. Every acceptance criterion maps to one or more cases or an approved explicit gap.
-6. Security/performance findings retain severity/threshold and exact evidence.
-7. Test implementation is owned by testers/specialists, not developers.
+Recommended visual branches: requirements/acceptances; units/dependencies; actors/states/data/contracts; M/F/S/Q risks.
 
-## Review checklist
+## Coverage focus
 
-`TM-01` checks completeness, duplication, risk prioritization, cross-lane coverage, environment realism, data/fixture control, and pipeline mapping.
+**M:** requirement/acceptance completeness; unit allocation; API/event/schema/generated-client contracts; state/data/permission/tenancy lifecycles; migration/rollback/flags/compatibility; AI data/evaluation/failure models.
 
-`SQ-01` checks threat/risk coverage, security tooling limits, performance methodology, baseline comparability, and false-confidence risks.
+**F:** alternate and invalid values; state transitions; timeout/retry/idempotency/duplicates; ordering/races; offline/background; partial failure/compensation; navigation/refresh/persistence and cross-unit user flows.
 
-`RB-01` judges exceptions, unresolved gaps, and whether evidence is sufficient for acceptance.
+**S:** auth/session/object access; tenant isolation; upload/deserialization/injection/SSRF/path control; secrets/logs/privacy/transport; abuse/rate/replay; reachable dependency/container/IaC findings; mobile storage/deep links/WebView; destructive-operation safety.
+
+**Q:** latency/throughput/startup/frame/memory/CPU/GPU/network/battery/cost; reliability/durability; logs/metrics/traces/audit; backup/restore; browser/device/OS/accessibility/i18n; deterministic build, leaks, load shedding and graceful degradation.
+
+Behavior-changing work requires S and Q/performance unless RB-01 approves a scoped exception. Performance cases record comparable baseline/environment/workload, warmup/repetitions, statistic, threshold, regression budget and decision.
+
+## Material pre-gate
+
+`material_gate` contains version-controlled, pipeline-mapped checks for:
+
+- exact authorized commit/tree, clean checkout and submodules;
+- lockfile, dependency and generated-file consistency;
+- pinned toolchain/agent/container images and source provenance;
+- schema/migration/fixture/model/data/design checksums;
+- SBOM, signatures/attestations, artifact and evidence hashes.
+
+Every required check has automation path, pipeline stage, expected result, status and evidence. Failure blocks acceptance and cannot be excluded as MFSQ.
+
+## Plan and case fields
+
+Plan fields: run/generation/lane; behavior-changing flag; requirement/feature/atomic-acceptance IDs; developer/tester pair; canonical environment/pipeline; approved Test Design; units/dependencies; Material gate; cases; exclusions; review status/reviewers.
+
+Each implementation unit records `unit_id, layer, title, requirement_ids, feature_ids, acceptance_ids, user_facing, state_changing`. Each dependency records `dependency_id, consumer_unit_id, provider_unit_id, contract_ref, required`.
+
+Each case records:
+
+```text
+case_id; axis + secondary_axes; case_type; side; title
+requirement_ids; feature_ids; implementation_unit_ids; acceptance_ids
+risk; rationale; quality_attribute; preconditions
+steps[{step_id, action, expected, evidence_hook}]
+automation_path; pipeline_stage; owner_session_id; status; evidence
+```
+
+Case types: `unit | component | contract | integration | e2e | security | performance | migration | static | manual_acceptance`.
+
+Every step has its own expected result; one aggregate expected paragraph is invalid. Unit cases additionally require stable `test_symbol` and `code_refs[{path,symbol,purpose}]` plus fixtures and regression rationale. Prefer symbols plus commits over line numbers.
+
+Exclusions name `scope`, target/axis, concrete reason, `RB-*` approver and approval artifact.
+
+## Admission rules
+
+1. Every requirement reaches a Feature and atomic Acceptance; every Feature reaches a unit.
+2. Every unit, dependency and Acceptance has executable coverage or approved exclusion.
+3. Every case has axis, side, type, rationale, ordered action/expected steps, automation path, pipeline stage and owner.
+4. Unit cases include test/code symbols, purpose and rationale.
+5. User-facing units include E2E or approved manual acceptance. Project-required developer browser self-test remains separate admission evidence.
+6. Behavior changes have S and Q/performance coverage or scoped RB exceptions.
+7. Testers/specialists own independent test implementation; developer self-tests cite case IDs but do not replace it.
+8. v1 plans are never silently upgraded and cannot pass new G1.
+
+## Notion projection and review
+
+Keep one canonical Feature Registry. Relate it to Requirement, platform Implementation Unit, Dependency, atomic Acceptance, Test Design and MFSQ Test Case registries/views. A case page renders ordered steps/results and points to the Git v2 artifact; store evidence pointers, not raw logs.
+
+- RA-01: requirements, Feature ownership, unit allocation, dependencies.
+- TM-01: design coverage, risk, precise steps, fixtures and pipeline mapping.
+- SQ-01: threat coverage, tool limits, performance method and false confidence.
+- RB-01: exclusions and G1/G4 sufficiency.

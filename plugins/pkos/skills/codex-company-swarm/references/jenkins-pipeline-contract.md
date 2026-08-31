@@ -60,20 +60,31 @@ Prefer:
 
 A skill cannot manufacture a live Jenkins controller without authority and infrastructure. When those are unavailable, generate complete source-controlled bootstrap artifacts and return `BLOCKED_EXTERNAL_BOUNDARY`; never report Jenkins as running.
 
+## Material and provenance pre-gate
+
+Every run starts with a fail-closed Material gate. Material is not M; M means Mission & Model. The gate proves candidate/input reproducibility.
+
+Required checks, as applicable:
+
+- exact commit, tree, clean checkout, submodules and generated-file drift;
+- lockfiles, dependency resolution and pinned tool/container images;
+- source/schema/migration/fixture/model/data/design checksums;
+- SBOM, provenance, attestations, artifact hashes and environment identity.
+
+`pkos-mfsq/v2` maps each `material_gate` check to a pipeline stage. Missing/failed checks block acceptance and are not MFSQ exclusions.
+
 ## Pipeline stage contract
 
-The exact stages are risk- and stack-dependent, but every run begins with policy checks and ends with evidence publication.
+The exact stages are risk- and stack-dependent, but every run begins with Material/provenance checks and ends with evidence publication.
 
 ```text
-checkout + provenance
+material / provenance
   -> ownership / route / generated-file validation
-  -> lint / format / typecheck / compile
-  -> unit
-  -> contract / schema / migration
-  -> integration
-  -> platform E2E (web/API/mobile/AI-data as applicable)
-  -> security
-  -> performance
+  -> build / lint / format / typecheck / compile
+  -> M: mission and model contracts
+  -> F: unit / contract / integration / platform E2E
+  -> S: security and safety
+  -> Q: performance / reliability / accessibility / compatibility
   -> package / SBOM / artifact
   -> deploy to canonical test environment
   -> acceptance and report publication
@@ -85,6 +96,7 @@ Parallelize independent stages, but do not obscure dependency ordering or allow 
 
 Authoritative acceptance requires:
 
+- a passing Material gate and approved `pkos-mfsq/v2` test design;
 - version-controlled test implementation;
 - source-controlled pipeline mapping;
 - exact candidate revision;
@@ -94,6 +106,8 @@ Authoritative acceptance requires:
 - skipped/disabled/quarantined tests listed explicitly;
 - environment and toolchain identity;
 - artifacts retained long enough for G4 review.
+
+Each case keeps ordered steps with an expected result per step. Unit cases additionally identify the test symbol, exercised code path/symbol, purpose and rationale.
 
 Local feedback is useful but non-authoritative. A developer's local command does not replace tester-owned CI evidence.
 

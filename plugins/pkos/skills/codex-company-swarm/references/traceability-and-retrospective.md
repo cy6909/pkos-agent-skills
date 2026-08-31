@@ -5,8 +5,9 @@
 Every accepted requirement must remain connected through implementation, verification, review and canonical writeback:
 
 ```text
-Requirement -> Feature -> Acceptance -> Lane/Task Packet
--> Product Commit -> MFSQ Test Case/Test Commit
+Requirement -> Feature -> Implementation Unit/Dependency -> Atomic Acceptance
+-> approved Test Design -> Lane/Task Packet -> Product Commit
+-> MFSQ Test Case/ordered expected steps/Test Commit
 -> exact-candidate CI Run/Reports
 -> Security/Performance Evidence -> G4 Verdict
 -> Notion Canonical Owner/verified write receipt
@@ -15,9 +16,14 @@ Requirement -> Feature -> Acceptance -> Lane/Task Packet
 Required invariants:
 
 - every Requirement maps to one or more stable Features;
-- every Feature has Acceptance IDs, owner lane and PKOS owner pointer;
-- every Acceptance maps to product commits and tests;
+- every Feature maps to owned platform implementation units and declared dependencies;
+- every atomic Acceptance maps to implementation units, product commits and tests;
+- every approved Test Design has versioned visual/text references, checksum and reviewers;
+- every dependency has contract, integration or E2E coverage spanning both units;
 - every executable test has M/F/S/Q axis, automation path, test commit, pipeline stage and CI run;
+- every case step has an expected result; every unit case identifies test/code symbols, purpose and rationale;
+- every user-facing implementation unit has E2E or manual acceptance coverage;
+- the separate Material/provenance pre-gate passes before MFSQ evidence is accepted;
 - behavior changes have Security and Q/performance coverage or RB-approved explicit exceptions;
 - CI evidence targets the exact frozen candidate;
 - all blocking findings are closed or the run is blocked;

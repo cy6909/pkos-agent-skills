@@ -2,98 +2,85 @@
 
 ## Purpose
 
-Company Swarm uses Notion as a durable, human-inspectable coordination control plane across Codex sessions. It is not the high-frequency message bus and it does not replace Git, CI, Figma, or PKOS canonical product truth.
+Notion is the durable, human-readable control plane across sessions, not the message bus and not a replacement for Git, CI, Figma or PKOS canonical truth.
 
 ```text
-Codex messages                  immediate commands and replies
-.pkos coordination artifacts   write-ahead log, outbox, receipts, checkpoints
-Git / CI / reports / Figma      executable and visual evidence
-Notion coordination plane      current run projection, event history, evidence pointers
-PKOS canonical nodes           durable project truth and long-term memory
+Codex messages                immediate transport
+.pkos artifacts              WAL/outbox/receipts/checkpoints
+Git/CI/Figma                 executable/visual evidence
+Notion                       run projection, history, evidence pointers
+PKOS nodes                   canonical project truth and memory
 ```
 
-Notion contains compact semantic state and stable evidence pointers. Never paste raw logs, complete transcripts, large diffs, binaries, secrets, or volatile runtime output into it.
-
-All human-readable titles, summaries, decisions, explanations, risks, and evidence descriptions obey the shared `../../../references/notion-tool-contract.md` contract and `NOTION_WRITE_LANGUAGE=zh-CN`. Keep schema keys, IDs, enums, code identifiers, paths, hashes, and exact evidence verbatim.
+Store compact semantic state and stable pointers, never raw logs, transcripts, large diffs, binaries, secrets or volatile output. Human text follows `NOTION_WRITE_LANGUAGE=zh-CN`; preserve machine IDs/enums/paths/hashes.
 
 ## Minimal schema
 
-Reuse existing databases when their semantic contract is compatible. Search Before Create and record stable IDs/bindings in `notion-schema.json`.
+Search Before Create; reuse compatible databases and persist bindings in `notion-schema.json`.
 
 ### Swarm Run & Lane Registry
 
-One database stores typed current projections using `Record Type = Run | Lane | Session | Task`.
-
-Required semantics:
+Current projections with `Record Type = Run | Lane | Session | Task`:
 
 ```text
-Record ID | Record Type | Project ID | Run ID | Generation
-Director Epoch | State Version | Parent Record | Feature IDs
-Current Gate | Current State | Owner Session | Paired Session
-Pack Revision | Base Commit | Head Commit | Candidate Revision
-Blocked By | Last Event | Evidence | Last Verified
+Record/Project/Run IDs | Generation | Director Epoch | State Version
+Parent | Feature IDs | Gate/State | Owner/Pair | Pack Revision
+Base/Head/Candidate | Blocked By | Last Event/Evidence/Verified
 Resume Token | Sync Status
 ```
 
-This is a current-state projection, not an append-only history.
-
 ### Event & Decision Ledger
 
-Append-only semantic history:
+Append-only history:
 
 ```text
-Event ID | Sequence | Idempotency Key | Project ID | Run ID
-Generation | Director Epoch | State Version | Actor Session
-Event Type | Gate | Subject ID | Previous State | New State
-Summary | Evidence | Occurred At | Verification | Supersedes
+Event ID/Sequence/Idempotency Key | Project/Run/Generation/Epoch/Version
+Actor | Type/Gate/Subject | Previous/New State | Summary/Evidence
+Occurred At | Verification | Supersedes
 ```
 
-Do not rewrite prior events except to correct an explicitly identified invalid record through a superseding event.
+Correct invalid history with a superseding event; do not rewrite it.
 
 ### Evidence Registry
 
-Stable pointers and integrity metadata:
-
 ```text
-Evidence ID | Type | Project ID | Run ID | Generation
-Feature IDs | Lane ID | Candidate Commit | Produced By | Verified By
-URI | Checksum | Summary | Created At | Retention | Status | Supersedes
+Evidence ID/Type | Project/Run/Generation | Feature/Lane/Candidate
+Produced/Verified By | URI/Checksum/Summary | Created/Retention/Status/Supersedes
 ```
 
-Evidence bodies remain in Git, CI, artifact storage, design tools, or canonical Notion pages.
+Bodies remain in Git, CI, artifact storage, design tools or canonical pages.
 
-### Existing Project Feature Registry extension
+### Canonical Feature and normalized views
 
-Do not create another Feature ledger. Extend the existing single Project Feature Registry with:
+Never create a second Feature ledger or turn the Feature Registry into a test monolith. Extend its current projection with Run/Lane, development/test/CI/review status, accepted candidate, defects, evidence, last event and verification.
+
+Bind compatible project registries/views for:
 
 ```text
-Current Run | Current Lane | Development Status | Test Status
-CI Status | Review Status | Accepted Candidate | Open Defects
-Evidence | Last Event | Last Verified
+Requirement
+Frontend / Backend / Mobile / Data Implementation Unit
+Dependency
+Atomic Acceptance
+Test Design
+MFSQ Test Case
 ```
 
-History belongs in the Event Ledger. Product behavior and durable acceptance remain in the Feature canonical owner.
+They relate to the canonical Feature owner. A Feature may have several platform units; a unit may depend on several providers; an Acceptance may have several cases.
 
-## Capability modes
+Git `pkos-mfsq/v2` is the machine contract. Notion stores Chinese summaries, relations and evidence pointers. Each case page includes axis/type/side, requirement/feature/unit/acceptance relations, pipeline stage/evidence, and `步骤序号 / 操作 / 预期结果`. Unit cases add test/code symbols, purpose and rationale. Test Design links versioned visual and textual references, checksum and approval.
 
-- `DIRECT_WRITABLE`: PK-01 can search/read/create/update/query and verify writes.
-- `DIRECT_READ_ONLY`: PK-01 can read but cannot mutate; outbox remains pending.
-- `BROKERED`: another explicitly available Notion-capable adapter performs verified writes for PK-01.
-- `UNAVAILABLE`: no current Notion access.
+## Capability and authority
 
-A mode is observed/configured evidence, not inferred from a role name.
+- `DIRECT_WRITABLE`: PK-01 can read/write and verify.
+- `DIRECT_READ_ONLY`: reads only; outbox stays pending.
+- `BROKERED`: an explicit adapter performs verified writes for PK-01.
+- `UNAVAILABLE`: no access.
 
-Full `COMPANY_SWARM_ACCEPTED` requires writable coordination, schema `READY`, sync `IN_SYNC`, and verified canonical writeback. Read-only/unavailable runs may reach a durable repository checkpoint but return `BLOCKED_NOTION_COORDINATION` or another honest blocked/checkpoint status.
+Full acceptance requires writable coordination, schema `READY`, `IN_SYNC` and verified canonical writeback. Otherwise checkpoint with an honest blocked status.
 
-## Single writer
+PK-01 is the sole logical writer. Roles emit structured candidates through TD-01. TD-01 authorizes order/state; RB-01 decides Gates; evidence owners own their claims. PK-01 records only authorized evidence.
 
-PK-01 is the only logical writer to coordination projections and ledgers. Other roles produce structured event/evidence candidates through TD-01. This prevents duplicate rows, conflicting lifecycle transitions, and uncontrolled schema creation.
-
-TD-01 authorizes state changes and event order. PK-01 does not invent decisions. RB-01 decides Gate verdicts. Domain/test/CI roles own their evidence claims. PK-01 records only authorized, evidence-backed transitions.
-
-## Feature lifecycle projection
-
-Recommended current projection:
+## Lifecycle and refinement
 
 ```text
 PLANNED -> ANALYZED -> READY -> IN_DEVELOPMENT -> DEV_HANDOFF
@@ -101,43 +88,26 @@ PLANNED -> ANALYZED -> READY -> IN_DEVELOPMENT -> DEV_HANDOFF
 -> INTEGRATING -> IN_REVIEW -> ACCEPTED | DEFERRED
 ```
 
-Every transition includes Feature ID, lane, event sequence, generation, epoch, Pack, evidence, verifier, and Last Verified. Coalesce insignificant progress; never hide material handoffs, defects, CI outcomes, candidate freezes, or Gate decisions.
+Transitions carry Feature/lane, sequence, generation, epoch, Pack, evidence, verifier and Last Verified. Keep four layers separate:
 
-## Information refinement
+1. small current projection;
+2. Event/Audit/ADR/Incident reasoning;
+3. exact evidence pointers;
+4. canonical product/memory truth.
 
-Keep four layers separate:
+## Bootstrap
 
-1. **Current projection** — small, immediately useful status.
-2. **Event/Audit/ADR/Incident** — why and how state changed.
-3. **Evidence pointers** — exact artifacts and integrity metadata.
-4. **Canonical product/memory truth** — stable facts and reusable knowledge.
+PK-01:
 
-Maps and projections route; canonical nodes own facts; evidence proves them. This preserves brevity without losing traceability.
+1. finds Project Root, Feature Registry and candidates by stable identity/semantics;
+2. reads minimal schemas/rows and validates bindings;
+3. creates only missing authorized compatible structures;
+4. writes `RUN_CREATED` through outbox;
+5. reads back records and stores receipts;
+6. records schema/mode/watermark and checkpoints.
 
-## Bootstrap and binding
+Never call a proposal `READY` or an unverified write `CONFIRMED`.
 
-PK-01 must:
+## Conflict
 
-1. Find Project Root, Feature Registry, and existing candidate databases by stable IDs, aliases, or semantics.
-2. Read only schemas and minimal representative rows.
-3. Validate required semantics and record bindings.
-4. Create only missing compatible structures when authorized.
-5. Write a Run record and `RUN_CREATED` event through the outbox.
-6. Read back the affected records and store receipts.
-7. Record schema version/state and coordination mode.
-8. Checkpoint the binding state.
-
-Never call a merely proposed schema `READY`, and never call a write `CONFIRMED` without a verified response.
-
-## Source-of-truth conflict
-
-Notion is the durable control plane; code/config/runtime/design/CI are verification evidence. When they disagree:
-
-1. record a conflict event;
-2. freeze the affected transition when material;
-3. inspect authoritative evidence;
-4. let TD-01/RB-01 establish the current truth;
-5. repair the correct canonical owner/projection;
-6. retain the decision/evidence trail.
-
-Do not silently choose the convenient source.
+When Notion and code/config/runtime/design/CI disagree: record conflict; freeze material transitions; inspect authoritative evidence; let TD-01/RB-01 establish truth; repair the correct owner/projection; retain the trail. Never silently choose convenience.

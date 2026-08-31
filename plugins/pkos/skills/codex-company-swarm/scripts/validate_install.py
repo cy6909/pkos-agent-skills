@@ -12,7 +12,7 @@ from types import ModuleType
 from typing import Iterable, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.8"
+VERSION = "v0.9"
 
 REQUIRED_FILES = [
     "SKILL.md",

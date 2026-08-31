@@ -37,10 +37,10 @@ PKOS nodes      = canonical project truth and long-term memory
 4. Pair every product developer with one independent tester. Developer owns product code; tester owns test scope/code, CI interpretation, defects, and lane verdict.
 5. Only `INT-01` creates the cumulative candidate.
 6. Every mutable result carries current `{run_id, generation, director_epoch, pack_revision}` plus base/candidate identity and evidence refs. Reject stale values.
-7. Claims never settle work. Require commits, paths, tests, exact-candidate CI, reports/checksums, verdicts, and verified Notion receipts.
+7. Settlement requires commits, tests, exact-candidate CI/reports, verdicts, and verified Notion receipts.
 8. Never invent model identity, sessions, external writes, Jenkins, deployment, CI, or Notion/PKOS success.
 9. Every execution role is a sidebar-visible Codex task. Hidden subagents are not Company Swarm roles; child packets set `may_delegate=false`.
-10. TD-01 is the sole scheduler. It respects active/registered hard caps, reuses affinity-matched tasks, and reconciles concurrency without violating frozen ownership or single-writer barriers.
+10. TD-01 alone schedules within hard caps, reuses affinity tasks, and preserves ownership/single-writer barriers.
 
 ## Reference loading
 
@@ -81,13 +81,13 @@ OUTPUT = RUN, org, schema binding, Pack, initial checkpoint
 
 ## G0 — decide what to build
 
-RB-01 returns one evidence-backed package: requirements/acceptance, assumptions/exclusions, current/gap matrices, options/selected path/freezes, migration/rollback, Feature/PKOS owners, domain pairs, MFSQ/CI/dependency/ownership/integration/staffing/model plans, and `GO | GO_WITH_ACTIONS | REPLAN`.
+RB-01 returns requirements/Features, platform units/dependencies, atomic acceptances, assumptions/exclusions, gaps/selected freezes, migration/rollback, owners, approved visual+text Test Design, MFSQ/CI/integration/staffing/model plans, evidence, and `GO | GO_WITH_ACTIONS | REPLAN`.
 
 PK-01 projects Features and persists the G0 verdict/checkpoint before implementation.
 
 ## G1 — prove readiness
 
-Guard visible tasks/worktrees/ownership/pairs; current RUN/Pack/context; frozen contracts/design; MFSQ/test environment; CI classification; valid budget/count/routes/underfill; security/data/migration/rollback/authority; and Notion schema/watermark/traceability.
+Guard tasks/worktrees/ownership; RUN/Pack; frozen contracts; approved `pkos-mfsq/v2` design/cases; Material gate; CI; staffing; security/migration/rollback; and Notion sync/traceability. Run `validate_mfsq.py` before implementation.
 
 Prefer the project-approved CI. When no approved pipeline exists, use the project-governance fallback (Jenkins Pipeline-as-Code by default). It may run beside implementation but blocks G2-G4 settlement. Persist G1 and checkpoint.
 
@@ -95,11 +95,11 @@ Prefer the project-approved CI. When no approved pipeline exists, use the projec
 
 Run developers, paired testers, CI-01, SQ-01, and PK-01 concurrently within their scopes.
 
-At BOOT, every Gate, completion/attention event, generation change, and recovery, reconcile `task_registry`. Use bounded waits for at most eight active visible tasks and persist each cursor. If ready work exists below target, first follow up the affinity-matched existing task, then create a missing role within budget, otherwise record a verifiable `underfill_reason`. Emit `CONCURRENCY_UNDERFILLED` when ready >= minimum and productive active stays below minimum for 90 seconds.
+Reconcile `task_registry` at BOOT, Gates, task events, generation changes and recovery. Wait on at most eight tasks and persist cursors. Below target, reuse an affinity task, create within budget, or record `underfill_reason`. Emit `CONCURRENCY_UNDERFILLED` after 90 seconds below minimum with ready work.
 
 ```text
-Developer -> product commit + compact DEV_HANDOFF
-Tester    -> MFSQ tests + exact-candidate canonical CI + defects + lane verdict
+Developer -> product commit + mapped self-tests/case IDs + compact DEV_HANDOFF
+Tester    -> independent v2 MFSQ tests + exact-candidate canonical CI + defects + lane verdict
 CI-01     -> reuse valid CI, repair gaps, or bootstrap Jenkins
 PK-01     -> material events, projections, evidence pointers, receipts
 ```
@@ -127,8 +127,9 @@ A return creates a new generation for affected lanes, preserves independent acce
 Traceability must be complete:
 
 ```text
-Requirement -> Feature -> Acceptance -> Lane/Packet -> Product Commit
--> MFSQ Test/Test Commit -> exact-candidate CI/reports
+Requirement -> Feature -> Implementation Unit/Dependency -> Atomic Acceptance
+-> approved Test Design -> Lane/Packet -> Product Commit
+-> MFSQ Test/expected steps/Test Commit -> exact-candidate CI/reports
 -> Security/Performance -> G4 -> Notion canonical owner + verified receipt
 ```
 
@@ -139,7 +140,7 @@ coordination bundle PASS
 Notion DIRECT_WRITABLE + schema READY + IN_SYNC
 pending/dead-letter S2-S4 = 0
 current Pack/epoch acknowledged
-exact-candidate CI PASS; open P0/P1 = 0
+Material gate + exact-candidate CI PASS; open P0/P1 = 0
 traceability PASS; G4 ACCEPT
 canonical PKOS writeback receipts confirmed
 stable evidence retained
