@@ -14,6 +14,12 @@ PKOS nodes                   canonical project truth and memory
 
 Store compact semantic state and stable pointers, never raw logs, transcripts, large diffs, binaries, secrets or volatile output. Human text follows `NOTION_WRITE_LANGUAGE=zh-CN`; preserve machine IDs/enums/paths/hashes.
 
+## Gate-only batching
+
+PK-01 is queued or settled outside five write points: requirement freeze, lane handoff, candidate freeze, strict-review terminal, and deployment/real-acceptance terminal. It batches authorized deltas, reads them back, stores receipts, then releases the slot. Never write every micro-event.
+
+Update the original Product Feature Registry; never create a duplicate summary database. Each Feature row records developer, shared tester, review/integration session, round result, Accepted Candidate, acceptance method, evidence/gaps, and next action.
+
 ## Minimal schema
 
 Search Before Create; reuse compatible databases and persist bindings in `notion-schema.json`.

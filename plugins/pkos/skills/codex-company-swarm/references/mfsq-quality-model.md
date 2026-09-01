@@ -1,5 +1,9 @@
 # MFSQ quality and test-design contract
 
+## Progressive execution order
+
+Execute by risk and candidate maturity, not matrix completeness. Layer 1 is P0 user smoke plus critical writes; Layer 2 is exceptions, idempotency, permissions, and recovery; Layer 3 is performance, long-run stability, and cross-device/platform. A missing or failing Layer 1 blocks major Layer 3 investment. T-SHARED-01 must not expand a large low-priority suite before a cumulative candidate exists.
+
 ## Meaning
 
 - **M — Mission & Model:** requirements, acceptances, contracts, state/data models, platform allocation, migration and compatibility.
@@ -24,9 +28,7 @@ Platform units (`frontend | backend | android | ios | ai_data | ops | shared`) d
 
 ## Test Design
 
-Before implementation, the plan references one versioned design with stable ID/version, visual mind map or equivalent, textual scope/risk/environment/data/coverage design, checksum, `APPROVED` status and TM/RB reviewers. The visual view finds gaps; written cases remain executable truth. G1 fails if design, implementation map or dependencies are stale/unapproved.
-
-Recommended visual branches: requirements/acceptances; units/dependencies; actors/states/data/contracts; M/F/S/Q risks.
+Before implementation, the plan references an approved, versioned design with stable ID, checksum, visual coverage map, and written scope/risk/environment/data cases. Written cases are executable truth. G1 fails on stale design, implementation map, or dependencies.
 
 ## Coverage focus
 
@@ -38,7 +40,7 @@ Recommended visual branches: requirements/acceptances; units/dependencies; actor
 
 **Q:** latency/throughput/startup/frame/memory/CPU/GPU/network/battery/cost; reliability/durability; logs/metrics/traces/audit; backup/restore; browser/device/OS/accessibility/i18n; deterministic build, leaks, load shedding and graceful degradation.
 
-Behavior-changing work requires S and Q/performance unless RB-01 approves a scoped exception. Performance cases record comparable baseline/environment/workload, warmup/repetitions, statistic, threshold, regression budget and decision.
+Behavior changes require S and Q/performance unless RB-01 approves a scoped exception. Performance records comparable baseline/environment/workload, repetitions, statistic, threshold, budget, and decision.
 
 ## Material pre-gate
 
@@ -70,7 +72,7 @@ automation_path; pipeline_stage; owner_session_id; status; evidence
 
 Case types: `unit | component | contract | integration | e2e | security | performance | migration | static | manual_acceptance`.
 
-Every step has its own expected result; one aggregate expected paragraph is invalid. Unit cases additionally require stable `test_symbol` and `code_refs[{path,symbol,purpose}]` plus fixtures and regression rationale. Prefer symbols plus commits over line numbers.
+Every step has its own expected result. Unit cases require stable `test_symbol`, `code_refs[{path,symbol,purpose}]`, fixtures, and regression rationale.
 
 Exclusions name `scope`, target/axis, concrete reason, `RB-*` approver and approval artifact.
 

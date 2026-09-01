@@ -12,18 +12,21 @@ from types import ModuleType
 from typing import Iterable, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.9"
+VERSION = "v0.10"
 
 REQUIRED_FILES = [
     "SKILL.md",
     "agents/openai.yaml",
     "assets/config.toml.fragment",
     "assets/examples/organization.example.json",
-    "assets/examples/staffing-standard-six.example.json",
-    "assets/examples/staffing-small-two-lane.example.json",
-    "assets/examples/staffing-luna-escalation-reuse.example.json",
-    "assets/schemas/organization-v3.schema.json",
-    "assets/schemas/task-packet-v2.schema.json",
+    "assets/examples/organization-v3-legacy.example.json",
+    "assets/examples/ci-stop-rule.example.json",
+    "assets/examples/consolidation-after-stall.example.json",
+    "assets/examples/affinity-session-reuse.example.json",
+    "assets/examples/reviewer-after-freeze.example.json",
+    "assets/examples/notion-gate-batch.example.json",
+    "assets/schemas/organization-v4.schema.json",
+    "assets/schemas/task-packet-v3.schema.json",
     "assets/examples/mfsq-test-plan.example.json",
     "assets/examples/run-state.example.json",
     "assets/examples/coordination-state.example.json",
@@ -51,6 +54,7 @@ REQUIRED_FILES = [
     "scripts/install.py",
     "scripts/audit_prompt_budget.py",
     "scripts/validate_org.py",
+    "scripts/migrate_org_v3.py",
     "scripts/validate_mfsq.py",
     "scripts/render_dashboard.py",
     "scripts/validate_coordination.py",
@@ -86,7 +90,6 @@ EXPECTED_AGENTS = {
     "pkos_company_test_manager.toml",
     "pkos_company_ci_jenkins_engineer.toml",
     "pkos_company_security_performance_engineer.toml",
-    "pkos_company_integration_owner.toml",
     "pkos_company_governance_scribe.toml",
 }
 
@@ -127,7 +130,9 @@ def validate_static(errors: List[str]) -> None:
             "G5",
             "TAKEOVER",
             "visible Codex task",
-            "CONCURRENCY_UNDERFILLED",
+            "CONSOLIDATION_MODE",
+            "remote-12",
+            "1200",
             "NOTION_WRITE_LANGUAGE=zh-CN",
             "BLOCKED_NOTION_COORDINATION",
         ):
@@ -155,7 +160,7 @@ def validate_static(errors: List[str]) -> None:
     scribe_path = ROOT / "assets" / "agent-configs" / "pkos_company_governance_scribe.toml"
     if scribe_path.is_file():
         scribe = scribe_path.read_text(encoding="utf-8").lower()
-        for marker in ("single", "notion", "outbox", "receipt", "watermark", "context request", "takeover", "notion_write_language=zh-cn"):
+        for marker in ("single", "notion", "receipt", "gate", "original product feature registry", "notion_write_language=zh-cn"):
             if marker not in scribe:
                 errors.append("PK-01 config missing marker: %s" % marker)
 
@@ -195,7 +200,7 @@ def validate_examples(errors: List[str]) -> None:
         errors.extend("%s example: %s" % (label, item) for item in module.validate(value))
 
     org_module = modules["validate_org.py"]
-    for example_name in ("staffing-small-two-lane.example.json", "staffing-luna-escalation-reuse.example.json"):
+    for example_name in ("ci-stop-rule.example.json", "consolidation-after-stall.example.json", "affinity-session-reuse.example.json", "reviewer-after-freeze.example.json", "notion-gate-batch.example.json"):
         value = org_module.load_json(examples / example_name)
         errors.extend("%s: %s" % (example_name, item) for item in org_module.validate(value))
 

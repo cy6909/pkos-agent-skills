@@ -1,91 +1,41 @@
-# Codex 公司式并行开发组织 v0.9.0
+# Codex 公司式交付工作流 v0.10.0
 
-`codex-company-swarm` 是 PKOS 的显式最高质量并行交付模式：唯一技术总监按风险路由模型、所有正式角色为侧栏可见任务、数量受限且优先复用，并保留持续 PK-01 Notion 协调、评审门禁、开发/测试配对、准确候选版本 CI、单一集成、恢复、追踪和权威知识回写。
+`codex-company-swarm` 以“单位 Token 的可接受产品交付”为第一目标。当前主任务就是唯一规划者、调度者和累计集成者；正式子角色全部为侧栏可见的 Codex 任务，禁止隐藏 subagent 和下级委派。
 
-## v0.9：需求驱动的 MFSQ v2
+## 默认组织与容量
 
-- M 仍为“任务与模型”，Material/来源完整性是独立的失败即停止前置门禁。
-- 追踪链升级为：需求 → 唯一功能 → 前后端等实现单元及依赖 → 原子验收点 → 已评审的可视化与文字测试设计 → 逐步骤用例及测试代码 → 准确候选版本 CI。
-- 每个步骤都记录对应预期结果；单元测试记录稳定测试符号、被测代码符号、目的和设计原因。
-- Notion 使用相互关联的规范化视图，同时继续只保留一个权威产品功能总表。
+- 1 个主任务 TD-01；最多 3 个文件、数据和契约互斥的产品开发任务。
+- 1 个共享独立测试任务；Reviewer 按风险启动；PK-01 仅在门禁批量写 Notion。
+- active child hard cap 为 6，registered hard cap 为 8。
+- `productive` 只计算正在产生产品代码、独立测试或必要交付物的 active 子任务；等待、报告、重复上下文和环境阻塞不计入。
+- 正常模式下，`product_code / productive >= 70%`，且非产品角色不得多于产品开发角色。
 
-## v0.7：可见任务、模型路由和有界并发
+## Token 与收敛
 
-- TD-01 为每个 Task Packet 写入模型、思考等级、理由、风险和路由来源。高风险、产品开发、集成和严格评审默认 Sol Max；边界冻结的独立测试、CI/verifier 和机械工作优先 Luna Max。
-- 正式子角色必须通过 `create_thread` 创建，仓库写者使用独立 worktree，标题含 run/role/lane，并持久保存 threadId、hostId 和 cursor。隐藏 subagent 不属于 Company Swarm 正式角色。
-- 默认三条产品 lane、目标六个 active child、最低有效并发四、active hard cap 八、总注册 hard cap 十二，低并发告警阈值 90 秒。
-- TD-01 在生命周期边界统一 reconcile；最多对八个可见任务做带 cursor 的有界等待；先复用相近任务，再在预算内创建，否则记录可验证的 underfill 原因。
-- 优先使用项目批准的 CI；只有项目没有批准的 provider 时，才按治理默认使用 Jenkins-as-code。
+Task Packet 不超过 1200 个中文字符，只能包含功能 ID、冻结需求、owned files/modules、基础 SHA、验收条件、禁止事项和必要 Notion 链接。后续只发增量；Settlement 不超过 600 个中文字符。
 
-BOOT→G5、PK-01/INT-01 单写者、开发/测试配对、准确候选评审、收据、追踪、恢复和验收条件保持不变。
+协调、报告和 Notion 估算超过总 Token 的 30%，或连续 120 分钟没有新累计候选/接受功能时，进入 `CONSOLIDATION_MODE`：停止新任务和新功能，只允许集成、修复、测试、部署与必要门禁回写。
 
-## v0.6 基础：渐进式加载
+每一代只有一个累计候选。开发任务完成自测后，TD-01 立即集成到同一候选，不等待所有 lane。严格评审连续退回两次也会触发收敛。
 
-交付能力没有删减，加载方式改为：
+## 验证与外部边界
 
-```text
-启动元数据
-  -> 精简 SKILL.md 状态机
-    -> 只有下一步需要时才读取一个 reference
-      -> 用脚本、Schema、示例承载确定性细节
-```
+开发者在移交共享测试任务前必须提供准确推送 SHA、remote-12 clean checkout、定向测试、类型检查/构建；Web 变更还需要正式公网域名和真实 `cy6909` Chrome 自测。Windows 本机仅用于编辑、静态 Git 和调度，禁止运行服务、测试、Docker 或私有 origin；禁止 GitHub Actions。
 
-入口文件现在只保留：
+CI 在启动前用最多 10 分钟检查控制器、执行节点、凭据、作业创建权限和制品空间。任一前置连续失败两次或阻塞超过 15 分钟，立即停止 CI lane、报告准确阻塞与恢复动作，并把容量释放给产品开发。
 
-- 运行寄存器和硬性不变量；
-- reference 条件路由表；
-- `BOOT -> G0 -> G1 -> EXEC -> G2 -> G3 -> G4 -> G5`；
-- 完成门禁与最终状态。
+## Notion
 
-Notion Schema、事件/Outbox、字段清单、MFSQ、Jenkins、Pack Delta、恢复接管、追踪和复盘等细节继续保存在按需 reference 与脚本中，不在入口重复描述。
+人类可读内容使用准确、自然的中文。只在需求冻结、lane 交接、累计候选冻结、严格评审终态、部署与真实验收终态五个时点批量写回原产品功能登记簿，不创建重复摘要数据库。
 
-CI 新增上下文预算纪律：
-
-```text
-SKILL.md <= 10.5 KB
-frontmatter description <= 360 字符
-openai.yaml <= 560 bytes
-SKILL + 技术总监角色 <= 12 KB
-普通角色 TOML <= 1.25 KB
-单个 reference <= 6.5 KB
-禁止启动时无条件预读 reference
-```
-
-这样减少的是重复提示词，不是 Notion 协调、测试、安全、性能和审计要求。
-
-## 运行架构
-
-```text
-Codex 实时消息 -> .pkos Outbox/Checkpoint -> PK-01 -> Notion 状态/事件/证据
-                                                       ↓
-                                         PKOS Feature/Current Truth/ADR/Audit/Memory
-```
-
-Notion 保存精炼语义状态和稳定证据指针，不保存完整聊天或原始日志。
-
-## 安装或更新
-
-```bash
-codex plugin marketplace upgrade pkos-agent-skills
-python plugins/pkos/skills/codex-company-swarm/scripts/install.py --agents-only --force
-```
-
-重启 Codex 后显式调用：
-
-```text
-$codex-company-swarm
-```
-
-## 验证
+## 验证与迁移
 
 ```bash
 python plugins/pkos/skills/codex-company-swarm/scripts/audit_prompt_budget.py
 python plugins/pkos/skills/codex-company-swarm/scripts/validate_install.py
 python -m unittest discover -s plugins/pkos/skills/codex-company-swarm/tests -v
-python plugins/pkos/skills/codex-company-swarm/scripts/validate_org.py plugins/pkos/skills/codex-company-swarm/assets/examples/staffing-small-two-lane.example.json
-python plugins/pkos/skills/codex-company-swarm/scripts/validate_org.py plugins/pkos/skills/codex-company-swarm/assets/examples/staffing-luna-escalation-reuse.example.json
+python plugins/pkos/skills/codex-company-swarm/scripts/validate_org.py plugins/pkos/skills/codex-company-swarm/assets/examples/organization.example.json
+python plugins/pkos/skills/codex-company-swarm/scripts/migrate_org_v3.py OLD_ORG.json --output migration.json
 ```
 
-从 v0.6 迁移：把 `org-v2` 升级为 `org-v3`；将当前任务登记为可见 TD-01；恢复时绑定已有任务 ID，不重复创建；新增 `staffing_budget`、`concurrency_state`、可见任务身份/cursor 和逐任务路由字段；等待依赖映射为 `queued`。先运行 validator，再更新缓存；重启或打开新 Codex 任务确认 skill 可见后，才能宣称安装生效。
-
-`COMPANY_SWARM_ACCEPTED` 仍要求：Notion 可写且同步完成、准确候选版本 CI 通过、追踪链完整、G4 接受、PKOS 权威回写已确认，以及最终 Checkpoint、Dashboard 和复盘齐全。
+旧 org-v3 run 先 checkpoint，保留证据、收据、generation、epoch、threadId 和 settled 结果；TD-01 接管集成，最多复用三个开发任务和一个共享测试任务，归档 INT-01/多余测试者，pending work 重新签发 Task Packet v3。不得虚构旧 packet 缺失字段。

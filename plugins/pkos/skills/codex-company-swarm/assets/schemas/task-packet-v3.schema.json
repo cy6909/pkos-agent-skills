@@ -1,0 +1,9 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"pkos-company-swarm/task-packet-v3",
+  "$defs":{
+    "packet":{"type":"object","additionalProperties":false,"required":["feature_id","frozen_requirements","owned_files_modules","base_sha","acceptance_criteria","prohibitions","notion_links"],"properties":{"feature_id":{"type":"string","minLength":1},"frozen_requirements":{"type":"array"},"owned_files_modules":{"type":"array"},"base_sha":{"type":"string","minLength":1},"acceptance_criteria":{"type":"array"},"prohibitions":{"type":"array"},"notion_links":{"type":"array"}}},
+    "visibleTask":{"type":"object","required":["session_id","threadId","hostId","title","visible_task","transport","role","lane","model","reasoning_effort","model_rationale","risk_level","routing_source","state","may_delegate","task_packet"],"properties":{"visible_task":{"const":true},"transport":{"const":"visible_codex_task"},"state":{"enum":["registered","queued","active","attention","settled","archived"]},"task_packet":{"$ref":"#/$defs/packet"}}}
+  },
+  "$ref":"#/$defs/packet"
+}

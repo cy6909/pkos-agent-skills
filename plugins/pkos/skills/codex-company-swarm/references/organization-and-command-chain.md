@@ -1,90 +1,27 @@
-# Organization and command chain v0.7
+# Product-first organization and v3 migration
 
-## Authority model
+## Authority
 
-Company Swarm is a hierarchical control plane around parallel isolated execution. Only logical TD-01 has staffing/route authority. PK-01 is the persistent single Notion coordination writer. RB-01 owns Gate verdicts. Domain/test/CI/integration roles own evidence within bounded scopes.
+TD-01 is the current main task and combines planner, scheduler, integration owner, and final acceptor. No planner child and no INT-01 exist in org-v4. Product developers own disjoint code scopes. T-SHARED-01 independently tests eligible handoffs. RB-01 is optional and read-only. PK-01 is the gate-only sole Notion writer. Children never delegate.
 
-| Role | Staff | Decide contracts | Product code | Test code/scope | Notion coordination | Integrate | Accept |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| TD-01 | yes | yes with review/evidence | no | no | authorize only | no | final after RB-01 |
-| PK-01 | no | no | no | no | single writer | no | no |
-| RB-01 | no | gate/recommend | no | review only | no | no | G0/G1/G4 verdict |
-| AR-01 | no | analyze | no | no | no | no | no |
-| Domain Developer | no | packet-local only | allowlist | no | no | no | no |
-| Paired QE | no | no | no | allowlist/yes | no | no | lane verdict |
-| TM-01 | no | no | no | strategy/review | no | no | plan approval |
-| CI-01 | no | delivery platform only | no | pipeline/config | no | no | pipeline readiness |
-| SQ-01 | no | no | no | security/performance | no | no | findings |
-| INT-01 | no | no | mechanical conflicts only | no | no | yes | no |
-
-Other roles request staffing through a structured `staffing_request`; they never create children.
-
-## Organization manifest
-
-Use `pkos-company-swarm/org-v3`. It records:
-
-- run/generation/Director epoch/current Pack;
-- sole spawn authority;
-- default/target/minimum/hard/registered staffing budgets and adjustment evidence;
-- derived active/ready/attention/settled counts, reconciliation time, cursor and underfill evidence;
-- Notion coordination writer/mode/schema/control requirements;
-- visible Task identity (`threadId`, `hostId`, title, worktree), role/lane/model/effort/rationale/risk, generation/epoch/state/cursor and authority flags;
-- worktree/write scope/pair/epoch/Pack;
-- Lane pair/scope/dependencies/epoch/Pack;
-- Gates and canonical pipeline.
-
-Exactly one technical director, one persistent coordination-governance scribe (`PK-01`), one review chair and one integration owner are required. PK-01 must be the only Task with `notion_write=true`. All must be sidebar-visible; TD-01 is the current root task and every other formal role is created with `create_thread`.
-
-## Lifecycle
+## Default organization
 
 ```text
-registered -> queued -> active -> attention -> settled -> archived
+TD-01 current main task
+D-01..03 up to three persistent affinity-matched product developers
+T-SHARED-01 one shared independent tester
+PK-01 gate-only, queued/settled outside five write points
+RB-01 or CI-01 only when triggered and within caps
 ```
 
-`queued` includes dependency waits and does not count as productive concurrency. `attention` releases the active slot while TD-01 decides retry/reassignment. `settled` tasks stay registered for follow-up reuse; `archived` is terminal but remains auditable. Every material transition emits an event candidate. PK-01 confirms it in Notion before a dependent S2/S3 barrier. The current projection is derived from confirmed events, not chat messages.
-
-## Staffing order
-
-1. TD-01 establishes Run identity and authority.
-2. Provision persistent PK-01.
-3. Bind/propose Notion schema, Run/event/outbox/receipt/Pack/checkpoint.
-4. Provision persistent RB-01.
-5. G0 determines domains, pairs, TM/CI/SQ/INT/AR needs.
-6. Provision each developer and paired tester together as visible, worktree-isolated tasks.
-7. Provision INT-01 before first handoff but keep it waiting until G3.
-8. Reuse the same visible task for related work and later generations; do not create one task per small repair.
-9. Do not create prestige roles without packet, artifact destination and settlement condition.
+All formal children are sidebar-visible `create_thread` tasks with stored threadId, hostId, lane, worktree, route, cursor, state, affinity, and evidence links. A related feature or repair uses follow-up on the same developer task.
 
 ## Ownership
 
-- one worktree per writer;
-- one active writer per path prefix;
-- product/test/pipeline/security/performance/integration ownership separated;
-- shared generated files, schemas, lockfiles, navigation/localization/build manifests get one named owner or deterministic integration rule;
-- no lane pushes directly to the integration branch;
-- unrelated user changes are preserved/listed;
-- stale generation/epoch/Pack results remain history but cannot update current state.
+Every writer packet names exact owned files/modules. TD-01 resolves overlapping routers, schemas, migrations, generated files, lockfiles, localization/navigation registries, and shared test fixtures before dispatch. Active overlaps fail G1; “resolve later during cherry-pick” is forbidden.
 
-Overlapping write ownership is a G1 failure.
+## org-v3 migration
 
-## Review meetings
+Run `scripts/migrate_org_v3.py` against a checkpointed v3 manifest. Preserve evidence, receipts, checkpoints, generation, epoch, thread IDs, and settled results. Make TD-01 integration owner; retain at most three developer tasks; select one tester task for shared reuse; archive extra testers, INT-01, and idle Reviewer from the active registry; convert PK-01 to gate-only.
 
-A meeting is a synchronized evidence review. RB-01 writes meeting ID, Gate, frozen plan/candidate revision, agenda/questions, required attendees/evidence, barrier condition, decision rule and verdict path. TD-01 routes the same packet; PK-01 records the meeting/verdict/evidence pointers. Missing evidence is explicitly missing, never reconstructed from memory.
-
-## Escalation
-
-```text
-implementation ambiguity -> TD-01
-missing/stale context -> CONTEXT_REQUESTED -> PK-01/TD-01
-product defect -> paired developer
-systemic testability/architecture -> TM-01 + RB-01 + TD-01
-CI infrastructure/authority -> TD-01 with external-boundary evidence
-semantic integration conflict -> owning lanes + RB-01 + TD-01
-Notion write/schema conflict -> PK-01 dead-letter/conflict event + TD-01
-three repair generations -> REPLAN_ORG
-director loss -> verified checkpoint + authorized TAKEOVER
-```
-
-## Split-brain protection
-
-Every packet/result/event contains Director epoch. A takeover increments it exactly one and reissues active packets. Old-epoch results cannot mutate the current projection. The protocol does not claim a transactional lock; when exclusive authority cannot be established, block honestly.
+Old packets remain historical evidence. Any registered/queued/active/attention v3 packet is `REPACK_REQUIRED` and cannot dispatch until TD-01 supplies a truthful seven-field task-packet-v3 within 1200 characters. Never invent missing Feature ID, frozen requirement, owned scope, base SHA, or acceptance criteria.

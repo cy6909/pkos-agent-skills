@@ -1,5 +1,9 @@
 # CI/CD and Jenkins pipeline contract
 
+## Mandatory bounded preflight and Stop Rule
+
+Before CI, finish within 10 minutes and record controller, executor, credentials, job-creation permission, and artifact capacity. `RUNNING` is invalid unless all five pass. If any prerequisite fails twice or blocks over 15 minutes, set `STOPPED`, report exact blocker/reason/authority/recovery, release capacity to product development, and stop unbounded diagnosis. Reuse approved CI; Jenkins-as-code is only a governed fallback, and GitHub Actions is forbidden.
+
 ## Discover before bootstrap
 
 `CI-01` inspects the repository and configured test environment for:
@@ -10,7 +14,7 @@
 - test environment provisioning and deployment scripts;
 - report/artifact retention;
 - credentials references and agent capabilities;
-- actual recent run evidence when access exists.
+- recent run evidence when access exists.
 
 Classify:
 
@@ -18,8 +22,6 @@ Classify:
 - `EXISTS_GAPPED`: pipeline exists but lacks stages, environments, reports, or controls required by this change.
 - `MISSING`: no usable CI/CD pipeline.
 - `BLOCKED`: capability cannot be verified or created due to missing access, infrastructure, credentials, policy, or network.
-
-Do not call a README claim or dormant YAML file a valid pipeline without executable evidence.
 
 ## Provider decision
 
@@ -90,7 +92,7 @@ material / provenance
   -> acceptance and report publication
 ```
 
-Parallelize independent stages, but do not obscure dependency ordering or allow a failed prerequisite to be treated as passed.
+Parallelize only independent stages; failed prerequisites remain failed.
 
 ## All tests on pipeline
 
@@ -107,9 +109,7 @@ Authoritative acceptance requires:
 - environment and toolchain identity;
 - artifacts retained long enough for G4 review.
 
-Each case keeps ordered steps with an expected result per step. Unit cases additionally identify the test symbol, exercised code path/symbol, purpose and rationale.
-
-Local feedback is useful but non-authoritative. A developer's local command does not replace tester-owned CI evidence.
+Each case keeps ordered steps with an expected result per step. Developer feedback does not replace tester-owned CI evidence.
 
 ## Security stages
 

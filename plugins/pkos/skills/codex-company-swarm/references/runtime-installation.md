@@ -1,4 +1,4 @@
-# Runtime installation and v0.9 smoke test
+# Runtime installation and v0.10 smoke test
 
 **READ WHEN:** installing roles, selecting an adapter, or certifying a runtime. Do not load during normal delivery.
 
@@ -42,11 +42,11 @@ python scripts/validate_coordination_bundle.py assets/examples/coordination-bund
 
 Execute one bounded sentinel route:
 
-1. Root records itself as TD-01; PK-01 starts first and is sole Notion writer.
-2. Bind/propose coordination schema; verify Run event, outbox, receipt, watermark, Pack, and checkpoint.
+1. Root records itself as TD-01; create or wake product tasks first. PK-01 remains queued until an authorized gate batch and is the sole Notion writer.
+2. Bind the existing Feature Registry; verify local events, gate-batch outbox/receipt/watermark, Pack, and checkpoint.
 3. Create RB-01 plus one isolated developer/tester pair as sidebar-visible tasks; verify IDs, titles, worktrees, `may_delegate=false`, scope and freshness rejection.
 4. Exercise direct/snapshot/blocked context and one Pack Delta acknowledgement.
-5. Exercise MFSQ, exact-candidate CI, Jenkins-missing classification, INT-01 freeze, and G4 verdict.
+5. Exercise progressive MFSQ, exact-candidate CI, CI Stop Rule, TD-01 candidate freeze, and conditional G4 review.
 6. Exercise failed Notion write/replay, checkpoint/resume, authorized takeover, stale-epoch rejection, traceability, dashboard, retrospective, and canonical writeback.
 
 Packaging validation is not runtime certification. Report actual model, session, Notion, CI, and external-action evidence honestly.

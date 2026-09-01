@@ -32,104 +32,106 @@ class OrganizationValidationTests(unittest.TestCase):
     def test_valid_example(self) -> None:
         self.assertEqual([], ORG.validate(self.data))
 
-    def test_rejects_second_director(self) -> None:
-        duplicate = copy.deepcopy(self.data["sessions"][0])
-        duplicate["session_id"] = "TD-02"
-        duplicate["parent_session_id"] = "TD-01"
-        duplicate["managed_by"] = "TD-01"
-        duplicate["may_delegate"] = False
-        self.data["sessions"].append(duplicate)
+    def test_six_executable_examples(self) -> None:
+        for name in ("ci-stop-rule.example.json", "consolidation-after-stall.example.json", "affinity-session-reuse.example.json", "reviewer-after-freeze.example.json", "notion-gate-batch.example.json"):
+            self.assertEqual([], ORG.validate(ORG.load_json(ROOT / "assets" / "examples" / name)), name)
+
+    def task(self, sid: str):
+        return next(item for item in self.data["sessions"] if item["session_id"] == sid)
+
+    def test_rejects_hidden_or_delegating_child(self) -> None:
+        self.task("D-FE-01")["visible_task"] = False
+        self.task("D-FE-01")["may_delegate"] = True
         errors = ORG.validate(self.data)
-        self.assertTrue(any("exactly one technical-director" in item for item in errors))
+        self.assertTrue(any("hidden subagents" in item for item in errors))
+        self.assertTrue(any("may_delegate=false" in item for item in errors))
 
-    def test_rejects_non_director_delegation(self) -> None:
-        self.data["sessions"][1]["may_delegate"] = True
+    def test_rejects_missing_visible_identity_or_model_route(self) -> None:
+        task = self.task("D-FE-01")
+        task["threadId"] = ""
+        task["model"] = ""
+        del task["reasoning_effort"]
+        del task["risk_level"]
         errors = ORG.validate(self.data)
-        self.assertTrue(any("must set may_delegate=false" in item for item in errors))
+        for field in ("threadId", "model", "reasoning_effort", "risk_level"):
+            self.assertTrue(any(field in item for item in errors), field)
 
-    def test_rejects_non_reciprocal_pair(self) -> None:
-        tester = next(item for item in self.data["sessions"] if item["session_id"] == "T-FE-01")
-        tester["paired_session_id"] = "D-BE-01"
-        errors = ORG.validate(self.data)
-        self.assertTrue(any("pairing must be reciprocal" in item or "pair does not match" in item for item in errors))
-
-    def test_rejects_developer_test_acceptance(self) -> None:
-        developer = next(item for item in self.data["sessions"] if item["session_id"] == "D-BE-01")
-        developer["test_acceptance"] = True
-        errors = ORG.validate(self.data)
-        self.assertTrue(any("test_acceptance=false" in item for item in errors))
-
-    def test_rejects_overlapping_write_scope(self) -> None:
-        tester = next(item for item in self.data["sessions"] if item["session_id"] == "T-BE-01")
-        tester["write_scope"] = ["server/tests/**"]
-        errors = ORG.validate(self.data)
-        self.assertTrue(any("overlapping write scopes" in item for item in errors))
-
-    def test_accepts_small_two_lane_budget(self) -> None:
-        data = ORG.load_json(ROOT / "assets" / "examples" / "staffing-small-two-lane.example.json")
-        self.assertEqual([], ORG.validate(data))
-
-    def test_accepts_same_thread_luna_escalation(self) -> None:
-        data = ORG.load_json(ROOT / "assets" / "examples" / "staffing-luna-escalation-reuse.example.json")
-        self.assertEqual([], ORG.validate(data))
-
-    def test_rejects_unexplained_default_route_change(self) -> None:
-        self.data["sessions"][3]["model"] = "gpt-5.6-luna"
-        self.data["sessions"][3]["task_packet"]["model"] = "gpt-5.6-luna"
-        errors = ORG.validate(self.data)
-        self.assertTrue(any("default route must use gpt-5.6-sol" in item for item in errors))
-
-    def test_rejects_hidden_role(self) -> None:
-        self.data["sessions"][3]["visible_task"] = False
-        self.assertTrue(any("hidden roles" in item for item in ORG.validate(self.data)))
-
-    def test_rejects_missing_thread_id(self) -> None:
-        self.data["sessions"][3]["threadId"] = ""
-        self.assertTrue(any("threadId must be non-empty" in item for item in ORG.validate(self.data)))
-
-    def test_rejects_missing_packet_model_effort(self) -> None:
-        self.data["sessions"][4]["task_packet"].pop("reasoning_effort")
-        self.assertTrue(any("task_packet.reasoning_effort" in item for item in ORG.validate(self.data)))
-
-    def test_rejects_stale_generation(self) -> None:
-        self.data["sessions"][3]["generation"] = 0
-        self.data["sessions"][3]["task_packet"]["generation"] = 0
-        self.assertTrue(any("stale generation" in item for item in ORG.validate(self.data)))
-
-    def test_rejects_duplicate_reviewer(self) -> None:
-        duplicate = copy.deepcopy(next(item for item in self.data["sessions"] if item["session_id"] == "RB-01"))
-        duplicate["session_id"] = "RB-02"
-        duplicate["threadId"] = "thread-rb-2"
-        duplicate["title"] = "run-standard-six RB-02 review"
-        self.data["sessions"].append(duplicate)
-        self.data["concurrency_state"]["registered_count"] += 1
-        self.data["concurrency_state"]["settled_count"] += 1
-        self.assertTrue(any("exactly one review-chair" in item for item in ORG.validate(self.data)))
-
-    def test_rejects_active_hard_cap_breach(self) -> None:
-        for sid in ("RB-01", "INT-01"):
-            task = next(item for item in self.data["sessions"] if item["session_id"] == sid)
-            task["state"] = "active"
-            task["productive"] = True
-            task["waiting_on_dependency"] = False
-        self.data["concurrency_state"].update({"active_count": 9, "productive_active_count": 9, "settled_count": 0})
-        self.assertTrue(any("hard cap" in item for item in ORG.validate(self.data)))
-
-    def test_rejects_registered_hard_cap_breach(self) -> None:
-        template = next(item for item in self.data["sessions"] if item["session_id"] == "RB-01")
-        for number in range(2, 5):
+    def test_rejects_active_and_registered_hard_caps(self) -> None:
+        template = self.task("D-FE-01")
+        for index in range(3):
             task = copy.deepcopy(template)
-            task.update({"session_id": "V-%02d" % number, "role": "verifier", "threadId": "thread-v-%d" % number, "title": "run-standard-six V-%02d review" % number})
+            task.update({
+                "session_id": f"V-{index}",
+                "role": "verifier",
+                "lane": f"verify-{index}",
+                "threadId": f"thread-v-{index}",
+                "title": f"run-product-first V-{index} verify",
+                "state": "active",
+                "productive": False,
+                "activity_kind": "waiting",
+            })
+            task["task_packet"]["feature_id"] = f"VERIFY-{index}"
             self.data["sessions"].append(task)
-        self.data["concurrency_state"].update({"registered_count": 13, "settled_count": 4})
-        self.assertTrue(any("registered visible task count exceeds" in item for item in ORG.validate(self.data)))
+        errors = ORG.validate(self.data)
+        self.assertTrue(any("registered visible task hard cap" in item for item in errors))
+        self.assertTrue(any("active child hard cap" in item for item in errors))
 
-    def test_rejects_unexplained_low_concurrency(self) -> None:
-        for sid in ("D-FE-01", "T-FE-01", "D-BE-01", "T-BE-01"):
-            task = next(item for item in self.data["sessions"] if item["session_id"] == sid)
-            task.update({"state": "queued", "productive": False, "ready_for_dispatch": True})
-        self.data["concurrency_state"].update({"active_count": 3, "productive_active_count": 3, "ready_count": 4, "underfill_age_seconds": 90, "underfill_reason": "", "dispatch_action": "", "events": []})
-        self.assertTrue(any("CONCURRENCY_UNDERFILLED" in item for item in ORG.validate(self.data)))
+    def test_rejects_missing_feature_or_scope(self) -> None:
+        packet = self.task("D-BE-01")["task_packet"]
+        packet["feature_id"] = ""
+        packet["owned_files_modules"] = []
+        errors = ORG.validate(self.data)
+        self.assertTrue(any("feature_id" in item for item in errors))
+        self.assertTrue(any("owned scope" in item for item in errors))
+
+    def test_rejects_repeated_context_and_large_packet(self) -> None:
+        packet = self.task("D-BE-01")["task_packet"]
+        packet["memory_pack"] = "x" * 1300
+        errors = ORG.validate(self.data)
+        self.assertTrue(any("seven allowed fields" in item for item in errors))
+        self.assertTrue(any("1200" in item for item in errors))
+
+    def test_rejects_handoff_without_developer_self_test(self) -> None:
+        self.data["lanes"][0]["handoff_state"] = "READY_FOR_TEST"
+        errors = ORG.validate(self.data)
+        self.assertTrue(any("self-test incomplete" in item for item in errors))
+        self.assertTrue(any("cy6909 Chrome" in item for item in errors))
+
+    def test_rejects_reviewer_before_freeze(self) -> None:
+        reviewed = ORG.load_json(ROOT / "assets" / "examples" / "reviewer-after-freeze.example.json")
+        reviewed["cumulative_candidate"]["state"] = "LIVE"
+        self.assertTrue(any("reviewer may start" in item for item in ORG.validate(reviewed)))
+
+    def test_rejects_ci_without_preflight(self) -> None:
+        self.data["ci_control"]["lane_state"] = "RUNNING"
+        self.assertTrue(any("CI cannot run" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_non_product_capacity_dominance(self) -> None:
+        self.task("D-FE-01")["productive"] = False
+        self.data["concurrency_state"].update({"productive_count": 3, "product_code_count": 2, "product_code_share_percent": 66.67})
+        errors = ORG.validate(self.data)
+        self.assertTrue(any("70%" in item for item in errors))
+
+    def test_rejects_multiple_or_missing_candidate(self) -> None:
+        self.data["cumulative_candidate"]["parallel_candidate_count"] = 1
+        self.assertTrue(any("exactly one cumulative candidate" in item for item in ORG.validate(self.data)))
+
+    def test_requires_consolidation_on_token_overrun(self) -> None:
+        self.data["token_control"]["estimated_coordination_tokens"] = 20000
+        self.assertTrue(any("CONSOLIDATION_MODE" in item for item in ORG.validate(self.data)))
+
+    def test_requires_consolidation_when_either_progress_clock_stalls(self) -> None:
+        self.data["token_control"]["minutes_since_candidate"] = 120
+        self.assertTrue(any("CONSOLIDATION_MODE" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_non_delta_progress_report(self) -> None:
+        self.data["progress_report"]["interval_minutes"] = 15
+        self.data["progress_report"]["fields"].append("full_status_recap")
+        self.assertTrue(any("60-minute delta" in item for item in ORG.validate(self.data)))
+
+    def test_rejects_local_execution_policy_drift(self) -> None:
+        self.data["environment_policy"]["resource_environment"] = "local"
+        self.assertTrue(any("environment policy" in item for item in ORG.validate(self.data)))
 
 
 class MFSQValidationTests(unittest.TestCase):

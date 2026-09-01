@@ -1,7 +1,7 @@
 {
   "name": "pkos",
-  "version": "0.9.0",
-  "description": "Canonical project knowledge, bounded memory, and visible, Director-routed, budgeted multi-task delivery with durable coordination.",
+  "version": "0.10.0",
+  "description": "Canonical project knowledge, bounded memory, and Token-efficient product delivery through reusable visible Codex tasks.",
   "author": {
     "name": "cy6909",
     "url": "https://github.com/cy6909"
@@ -32,7 +32,7 @@
     "defaultPrompt": [
       "Load the smallest PKOS project context and handle the requested work.",
       "Audit PKOS owners, pointers, freshness, memory, and missing governance records.",
-      "Run $codex-company-swarm with routed visible tasks, bounded reuse, paired lanes, exact CI, recovery, and writeback."
+      "Run $codex-company-swarm with reusable product tasks, one cumulative candidate, bounded verification, and writeback."
     ]
   }
 }

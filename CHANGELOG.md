@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0 - 2026-09-01
+
+- Reorient `codex-company-swarm` around acceptable product delivery per Token: the current TD-01 is both planner and cumulative integrator, with at most three reusable product developers and one shared tester.
+- Set active-child hard cap to 6, registered hard cap to 8, and require product code to occupy at least 70% of productive concurrency; waiting, reporting, repeated context, and blocked work do not count.
+- Limit Task Packets to seven fields and 1200 Chinese characters, settlements to 600 Chinese characters, and enter `CONSOLIDATION_MODE` when coordination exceeds 30% of Token use or no candidate/acceptance appears for 120 minutes.
+- Maintain exactly one cumulative candidate, integrate self-tested lanes immediately, start Reviewer only after candidate freeze and a recorded trigger, and stop new features after two strict-review returns.
+- Require developer-owned remote-12 clean-checkout verification and real public-production `cy6909` Chrome evidence before tester handoff for Web changes; execute MFSQ progressively from P0 smoke to deeper risk layers.
+- Add the bounded CI preflight/15-minute Stop Rule and gate-batched, accurate Chinese Notion writeback to the original Product Feature Registry.
+- Add org-v4, Task Packet v3, migration tooling, six executable scenarios, and validator rejection for capacity, context, handoff, review, CI, candidate, environment, and writeback violations.
+
 ## 0.9.0 - 2026-08-31
 
 - Replace the historical MFSQ v1 manifest with `pkos-mfsq/v2` and enforce Requirement → Feature → platform implementation unit/dependency → atomic Acceptance → approved visual/text Test Design → executable test/CI traceability.

@@ -1,5 +1,7 @@
 # End-to-end traceability, retention, and retrospective
 
+Track accepted Features, candidate formation minutes, Token per accepted Feature, coordination/total Token ratio, strict-review returns, and real-browser pass rate. The 60-minute update contains only accepted-feature delta, candidate SHA, passed real gates, P0/P1 blockers, productive code output per lane, and Token direction. Detailed history stays in ROOT/evidence; a retrospective never justifies another session.
+
 ## Traceability graph
 
 Every accepted requirement must remain connected through implementation, verification, review and canonical writeback:

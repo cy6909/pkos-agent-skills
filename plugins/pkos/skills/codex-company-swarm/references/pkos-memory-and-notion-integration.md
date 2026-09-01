@@ -36,7 +36,7 @@ Long-term memory still uses `none | core | scoped | deep`. Token-insensitive mod
 
 ## Continuous coordination versus canonical writeback
 
-PK-01 continuously writes compact Run/Lane/Session/Task/Feature projections, event decisions and evidence pointers. These are C1 operational coordination unless they also change durable product truth.
+PK-01 remains queued outside the five write points. At a write point it coalesces Run/Lane/Session/Task/Feature deltas, decisions, and evidence pointers into one verified Chinese batch. Local events preserve the detail between batches.
 
 Canonical writeback occurs when durable truth changes:
 
@@ -50,7 +50,7 @@ Do not defer operational coordination to G5, but do defer unverified canonical t
 
 ## Feature projection
 
-G0 maps every run Feature to an existing stable Feature ID or proposes one after Search Before Create. The existing Feature Registry projects current run/lane/development/test/CI/review/candidate/defect/evidence state at material transitions. History remains in the Event Ledger.
+G0 maps every run Feature to an existing stable Feature ID or proposes one after Search Before Create. The existing Feature Registry is updated only at the five write points; history remains in the local Event Ledger and evidence pages.
 
 At G5, accepted durable fields, validation evidence, release and Last Verified are finalized in canonical owners. Full run logs are not pasted into them.
 

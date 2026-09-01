@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"pkos-company-swarm/org-v4",
+  "title":"Product-delivery-first Company Swarm organization",
+  "type":"object",
+  "required":["schema","mode","run_id","root_session_id","spawn_authority","integration_owner_session_id","staffing_budget","concurrency_state","token_control","cumulative_candidate","review_control","ci_control","sessions","lanes","environment_policy","notion_batching","delivery_metrics","progress_report"],
+  "properties":{
+    "schema":{"const":"pkos-company-swarm/org-v4"},
+    "mode":{"const":"acceptable-product-per-token"},
+    "root_session_id":{"const":"TD-01"},
+    "integration_owner_session_id":{"const":"TD-01"},
+    "staffing_budget":{"type":"object","required":["max_product_lanes","hard_cap_active_child_tasks","max_registered_visible_tasks_per_run","min_product_code_share_percent"],"properties":{"max_product_lanes":{"const":3},"hard_cap_active_child_tasks":{"const":6},"max_registered_visible_tasks_per_run":{"const":8},"min_product_code_share_percent":{"const":70}}},
+    "sessions":{"type":"array","minItems":1,"maxItems":8,"items":{"$ref":"task-packet-v3.schema.json#/$defs/visibleTask"}},
+    "lanes":{"type":"array","maxItems":3},
+    "cumulative_candidate":{"type":"object","required":["sha","state","maintained_by","parallel_candidate_count"],"properties":{"maintained_by":{"const":"TD-01"},"parallel_candidate_count":{"const":0}}}
+  }
+}

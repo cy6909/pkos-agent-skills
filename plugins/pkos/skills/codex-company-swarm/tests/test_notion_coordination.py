@@ -35,36 +35,39 @@ TRACE = load_module("test_traceability", SCRIPTS / "validate_traceability.py")
 CHECKPOINT = load_module("test_checkpoint", SCRIPTS / "validate_checkpoint.py")
 BUNDLE = load_module("test_bundle", SCRIPTS / "validate_coordination_bundle.py")
 RESUME = load_module("test_resume", SCRIPTS / "build_resume_plan.py")
-ORG_V2 = load_module("test_org_v2", SCRIPTS / "validate_org.py")
+ORG_V4 = load_module("test_org_v4", SCRIPTS / "validate_org.py")
+MIGRATE = load_module("test_org_migration", SCRIPTS / "migrate_org_v3.py")
 
 
-class OrganizationV3Tests(unittest.TestCase):
+class OrganizationV4NotionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.data = example("organization.example.json")
 
     def test_valid_example(self) -> None:
-        self.assertEqual([], ORG_V2.validate(self.data))
+        self.assertEqual([], ORG_V4.validate(self.data))
 
-    def test_requires_persistent_pk01(self) -> None:
-        self.data["sessions"] = [item for item in self.data["sessions"] if item["session_id"] != "PK-01"]
-        errors = ORG_V2.validate(self.data)
-        self.assertTrue(any("coordination-governance-scribe" in item or "only session" in item for item in errors))
+    def test_pk01_is_gate_only(self) -> None:
+        pk = next(item for item in self.data["sessions"] if item["session_id"] == "PK-01")
+        pk["state"] = "active"
+        self.assertTrue(any("gate" in item for item in ORG_V4.validate(self.data)))
 
     def test_rejects_second_notion_writer(self) -> None:
-        next(item for item in self.data["sessions"] if item["session_id"] == "RB-01")["notion_write"] = True
-        self.assertTrue(any("only session" in item for item in ORG_V2.validate(self.data)))
+        next(item for item in self.data["sessions"] if item["session_id"] == "D-FE-01")["notion_write"] = True
+        self.assertTrue(any("only PK-01" in item for item in ORG_V4.validate(self.data)))
 
-    def test_rejects_stale_pack_revision(self) -> None:
-        next(item for item in self.data["sessions"] if item["session_id"] == "D-BE-01")["pack_revision"] = "pack-stale"
-        self.assertTrue(any("shared_pack_revision" in item for item in ORG_V2.validate(self.data)))
+    def test_rejects_micro_event_writes(self) -> None:
+        self.data["notion_batching"]["micro_event_writes"] = True
+        self.assertTrue(any("five gates" in item for item in ORG_V4.validate(self.data)))
 
-    def test_rejects_stale_director_epoch(self) -> None:
-        next(item for item in self.data["sessions"] if item["session_id"] == "T-BE-01")["director_epoch"] = 0
-        self.assertTrue(any("director_epoch" in item for item in ORG_V2.validate(self.data)))
+    def test_rejects_duplicate_summary_database(self) -> None:
+        self.data["notion_batching"]["duplicate_summary_database"] = True
+        self.assertTrue(any("original Feature Registry" in item for item in ORG_V4.validate(self.data)))
 
-    def test_requires_coordination_controls(self) -> None:
-        self.data["notion_coordination"]["outbox_required"] = False
-        self.assertTrue(any("outbox_required" in item for item in ORG_V2.validate(self.data)))
+    def test_legacy_run_requires_repack(self) -> None:
+        plan = MIGRATE.build(example("organization-v3-legacy.example.json"))
+        self.assertEqual("REPACK_REQUIRED", plan["migration_status"])
+        self.assertEqual("TD-01", plan["authority_changes"]["integration_owner"])
+        self.assertIn("INT-01", plan["archive_from_active_registry"])
 
 
 class CoordinationStateTests(unittest.TestCase):

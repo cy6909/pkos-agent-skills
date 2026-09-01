@@ -30,27 +30,24 @@ Every material transition is first written locally as a structured event:
 
 Sequence and state version are monotonic. Event IDs and idempotency keys are unique. Epoch may change only through a valid `TAKEOVER` event. Generation never decreases.
 
-## Sync classes
+## Local event classes and gate projection
 
 - `S0 EPHEMERAL`: thoughts, ordinary command output, micro-edits; do not sync.
-- `S1 PROGRESS`: non-critical progress; coalesce into a checkpoint/status projection.
-- `S2 CONTROL`: Session/Lane/Task/Pack/context/handoff/defect/CI/candidate transitions; sync before dependent work.
-- `S3 GATE`: G0/G1/G4/G5 verdicts and return/replan/block; sync before Gate settles.
-- `S4 GOVERNANCE`: Feature/current-truth/ADR/Audit/Incident/Memory writeback; sync before accepted completion.
+- `S1 PROGRESS`: non-critical progress; coalesce into a local checkpoint.
+- `S2 CONTROL`: Session/Lane/Task/Pack/context/handoff/defect/CI/candidate transitions; retain locally and include in the next applicable gate batch.
+- `S3 GATE`: requirement freeze, lane handoff, candidate freeze, strict-review terminal, and deployment/acceptance terminal; project the coalesced delta before the Gate settles.
+- `S4 GOVERNANCE`: Feature/current-truth/ADR/Audit/Incident/Memory writeback; include in the same authorized gate batch before accepted completion.
 
-A failed S2–S4 event blocks its dependent barrier. Do not continue merely because the chat message was delivered.
+A failed local event write blocks its dependent work. A failed S3/S4 Notion gate batch blocks Gate settlement. Do not create a Notion write for every S1/S2 event.
 
 ## Transactional outbox discipline
 
-1. TD-01 authorizes the event and expected projection change.
-2. PK-01 writes the event and outbox record under `.pkos/.../coordination/` before the external mutation.
-3. PK-01 uses the stable idempotency key for the Notion write.
-4. PK-01 reads back or otherwise verifies the exact row/page and revision.
-5. PK-01 stores a receipt with observed ID/revision/time.
-6. Event sync status becomes `CONFIRMED`.
-7. Watermark advances only through the highest contiguous confirmed sequence.
-8. Current projections update from confirmed events.
-9. A checkpoint captures event/state version, watermark, Pack, epoch, and checksums.
+1. TD-01 appends material local events and coalesces the pending semantic delta.
+2. At one of the five write points, PK-01 creates one idempotent outbox batch under `.pkos/.../coordination/`.
+3. PK-01 updates the original Product Feature Registry and approved canonical nodes in accurate Chinese.
+4. PK-01 reads back the exact row/page and revision and stores the receipt.
+5. The gate-batch watermark advances only through the highest contiguous confirmed batch.
+6. A checkpoint captures local event/state version, batch watermark, Pack, epoch, and checksums.
 
 This is an application-level protocol, not a claim that Notion provides a distributed transaction.
 
